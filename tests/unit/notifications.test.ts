@@ -114,18 +114,47 @@ describe('Resend 발송기', () => {
     expect(await provider.sendBatch([])).toEqual([])
     expect(fetchImpl).not.toHaveBeenCalled()
   })
-  test('배치가 검증 오류(422)로 거절되면 건별 발송으로 나누어 한 명의 문제를 격리한다', async () => {
-    const { provider, sleep } = make(async (url, init) => {
-      if (url.endsWith('/emails/batch')) return res(422, { message: 'invalid to' })
-      const b = JSON.parse(init.body as string)
-      return b.to[0] === 'u2@example.com' ? res(422, { message: 'Invalid `to` field' }) : res(200, { id: `id-${b.to[0]}` })
-    })
+  // 배치 요청 본문의 수신자 목록 / 어느 주소가 잘못됐는지 흉내내는 가짜 Resend
+  const recipientsOf = (init: RequestInit) => {
+    const b = JSON.parse(init.body as string)
+    return (Array.isArray(b) ? b.map((x: { to: string[] }) => x.to[0]) : [b.to[0]]) as string[]
+  }
+  const badResend = (bad: Set<string>) => async (url: string, init: RequestInit) => {
+    const to = recipientsOf(init)
+    if (to.some((t) => bad.has(t))) return res(422, { message: 'Invalid `to` field' })
+    return url.endsWith('/emails/batch') ? res(200, { data: to.map((t) => ({ id: `id-${t}` })) }) : res(200, { id: `id-${to[0]}` })
+  }
+
+  test('배치가 검증 오류(422)로 거절되면 반씩 나누어 다시 보내 문제 주소 하나만 골라낸다', async () => {
+    const { provider } = make(badResend(new Set(['u2@example.com'])))
     const out = await provider.sendBatch([msg(1), msg(2), msg(3)])
     expect(out[0]).toEqual({ ok: true, id: 'id-u1@example.com' })
     expect(out[1]).toMatchObject({ ok: false, retryable: false })
     expect((out[1] as { error: string }).error).toContain('HTTP 422')
     expect(out[2]).toEqual({ ok: true, id: 'id-u3@example.com' })
-    expect(sleep).toHaveBeenCalledTimes(3) // 건별 발송 사이 속도 제한 대기
+  })
+  test('100통 중 1통이 잘못돼도 요청은 20번 이하(하나씩 100번이 아님)이고 나머지 99통은 모두 성공', async () => {
+    const { provider, fetchImpl } = make(badResend(new Set(['u57@example.com'])))
+    const out = await provider.sendBatch(Array.from({ length: 100 }, (_, i) => msg(i)))
+    expect((fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls.length).toBeLessThanOrEqual(20)
+    expect(out.filter((o) => o.ok)).toHaveLength(99)
+    expect(out[57]).toMatchObject({ ok: false, retryable: false })
+    expect(out.every((o, i) => i === 57 || (o.ok && o.id === `id-u${i}@example.com`))).toBe(true) // 순서 유지
+  })
+  test('여러 주소가 잘못돼도 각각만 실패하고 결과 순서가 유지된다', async () => {
+    const bad = new Set(['u0@example.com', 'u9@example.com', 'u10@example.com'])
+    const { provider } = make(badResend(bad))
+    const out = await provider.sendBatch(Array.from({ length: 12 }, (_, i) => msg(i)))
+    expect(out.map((o) => o.ok)).toEqual(Array.from({ length: 12 }, (_, i) => !bad.has(`u${i}@example.com`)))
+  })
+  test('시간 제한(deadlineAt)이 지나면 새 요청을 보내지 않고 나머지를 재시도 가능 실패로 돌려준다', async () => {
+    const { provider, fetchImpl } = make(badResend(new Set(['u1@example.com'])))
+    const out = await provider.sendBatch([msg(1), msg(2), msg(3), msg(4)], { deadlineAt: Date.now() - 1 })
+    // 첫 배치는 이미 보냈고(거절됨), 그 뒤 격리 단계의 새 요청은 모두 보류된다
+    expect((fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(1)
+    expect(out).toHaveLength(4)
+    expect(out.every((o) => !o.ok && o.retryable)).toBe(true)
+    expect((out[0] as { error: string }).error).toContain('시간 제한')
   })
   test('건별 발송에는 Idempotency-Key 가 붙는다', async () => {
     const seen: string[] = []
@@ -336,6 +365,25 @@ describe('processNotificationJobs', () => {
     }
   })
 
+  test('시간 제한이 지나면 새 묶음을 시작하지 않고 남은 사람은 기록 없이 미루며, 다음 실행에서 그 사람들에게만 보낸다', async () => {
+    const { store, deliveries, finished, sent } = fakeStore({ recipients: people(5) })
+    const provider = okProvider(2) // 묶음 3개: 2 + 2 + 1
+    let now = 1_000
+    const spy = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    const wrapped: EmailProvider = { ...provider, sendBatch: async (ms, o) => { const r = await provider.sendBatch(ms, o); now += 60_000; return r } } // 첫 묶음을 보내면 시간 초과
+    const first = await processNotificationJobs({ store, provider: wrapped, ...opts, deadlineAt: 30_000 })
+    spy.mockRestore()
+    expect(first[0]).toMatchObject({ sent: 2, failed: 0, status: 'failed' })
+    expect(first[0].note).toContain('3명은 시간 제한')
+    expect(deliveries).toHaveLength(2) // 미룬 사람은 기록하지 않는다
+    expect(finished[0].status).toBe('failed')
+
+    const second = await processNotificationJobs({ store, provider, ...opts })
+    expect(second[0]).toMatchObject({ recipients: 3, sent: 3, status: 'done' })
+    expect(sent.size).toBe(5)
+    const all = provider.calls.flat().map((m) => m.to)
+    expect(new Set(all).size).toBe(all.length) // 어느 주소에도 두 번 보내지 않았다
+  })
   test('저장소 오류는 작업을 failed 로 표시하고 다른 작업 처리를 막지 않는다', async () => {
     const good = fakeStore({ recipients: people(1), job: { id: 'good' } })
     const bad = fakeStore({ recipients: people(1), job: { id: 'bad' } })

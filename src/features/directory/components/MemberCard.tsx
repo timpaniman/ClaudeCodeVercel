@@ -1,5 +1,6 @@
 import { Avatar } from '@/components/ui/Avatar'
 import { CohortBadge } from '@/components/ui/CohortBadge'
+import { normalizeUrl } from '@/features/me/profile'
 import type { Member } from '../members'
 
 const linkClass =
@@ -8,10 +9,12 @@ const linkClass =
 // Design Ref: §5.4 /directory — 아바타 · 이름 · 회사·직책 · 링크. 이메일은 표시하지 않는다.
 export function MemberCard({ member, cohortNumber }: { member: Member; cohortNumber?: number | null }) {
   const org = [member.company, member.position].filter(Boolean).join(' · ')
+  // 저장 시 검증을 우회해 들어온 값(javascript: 등)이 링크로 그려지지 않도록 렌더 직전에 다시 걸러낸다 (이 주소들은 다른 회원이 클릭한다)
+  const safe = (raw: string | null | undefined) => (raw ? normalizeUrl(raw) : null)
   const links = [
-    { href: member.githubUrl, label: 'GitHub' },
-    { href: member.linkedinUrl, label: 'LinkedIn' },
-    { href: member.websiteUrl, label: '웹사이트' },
+    { href: safe(member.githubUrl), label: 'GitHub' },
+    { href: safe(member.linkedinUrl), label: 'LinkedIn' },
+    { href: safe(member.websiteUrl), label: '웹사이트' },
   ].filter((l): l is { href: string; label: string } => !!l.href)
 
   return (

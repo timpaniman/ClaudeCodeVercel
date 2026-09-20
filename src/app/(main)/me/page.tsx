@@ -74,6 +74,10 @@ export default async function MePage() {
             <dt className="text-gray-400">기수</dt>
             <dd className="text-gray-200">{cohortNumber !== null ? `${cohortNumber}기` : '-'}</dd>
           </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-gray-400">상태</dt>
+            <dd className="text-gray-200">{profile.role === 'admin' ? '이용 중 (운영진)' : '이용 중'}</dd>
+          </div>
         </dl>
         <p className="text-sm text-gray-500">이메일이나 기수를 바꾸려면 운영진에게 문의해 주세요.</p>
 

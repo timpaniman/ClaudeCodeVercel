@@ -64,9 +64,11 @@ export async function POST(request: Request) {
           siteUrl: config.siteUrl,
           hmacSecret: config.hmacSecret,
           jobId,
+          // 함수 제한(maxDuration 60초) 안에 끝내기 위한 여유. 넘기면 남은 사람은 cron 이 이어서 보낸다.
+          deadlineAt: Date.now() + 45_000,
         })
         if (!summary) notification = { status: 'already_queued' }
-        else if (summary.failed > 0) notification = { status: 'partial', sent: summary.sent, failed: summary.failed }
+        else if (summary.failed > 0 || summary.status === 'failed') notification = { status: 'partial', sent: summary.sent, failed: summary.failed }
         else notification = { status: summary.sent > 0 ? 'sent' : 'none', sent: summary.sent, failed: 0 }
       } catch (e) {
         // 공개는 이미 끝났다. 발송 처리 오류는 작업이 대기열에 남아 cron 이 이어서 처리한다.

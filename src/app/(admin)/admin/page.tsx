@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { getSessionProfile } from '@/lib/auth/session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cn, formatRelativeTime } from '@/lib/utils'
@@ -7,7 +8,9 @@ import { fillWeeks, formatRate, parseAdminStats } from '@/features/admin/stats'
 
 // Design Ref: §5.4 /admin — KPI 4 + 차트(기수별·주간·모바일 비율) + 인기 자료 Top 10 (admin_stats RPC), 이메일 알림 상태·최근 발송 (module-5).
 export default async function AdminDashboardPage() {
-  const { supabase } = await getSessionProfile()
+  const { supabase, profile } = await getSessionProfile()
+  // 이 페이지는 RLS 를 우회하는 service role 클라이언트도 쓰므로, 레이아웃·미들웨어에만 기대지 않고 여기서도 운영진인지 확인한다.
+  if (profile?.role !== 'admin' || profile.status !== 'active') redirect('/home')
 
   const { data: raw, error: statsError } = await supabase.rpc('admin_stats')
   const stats = parseAdminStats(raw)
@@ -28,11 +31,16 @@ export default async function AdminDashboardPage() {
     .select('id, kind, status, attempts, error, created_at')
     .order('created_at', { ascending: false })
     .limit(8)
-  const sentCounts = new Map<string, { sent: number; failed: number }>()
-  for (const j of jobs ?? []) {
-    const { data: d } = await svc.from('notification_deliveries').select('status').eq('job_id', j.id).limit(5000)
-    sentCounts.set(j.id, { sent: (d ?? []).filter((x) => x.status === 'sent').length, failed: (d ?? []).filter((x) => x.status === 'failed').length })
-  }
+  // 작업별 성공·실패 인원: 행을 모두 가져오지 않고 DB 가 세게 한다 (건수만 요청)
+  const counts = await Promise.all(
+    (jobs ?? []).map(async (j) => {
+      const count = (status: 'sent' | 'failed') =>
+        svc.from('notification_deliveries').select('job_id', { count: 'exact', head: true }).eq('job_id', j.id).eq('status', status)
+      const [sent, failed] = await Promise.all([count('sent'), count('failed')])
+      return [j.id, { sent: sent.count ?? 0, failed: failed.count ?? 0 }] as const
+    }),
+  )
+  const sentCounts = new Map(counts)
   const STATUS_LABEL = { queued: '대기', processing: '처리 중', done: '완료', failed: '실패(재시도 예정)' } as const
 
   return (

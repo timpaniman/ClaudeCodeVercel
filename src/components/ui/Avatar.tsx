@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface AvatarProps {
@@ -27,10 +26,13 @@ function getInitials(name: string) {
 export function Avatar({ src, name, size = 'md', className }: AvatarProps) {
   const sizeClass = sizeMap[size]
 
-  if (src) {
+  // 아바타 업로드는 v1 에서 쓰지 않는다. 값이 있어도 https 주소만 그리고(외부 호스트가 next/image 예외로 화면 전체를 깨뜨리지 않도록 일반 img 사용),
+  // Referer 를 보내지 않는다. 그 외 값은 이니셜로 대체한다.
+  if (src && src.startsWith('https://') && !src.includes(' ')) {
     return (
       <div className={cn('relative rounded-full overflow-hidden flex-shrink-0', sizeClass, className)}>
-        <Image src={src} alt={name} fill className="object-cover" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={name} referrerPolicy="no-referrer" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
       </div>
     )
   }

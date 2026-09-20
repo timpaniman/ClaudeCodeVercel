@@ -58,6 +58,8 @@ export interface ProcessOptions {
   maxJobs?: number
   /** 배치 사이 대기 (발송 속도 제한 준수). 테스트에서는 0 */
   chunkDelayMs?: number
+  /** 이 시각(epoch ms)이 지나면 새 묶음을 시작하지 않고 남은 사람은 다음 실행으로 미룬다 (Vercel 함수 시간 제한 대비) */
+  deadlineAt?: number
   sleep?: (ms: number) => Promise<void>
 }
 
@@ -132,14 +134,20 @@ async function processOne(job: JobRecord, opts: ProcessOptions): Promise<JobSumm
     let failed = 0
     const errors = new Set<string>()
 
+    let deferred = 0
     const groups = chunks(recipients, provider.maxBatch)
     for (let gi = 0; gi < groups.length; gi++) {
       const group = groups[gi]
+      if (opts.deadlineAt !== undefined && Date.now() >= opts.deadlineAt) {
+        // 기록하지 않고 남겨 두면 다음 실행에서 이 사람들에게만 이어서 보낸다 (이미 보낸 사람은 제외되므로 중복 없음)
+        deferred += groups.slice(gi).reduce((n, g) => n + g.length, 0)
+        break
+      }
       const messages = group.map((r) => buildMessage(job, subject, r, opts))
 
       let outcomes: SendOutcome[]
       try {
-        outcomes = await provider.sendBatch(messages)
+        outcomes = await provider.sendBatch(messages, { deadlineAt: opts.deadlineAt })
       } catch (e) {
         outcomes = messages.map(() => ({ ok: false as const, error: `발송기 오류: ${e instanceof Error ? e.message : String(e)}`, retryable: true }))
       }
@@ -160,11 +168,12 @@ async function processOne(job: JobRecord, opts: ProcessOptions): Promise<JobSumm
       if (gi < groups.length - 1) await sleep(opts.chunkDelayMs ?? 600)
     }
 
-    if (failed === 0) {
+    if (failed === 0 && deferred === 0) {
       await store.finishJob(job.id, { status: 'done', error: null })
       return { ...base, recipients: recipients.length, sent, failed, status: 'done' }
     }
-    const note = `${failed}명 발송 실패 (${Array.from(errors).slice(0, 2).join(' / ')})${job.attempts >= MAX_ATTEMPTS ? ' — 재시도 한도 도달' : ''}`
+    const parts = [failed > 0 ? `${failed}명 발송 실패 (${Array.from(errors).slice(0, 2).join(' / ')})` : null, deferred > 0 ? `${deferred}명은 시간 제한으로 다음 실행에서 이어 발송` : null].filter(Boolean)
+    const note = `${parts.join(', ')}${job.attempts >= MAX_ATTEMPTS ? ' — 재시도 한도 도달' : ''}`
     await store.finishJob(job.id, { status: 'failed', error: note.slice(0, 500) })
     return { ...base, recipients: recipients.length, sent, failed, status: 'failed', note }
   } catch (e) {

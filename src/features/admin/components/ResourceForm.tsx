@@ -51,6 +51,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
   const [description, setDescription] = useState(initial?.description ?? '')
   const [source, setSource] = useState<'file' | 'link'>(initial ? (initial.storagePath ? 'file' : 'link') : 'file')
   const [file, setFile] = useState<File | null>(null)
+  const [dragging, setDragging] = useState(false)
   const [url, setUrl] = useState(initial?.externalUrl ?? '')
   const [publish, setPublish] = useState(false)
   const [notify, setNotify] = useState(false)
@@ -231,7 +232,21 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
           </div>
 
           {source === 'file' ? (
-            <div className="space-y-2">
+            <div
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDragging(false)
+                const dropped = e.dataTransfer.files?.[0]
+                if (dropped) setFile(dropped)
+              }}
+              className={`space-y-2 rounded-2xl border-2 border-dashed p-4 transition-colors ${dragging ? 'border-indigo-400 bg-indigo-600/10' : 'border-white/15'}`}
+            >
+              <p className="text-base text-gray-300">파일을 여기로 끌어오거나 아래에서 선택하세요.</p>
               <input
                 type="file"
                 data-testid="resource-file"

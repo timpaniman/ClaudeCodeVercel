@@ -13,7 +13,9 @@
     "test:rls:cleanup": "tsx tests/rls/cleanup.ts",
     "test:unit": "vitest run --config vitest.unit.config.ts",
     "migrate:scan": "tsx scripts/migrate-drive/scan.ts",
-    "migrate:import": "tsx scripts/migrate-drive/import.ts"
+    "migrate:import": "tsx scripts/migrate-drive/import.ts",
+    "test:smoke": "vitest run --config vitest.smoke.config.ts",
+    "test:api": "vitest run --config vitest.api.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

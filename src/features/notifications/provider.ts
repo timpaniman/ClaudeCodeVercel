@@ -10,14 +10,22 @@ export interface EmailMessage {
   idempotencyKey?: string
 }
 
+export interface SendBatchOptions {
+  deadlineAt?: number
+}
+
 export type SendOutcome = { ok: true; id: string | null } | { ok: false; error: string; retryable: boolean }
 
 export interface EmailProvider {
   readonly name: 'resend' | 'log'
   /** 한 번에 보낼 수 있는 최대 건수 */
   readonly maxBatch: number
-  /** 입력과 같은 길이·같은 순서로 결과를 돌려준다 (예외를 던지지 않는다) */
-  sendBatch(messages: EmailMessage[]): Promise<SendOutcome[]>
+  /**
+   * 입력과 같은 길이·같은 순서로 결과를 돌려준다 (예외를 던지지 않는다).
+   * deadlineAt(epoch ms)을 넘기면 문제 주소를 골라내는 중이라도 그 시각 이후에는 새 요청을 보내지 않고
+   * 남은 메시지를 "재시도 가능한 실패"로 돌려준다 (Vercel 함수 시간 제한 안에서 끝내기 위함).
+   */
+  sendBatch(messages: EmailMessage[], opts?: SendBatchOptions): Promise<SendOutcome[]>
 }
 
 const RESEND_API = 'https://api.resend.com'
@@ -60,43 +68,70 @@ export function createResendProvider(opts: ResendOptions): EmailProvider {
     }
   }
 
+  type BatchAttempt = { outcomes: SendOutcome[] } | { lastError: { status: number; body: unknown } | null }
+
+  /** 배치 한 번 발송. 일시 오류(429·5xx·네트워크)는 최대 3번까지 점점 길게 기다리며 재시도한다 */
+  async function batchWithRetry(messages: EmailMessage[]): Promise<BatchAttempt> {
+    let lastError: { status: number; body: unknown } | null = null
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await doFetch(`${RESEND_API}/emails/batch`, { method: 'POST', headers, body: JSON.stringify(messages.map(payload)) })
+        const body = await res.json().catch(() => null)
+        if (res.ok && Array.isArray(body?.data) && body.data.length === messages.length) {
+          return { outcomes: body.data.map((d: { id?: string }) => ({ ok: true as const, id: d?.id ?? null })) }
+        }
+        if (res.ok) return { outcomes: await Promise.all(messages.map(sendOne)) } // 응답 형식이 예상과 다르면 건별 재확인
+        lastError = { status: res.status, body }
+        if (!isRetryableStatus(res.status)) break
+      } catch (e) {
+        lastError = { status: 0, body: { message: e instanceof Error ? e.message : String(e) } }
+      }
+      await sleep(500 * 2 ** attempt)
+    }
+    return { lastError }
+  }
+
+  /** 4xx(429 제외) = 요청 내용이 잘못됨(보통 주소 하나). 다시 보내도 소용없으니 원인을 찾아야 한다 */
+  const isValidationRejection = (e: { status: number } | null) => !!e && e.status >= 400 && e.status < 500 && e.status !== 429
+
+  const retryableFailure = (messages: EmailMessage[], error: string): SendOutcome[] => messages.map(() => ({ ok: false as const, error, retryable: true }))
+
+  /**
+   * 배치가 검증 오류로 거절됐을 때: 메시지를 반씩 나누어 다시 배치로 보내며 문제 메시지만 골라낸다.
+   * 100통 중 1통이 문제면 요청이 약 15번(하나씩 100번이 아님)이라 함수 시간 제한 안에 끝난다.
+   */
+  async function isolate(messages: EmailMessage[], deadlineAt?: number): Promise<SendOutcome[]> {
+    if (messages.length === 1) return [await sendOne(messages[0])]
+    const mid = Math.ceil(messages.length / 2)
+    const out: SendOutcome[] = []
+    for (const half of [messages.slice(0, mid), messages.slice(mid)]) {
+      if (deadlineAt !== undefined && Date.now() >= deadlineAt) {
+        out.push(...retryableFailure(half, '시간 제한으로 이번 실행에서 보내지 못했습니다 (다음 실행에서 이어 발송)'))
+        continue
+      }
+      await sleep(550) // Resend 기본 한도(초당 2건) 이하로 유지
+      if (half.length === 1) {
+        out.push(await sendOne(half[0]))
+        continue
+      }
+      const r = await batchWithRetry(half)
+      if ('outcomes' in r) out.push(...r.outcomes)
+      else if (isValidationRejection(r.lastError)) out.push(...(await isolate(half, deadlineAt)))
+      else out.push(...retryableFailure(half, r.lastError ? errorText(r.lastError.status, r.lastError.body) : '알 수 없는 오류'))
+    }
+    return out
+  }
+
   return {
     name: 'resend',
     maxBatch: 100,
-    async sendBatch(messages) {
+    async sendBatch(messages, options) {
       if (messages.length === 0) return []
-
-      // 1) 배치 발송 (일시 오류는 최대 3번까지 점점 길게 기다리며 재시도)
-      let lastError: { status: number; body: unknown } | null = null
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          const res = await doFetch(`${RESEND_API}/emails/batch`, { method: 'POST', headers, body: JSON.stringify(messages.map(payload)) })
-          const body = await res.json().catch(() => null)
-          if (res.ok && Array.isArray(body?.data) && body.data.length === messages.length) {
-            return body.data.map((d: { id?: string }) => ({ ok: true as const, id: d?.id ?? null }))
-          }
-          if (res.ok) return await Promise.all(messages.map(sendOne)) // 응답 형식이 예상과 다르면 건별 재확인
-          lastError = { status: res.status, body }
-          if (!isRetryableStatus(res.status)) break
-        } catch (e) {
-          lastError = { status: 0, body: { message: e instanceof Error ? e.message : String(e) } }
-        }
-        await sleep(500 * 2 ** attempt)
-      }
-
-      // 2) 배치가 검증 오류(4xx)로 거절되면 한 명의 문제로 전체가 막히지 않도록 건별로 나누어 보낸다
-      if (lastError && lastError.status >= 400 && lastError.status < 500 && lastError.status !== 429) {
-        const out: SendOutcome[] = []
-        for (const m of messages) {
-          out.push(await sendOne(m))
-          await sleep(550) // Resend 기본 한도(초당 2건) 이하로 유지
-        }
-        return out
-      }
-
-      // 3) 서버·네트워크 문제: 전원 "재시도 가능한 실패"로 돌려 다음 실행에서 이어 보낸다
-      const error = lastError ? errorText(lastError.status, lastError.body) : '알 수 없는 오류'
-      return messages.map(() => ({ ok: false as const, error, retryable: true }))
+      const first = await batchWithRetry(messages)
+      if ('outcomes' in first) return first.outcomes
+      if (isValidationRejection(first.lastError)) return isolate(messages, options?.deadlineAt)
+      // 서버·네트워크 문제: 전원 "재시도 가능한 실패"로 돌려 다음 실행에서 이어 보낸다
+      return retryableFailure(messages, first.lastError ? errorText(first.lastError.status, first.lastError.body) : '알 수 없는 오류')
     },
   }
 }

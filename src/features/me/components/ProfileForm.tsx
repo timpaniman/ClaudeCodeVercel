@@ -59,7 +59,11 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
     setBusy(true)
     const { error } = await createClient().from('profiles').update(v.value).eq('id', userId)
     setBusy(false)
-    if (error) return setMessage({ kind: 'error', text: '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.' })
+    if (error) {
+      // 23514 = DB 검사 제약 위반 (화면 검증을 우회했거나 규칙이 바뀐 경우)
+      const text = error.code === '23514' ? '입력 형식이 올바르지 않습니다. 링크는 https:// 로 시작해야 하고 글자 수 제한이 있습니다.' : '저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+      return setMessage({ kind: 'error', text })
+    }
 
     setMessage({ kind: 'ok', text: '저장했습니다.' })
     router.refresh()

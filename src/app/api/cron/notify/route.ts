@@ -34,6 +34,7 @@ export async function GET(request: Request) {
       siteUrl: config.siteUrl,
       hmacSecret: config.hmacSecret,
       maxJobs: 20,
+      deadlineAt: Date.now() + 45_000, // maxDuration(60초) 안에 끝내기 위한 여유
     })
     // 개인정보(수신자 이메일)는 응답에 포함하지 않는다
     return NextResponse.json({ processed: summaries.length, jobs: summaries.map(({ jobId, kind, recipients, sent, failed, status }) => ({ jobId, kind, recipients, sent, failed, status })) })

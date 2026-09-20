@@ -953,6 +953,18 @@ tests/{rls,e2e}/
 | 6 | 링크 로그인 복귀 주소 | — | `signInWithOtp` 에 `emailRedirectTo=/auth/callback` 추가 — 메일 템플릿이 기본값(링크만)이어도 링크 로그인이 앱으로 돌아온다 |
 | 6 | 17기 파일럿 | 운영 계획 | `docs/05-ops/pilot-17th-cohort.md` — 준비 체크리스트, 초대문, 관찰 지표, 피드백 질문, Go/No-Go |
 
+| Check | 입력 검증 | 화면(클라이언트)에서 검증 | **DB 제약으로 강제**(`008_input_constraints.sql`): 프로필 링크는 https 만·길이 제한(name 200, company/position 100, bio 500, URL 300), `resources.external_url` https 만, `avatar_url` 회원 수정 권한 회수. 저장은 브라우저→PostgREST 직접 호출이라 화면 검증은 우회 가능했다(보안 검토 C1/H1/M1/M3, `docs/03-analysis/`). 가입 트리거는 가입 메타데이터 이름을 200자로 자른다 |
+| Check | 화면 렌더 방어 | — | `MemberCard` 가 링크를 렌더 직전에 https 재검사, `Avatar` 는 https 주소만 일반 `<img>`(Referer 미전송)로 표시 |
+| Check | 알림 발송 4xx 처리 | 배치 4xx 시 건별 발송 | **반씩 나눠 다시 배치 발송해 문제 주소만 격리**(100통 중 1통 → 요청 약 15회). `deadlineAt`(45초)을 넘으면 새 묶음을 시작하지 않고 남은 사람은 기록 없이 다음 실행으로 이월 (Vercel 60초 제한 대비) |
+| Check | 운영 환경 설정 오류 | — | 운영에서 Supabase 주소·키가 유효하지 않으면 미들웨어가 **503**(가드가 꺼진 채 일부만 동작하는 것을 방지). 개발은 기존처럼 통과 |
+| Check | 보안 헤더 | — | `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, CSP(`frame-ancestors`·`base-uri`·`form-action`·`object-src` 만) |
+| Check | 관리자 대시보드 | — | 페이지에서 운영진 재확인, 작업별 발송 인원은 DB 건수 조회(N+1·5000행 로드 제거) |
+| Check | `UNKNOWN_COHORT`(422) | §4.2 preview 오류 코드 | 없는 기수는 **행별 `invalid`** 로 표시(preview 는 200). 코드는 선언만 있고 사용하지 않는다 (§8.3 #2 는 두 방식 모두 허용) |
+| Check | `resources.updated_at` | 항상 갱신 | 다운로드 수만 바뀌는 갱신에서는 `updated_at` 을 유지(목록 정렬이 튀지 않도록) — `004_functions.sql` 의 `resources_before_write` |
+| Check | L1 API 테스트 | 8건 | `tests/api/api.test.ts`(로그인 사용자, `npm run test:api`)와 `tests/smoke/http.test.ts`(배포본, `npm run test:smoke`). L2·L3 는 브라우저 자동화 미도입 |
+| Check | 회원 탈퇴 절차 | §7.3 문서화 | `docs/05-ops/privacy-deletion.md` |
+| Check | 홈 로딩·/me 상태·자료 드래그앤드롭 | §5.4 체크리스트 | 구현 |
+
 ## 12. Open Items (Do 착수 전 결정·준비 필요)
 
 | # | 항목 | 필요한 것 | 담당 |
@@ -972,6 +984,7 @@ tests/{rls,e2e}/
 | 13 | 개인정보 수집·이용 동의 문구 | 현재 로그인 화면은 임시 문구. `OtpForm.tsx`의 `PRIVACY_LABEL/DETAIL`만 교체 | 교수님 |
 | 14 | 실제 메일 코드 로그인 시험 | 교수님 Gmail로 1회 (기본 SMTP는 팀 멤버 주소만 발송될 수 있음). `example.com` 주소는 Supabase가 코드 발송을 거절함 | 교수님 + Claude |
 | 15 | **실제 알림 메일 발송 시험** | Resend 계정 + 발송 도메인(SPF/DKIM) + `RESEND_API_KEY`·`EMAIL_FROM` 등록. 지금까지는 개발용 `log` 제공자와 가짜 제공자 테스트로만 검증됨 | 교수님 + Claude |
+| 16 | **`008_input_constraints.sql` 적용** | SQL Editor 에서 개발·운영 DB 각각 실행 (여러 번 실행해도 안전). 운영은 회원 초대 전에. 적용 전에는 `tests/rls/10-input-constraints` 가 실패하는 것이 정상 | 교수님 |
 
 ---
 
