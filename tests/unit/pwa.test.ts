@@ -87,7 +87,8 @@ describe('미들웨어 matcher', () => {
   test.each(['/sw.js', '/offline.html', '/manifest.json', '/icons/icon-192.png', '/icons/icon-maskable-512.png', '/_next/static/chunks/a.js'])('%s 는 로그인 검사를 거치지 않는다', (p) => {
     expect(re.test(p)).toBe(false)
   })
-  test.each(['/home', '/library', '/admin', '/login', '/api/admin/publish'])('%s 는 검사 대상', (p) => {
+  // 점(.)이 글자 그대로여야 한다: 확장자처럼 끝나는 글자만 있는 경로(/adminjs)가 로그인 검사를 피하면 안 된다
+  test.each(['/home', '/library', '/admin', '/login', '/api/admin/publish', '/adminjs', '/library/xpng'])('%s 는 검사 대상', (p) => {
     expect(re.test(p)).toBe(true)
   })
 })

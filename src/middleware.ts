@@ -1,10 +1,17 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
 
 export async function middleware(request: NextRequest) {
-  // Supabase 환경변수가 없으면(초기 설정 전) 가드를 적용하지 않고 통과
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!supabaseUrl || supabaseUrl === 'your-supabase-url' || !supabaseUrl.startsWith('http')) {
+  if (!isSupabaseConfigured(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
+    // 운영: 환경변수가 잘못되면 가드 없이 반쯤 동작하지 않도록 즉시 막는다 (값은 노출하지 않는다).
+    if (process.env.NODE_ENV === 'production') {
+      return new NextResponse('서비스 설정 오류: Supabase 환경변수(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)를 확인해 주세요.', {
+        status: 503,
+        headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+      })
+    }
+    // 개발: 초기 설정 전에는 가드를 적용하지 않고 통과
     return NextResponse.next()
   }
   return await updateSession(request)
