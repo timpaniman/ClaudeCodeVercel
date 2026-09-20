@@ -1,0 +1,137 @@
+import { createClient } from '@/lib/supabase/server'
+import { TopBar } from '@/components/layout/TopBar'
+import { formatRelativeTime } from '@/lib/utils'
+import { CohortBadge } from '@/components/ui/CohortBadge'
+import { Avatar } from '@/components/ui/Avatar'
+import { Heart, MessageCircle, Pin } from 'lucide-react'
+import type { Database } from '@/types/database'
+
+type Profile = Database['public']['Tables']['profiles']['Row']
+type Cohort = Database['public']['Tables']['cohorts']['Row']
+type Post = Database['public']['Tables']['posts']['Row']
+
+interface PostWithAuthor extends Post {
+  author: Pick<Profile, 'id' | 'name' | 'company' | 'avatar_url' | 'cohort_id'> | null
+}
+
+export default async function FeedPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('name, company, cohort_id')
+    .eq('id', user!.id)
+    .single() as { data: Pick<Profile, 'name' | 'company' | 'cohort_id'> | null }
+
+  let cohortNumber: number | undefined
+  if (profile?.cohort_id) {
+    const { data: cohort } = await supabase
+      .from('cohorts')
+      .select('number')
+      .eq('id', profile.cohort_id)
+      .single() as { data: Pick<Cohort, 'number'> | null }
+    cohortNumber = cohort?.number
+  }
+
+  const { data: posts } = await supabase
+    .from('posts')
+    .select(`
+      id, title, body, image_url, is_pinned, is_announcement,
+      likes_count, comments_count, created_at, cohort_id,
+      author:profiles!author_id(id, name, company, avatar_url, cohort_id)
+    `)
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(20) as { data: PostWithAuthor[] | null }
+
+  return (
+    <>
+      <TopBar
+        title="Home Feed"
+        crumb={cohortNumber ? `AI4CEO · ${cohortNumber}기` : 'AI4CEO'}
+      />
+
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        {/* 환영 카드 */}
+        <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <Avatar name={profile?.name ?? '사용자'} size="lg" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-indigo-300 mb-1">
+                {new Date().toLocaleDateString('ko-KR', {
+                  year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
+                })}
+              </p>
+              <h2 className="text-xl font-bold text-white">
+                안녕하세요, {profile?.name ?? '사용자'} 대표님 👋
+              </h2>
+              {cohortNumber && (
+                <p className="text-sm text-gray-400 mt-1">
+                  <CohortBadge cohortNumber={cohortNumber} size="sm" /> 커뮤니티에 오신 것을 환영합니다.
+                </p>
+              )}
+              <div className="flex gap-2 mt-4">
+                <a href="/community" className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors">
+                  새 글 작성
+                </a>
+                <a href="/ai-chat" className="bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                  AI Chat
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 게시글 피드 */}
+        {posts && posts.length > 0 ? (
+          <div className="space-y-3">
+            {posts.map((post) => (
+              <article key={post.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-colors">
+                <header className="flex items-start gap-3 mb-3">
+                  <Avatar name={post.author?.name ?? '?'} src={post.author?.avatar_url} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-white">{post.author?.name}</span>
+                      {post.author?.cohort_id && (
+                        <CohortBadge cohortNumber={post.author.cohort_id} size="sm" />
+                      )}
+                      {post.is_pinned && (
+                        <span className="flex items-center gap-1 text-xs text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded-full">
+                          <Pin size={10} /> 고정
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {post.author?.company} · {formatRelativeTime(post.created_at)}
+                    </div>
+                  </div>
+                </header>
+
+                {post.title && <h3 className="font-semibold text-white mb-1.5">{post.title}</h3>}
+                <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">{post.body}</p>
+
+                <footer className="flex items-center gap-4 mt-4 pt-3 border-t border-white/5">
+                  <button className="flex items-center gap-1.5 text-gray-500 hover:text-red-400 text-sm transition-colors">
+                    <Heart size={15} /> {post.likes_count}
+                  </button>
+                  <button className="flex items-center gap-1.5 text-gray-500 hover:text-indigo-400 text-sm transition-colors">
+                    <MessageCircle size={15} /> {post.comments_count}
+                  </button>
+                </footer>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16 text-gray-500">
+            <p className="text-lg font-medium text-gray-400">아직 게시글이 없습니다</p>
+            <p className="text-sm mt-1">첫 번째 게시글을 작성해보세요!</p>
+            <a href="/community" className="mt-4 inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors">
+              글 작성하기
+            </a>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}

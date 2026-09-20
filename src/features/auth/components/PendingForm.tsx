@@ -1,0 +1,107 @@
+'use client'
+
+// Design Ref: §5.4 /pending — 명단 미등록자의 신청 정보 제출. profiles 의 허용 컬럼(name, company, requested_cohort)만 수정한다.
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
+interface Props {
+  initial: { name: string; requestedCohort: number | null; company: string }
+}
+
+const inputClass =
+  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors'
+
+export function PendingForm({ initial }: Props) {
+  const router = useRouter()
+  const [name, setName] = useState(initial.name)
+  const [cohort, setCohort] = useState(initial.requestedCohort ? String(initial.requestedCohort) : '')
+  const [company, setCompany] = useState(initial.company)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(initial.requestedCohort !== null)
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+
+    const cohortNumber = Number(cohort.replace(/기$/, '').trim())
+    if (!name.trim()) return setError('이름을 입력해 주세요.')
+    if (!Number.isInteger(cohortNumber) || cohortNumber < 1 || cohortNumber > 99) {
+      return setError('수료(또는 재학) 기수를 숫자로 입력해 주세요. 예: 12')
+    }
+
+    setBusy(true)
+    const supabase = createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) {
+      setBusy(false)
+      return setError('로그인이 만료되었습니다. 다시 로그인해 주세요.')
+    }
+    const { error: err } = await supabase
+      .from('profiles')
+      .update({ name: name.trim(), company: company.trim() || null, requested_cohort: cohortNumber })
+      .eq('id', user.id)
+    setBusy(false)
+
+    if (err) return setError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+    setSaved(true)
+    router.refresh()
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-4" data-testid="pending-form">
+      {saved && (
+        <div role="status" className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm px-4 py-3 rounded-xl">
+          신청 정보가 접수되었습니다. 운영진이 확인 후 승인합니다. 내용을 고치려면 다시 저장해 주세요.
+        </div>
+      )}
+      {error && (
+        <div role="alert" className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
+          {error}
+        </div>
+      )}
+
+      <div>
+        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+          이름
+        </label>
+        <input id="name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" required className={inputClass} />
+      </div>
+
+      <div>
+        <label htmlFor="cohort" className="block text-sm font-medium text-gray-300 mb-2">
+          기수
+        </label>
+        <input
+          id="cohort"
+          value={cohort}
+          onChange={(e) => setCohort(e.target.value)}
+          inputMode="numeric"
+          placeholder="예: 12"
+          required
+          className={inputClass}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-2">
+          회사 <span className="text-gray-500 font-normal">(선택)</span>
+        </label>
+        <input id="company" value={company} onChange={(e) => setCompany(e.target.value)} autoComplete="organization" className={inputClass} />
+      </div>
+
+      <button
+        type="submit"
+        disabled={busy}
+        className="w-full min-h-12 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+      >
+        {busy && <Loader2 size={18} className="animate-spin" />}
+        {saved ? '다시 저장' : '승인 요청 보내기'}
+      </button>
+    </form>
+  )
+}

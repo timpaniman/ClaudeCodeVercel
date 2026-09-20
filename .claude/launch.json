@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "plan-docs",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "docs/01-plan", "-p", "3100", "--no-clipboard"],
+      "port": 3100
+    },
+    {
+      "name": "claude-design",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "docs/02-design/claude-design", "-p", "3200", "--no-clipboard"],
+      "port": 3200
+    },
+    {
+      "name": "nextjs-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    }
+  ]
+}
