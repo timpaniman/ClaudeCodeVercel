@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "title": "AI4CEO — 졸업생 포털",
+    "description": "AI4CEO 졸업생을 위한 자료·공지 포털"
+  },
+  "brand": {
+    "portal": "졸업생 포털"
+  },
+  "common": {
+    "cohort": "{number}기"
+  },
+  "locale": {
+    "label": "언어",
+    "en": "English",
+    "ko": "한국어"
+  },
+  "nav": {
+    "home": "홈",
+    "library": "자료",
+    "announcements": "공지",
+    "directory": "멤버",
+    "me": "나",
+    "myProfile": "내 프로필",
+    "admin": "관리자",
+    "signOut": "로그아웃",
+    "mainMenu": "주 메뉴",
+    "bottomMenu": "하단 메뉴",
+    "unread": "안 읽은 공지 {count}건"
+  },
+  "apiErrors": {
+    "UNAUTHORIZED": "로그인이 필요합니다.",
+    "FORBIDDEN": "권한이 없습니다.",
+    "NOT_FOUND": "대상을 찾을 수 없습니다.",
+    "INVALID_FILE": "사용할 수 없는 파일입니다. 파일을 확인한 뒤 다시 시도해 주세요.",
+    "INVALID_INPUT": "입력 내용을 확인해 주세요.",
+    "UNKNOWN_COHORT": "존재하지 않는 기수입니다.",
+    "ADMIN_CONFIRM_REQUIRED": "운영진 권한이 부여되는 행이 있습니다. 확인 후 다시 진행해 주세요.",
+    "RATE_LIMITED": "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
+    "INTERNAL": "일시적인 오류입니다. 잠시 후 다시 시도해 주세요.",
+    "generic": "일시적인 오류입니다. 잠시 후 다시 시도해 주세요."
+  }
+}

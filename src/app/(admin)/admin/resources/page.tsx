@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Upload } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { ResourceAdminTable, type AdminResourceRow } from '@/features/admin/components/ResourceAdminTable'
 import { noticeFromParams } from '@/features/admin/publishClient'
@@ -7,6 +8,7 @@ import { loadCohorts } from '@/features/library/queries'
 import { isNotificationConfigured } from '@/features/notifications/config'
 
 export default async function AdminResourcesPage({ searchParams }: { searchParams: { n?: string; s?: string; f?: string } }) {
+  const t = await getTranslations('admin')
   const { supabase } = await getSessionProfile()
   const cohorts = await loadCohorts(supabase)
   const numberById = new Map(cohorts.map((c) => [c.id, c.number]))
@@ -31,9 +33,9 @@ export default async function AdminResourcesPage({ searchParams }: { searchParam
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className="text-2xl font-bold text-white">자료 관리</h1>
+        <h1 className="text-2xl font-bold text-white">{t('titles.resources')}</h1>
         <Link href="/admin/resources/new" className="inline-flex items-center gap-2 min-h-12 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold">
-          <Upload size={18} aria-hidden /> 자료 올리기
+          <Upload size={18} aria-hidden /> {t('uploadResource')}
         </Link>
       </div>
       <ResourceAdminTable rows={rows} emailEnabled={isNotificationConfigured()} initialNotice={noticeFromParams(searchParams)} />

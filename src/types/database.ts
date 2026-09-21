@@ -55,6 +55,7 @@ export type Database = {
           consented_at: string | null
           notify_new_resource: boolean
           notify_announcement: boolean
+          locale: string
           created_at: string
           updated_at: string
         }
@@ -77,6 +78,7 @@ export type Database = {
           consented_at?: string | null
           notify_new_resource?: boolean
           notify_announcement?: boolean
+          locale?: string
           created_at?: string
           updated_at?: string
         }
@@ -92,6 +94,7 @@ export type Database = {
           website_url?: string | null
           notify_new_resource?: boolean
           notify_announcement?: boolean
+          locale?: string
           consented_at?: string | null
           requested_cohort?: number | null
         }
@@ -339,7 +342,7 @@ export type Database = {
       admin_stats: { Args: Record<PropertyKey, never>; Returns: Json }
       notification_recipients: {
         Args: { p_kind: string; p_ref: string }
-        Returns: { user_id: string; email: string; name: string }[]
+        Returns: { user_id: string; email: string; name: string; locale: string }[]
       }
     }
     Enums: {

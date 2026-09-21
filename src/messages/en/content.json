@@ -1,0 +1,129 @@
+{
+  "announcements": {
+    "title": "Announcements",
+    "metaTitle": "Announcements — AI4CEO",
+    "write": "Write an announcement",
+    "loadError": "We couldn't load the announcements. Please try again in a little while.",
+    "retry": "Try again",
+    "empty": "No announcements yet.",
+    "more": "Show more ({remaining} remaining)",
+    "back": "All announcements",
+    "unpublished": "This announcement hasn't been published yet. Only administrators can see it.",
+    "pinned": "Pinned announcement",
+    "unread": "Unread",
+    "edit": "Edit",
+    "notFound": {
+      "title": "We couldn't find that announcement",
+      "body": "It was deleted or hasn't been published yet.",
+      "back": "Back to announcements"
+    },
+    "errors": {
+      "titleRequired": "Please enter a title.",
+      "titleTooLong": "The title can be up to {max} characters.",
+      "bodyRequired": "Please enter the content.",
+      "bodyTooLong": "The content can be up to {max, number} characters."
+    }
+  },
+  "directory": {
+    "title": "Members",
+    "metaTitle": "Members — AI4CEO",
+    "back": "Members",
+    "searchLabel": "Search members",
+    "cohortSearchLabel": "Search in this cohort",
+    "placeholder": "Search names, companies and titles",
+    "loadError": "We couldn't load the member list. Please try again in a little while.",
+    "count": "{count, plural, one {# member} other {# members}}",
+    "resultsFor": "Results for “{q}”: {count, plural, one {# member} other {# members}}",
+    "topOnly": " (showing the top {max})",
+    "noResults": "No results found.",
+    "browseByCohort": "Browse by cohort",
+    "cohortGrid": "Members by cohort",
+    "empty": "No members to show yet.",
+    "website": "Website",
+    "linksLabel": "{name}'s links"
+  },
+  "me": {
+    "metaTitle": "My profile — AI4CEO",
+    "profile": "Profile",
+    "profileNote": "This is what other alumni can see on the Members screen. Your email is never shown.",
+    "notifications": "Email notifications",
+    "account": "Account",
+    "email": "Email",
+    "cohort": "Cohort",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusActiveAdmin": "Active (administrator)",
+    "contactAdmin": "To change your email or cohort, please contact the administrators.",
+    "adminArea": "Admin area",
+    "signOut": "Sign out",
+    "language": "Language",
+    "fields": {
+      "name": "Name",
+      "company": "Company",
+      "position": "Title",
+      "bio": "About",
+      "github_url": "GitHub",
+      "linkedin_url": "LinkedIn",
+      "website_url": "Website"
+    },
+    "positionPlaceholder": "e.g. CEO",
+    "bioHint": "A line or two that other alumni will see.",
+    "form": {
+      "save": "Save",
+      "saved": "Saved.",
+      "fixInput": "Please check what you entered.",
+      "errFormat": "That format isn't valid. Links must start with https:// and there are length limits.",
+      "errSave": "We couldn't save that. Please try again in a little while."
+    },
+    "profileErrors": {
+      "nameRequired": "Please enter your name.",
+      "nameTooLong": "Your name can be up to {max} characters.",
+      "companyTooLong": "The company can be up to {max} characters.",
+      "positionTooLong": "The title can be up to {max} characters.",
+      "bioTooLong": "The about text can be up to {max} characters.",
+      "urlTooLong": "The {label} address is too long.",
+      "urlHttps": "The {label} address must start with https://",
+      "urlHost": "Please enter the {label} address in the form https://{host}/…"
+    },
+    "notify": {
+      "newResource": {
+        "title": "New resource alerts",
+        "desc": "We'll email you when a new resource you can view is added."
+      },
+      "announcement": {
+        "title": "Announcement alerts",
+        "desc": "We'll email you when the administrators post an announcement."
+      },
+      "on": "On",
+      "off": "Off",
+      "errSave": "We couldn't save your settings. Please try again in a little while.",
+      "allOff": "You're not receiving notification emails right now. Please check the portal for new resources and announcements."
+    },
+    "install": {
+      "title": "Add to home screen",
+      "prompt": "Add the portal to your home screen to open it like an app.",
+      "button": "Add to home screen",
+      "iosOther": "On iPhone, open the portal in <b>Safari</b> to add it to your home screen. If you opened this page inside another app such as KakaoTalk, copy the address and open it in Safari.",
+      "step1": "Tap the <b>Share</b> button at the bottom of Safari.",
+      "step2": "Choose <b>Add to Home Screen</b>."
+    }
+  },
+  "unsubscribe": {
+    "metaTitle": "Unsubscribe from notifications — AI4CEO",
+    "doneTitle": "You've been unsubscribed",
+    "doneBody": "You will no longer receive <b>{scope}</b> emails. You can still see new resources and announcements in the portal, and you can turn notifications back on any time under <b>My profile</b>.",
+    "openSettings": "Open notification settings",
+    "invalidTitle": "We can't verify this link",
+    "invalidBody": "This link is invalid or damaged. You can change your settings yourself by signing in and going to <b>My profile → Email notifications</b>.",
+    "toProfile": "Go to my profile",
+    "confirmTitle": "Unsubscribe from notifications?",
+    "confirmBody": "You will no longer receive <b>{scope}</b> emails.",
+    "confirm": "Unsubscribe",
+    "cancel": "Cancel",
+    "scopes": {
+      "resource": "new resource",
+      "announcement": "announcement",
+      "all": "all notification"
+    }
+  }
+}

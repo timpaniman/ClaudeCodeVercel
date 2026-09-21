@@ -965,6 +965,15 @@ tests/{rls,e2e}/
 | Check | 회원 탈퇴 절차 | §7.3 문서화 | `docs/05-ops/privacy-deletion.md` |
 | Check | 홈 로딩·/me 상태·자료 드래그앤드롭 | §5.4 체크리스트 | 구현 |
 
+| i18n | 화면 언어 | 한국어 고정 | **영어 기본 + 한국어 보존.** `next-intl` 3.26.5, URL 접두사 없이 쿠키(`NEXT_LOCALE`)로 언어를 정한다(기본 en, 브라우저 언어로 자동 판별하지 않음). 문구는 `src/messages/{en,ko}/*.json`. 계획: `docs/01-plan/features/portal-i18n-en.plan.md` |
+| i18n | 순수 함수의 오류 | 한국어 문장을 반환 | **문구가 아니라 키를 반환**(`mapAuthError`, `validateProfile`, `validateAnnouncement`, `parseTags`, `validateUpload`, 명단 검증 사유·파일 오류). 화면이 현재 언어로 번역한다 |
+| i18n | API 오류 | 한국어 message | 서버 message 는 로그용 영어. 사용자에게는 오류 `code` 로 `apiErrors.*` 문구를 보여 준다. 명단 파일 오류는 `details.reason`(키+값) |
+| i18n | 누락 방지 | — | 단위 테스트: en/ko 키·자리표시자 일치, 영어 문구에 한글 없음, `src/` 의 화면 문구에 한글이 남으면 실패(예외: 드라이브 이전 CLI, `i18n-ignore` 표시 줄) |
+| i18n | 알림 메일 | 한국어 | **수신자 언어별**(`profiles.locale`, `009_profile_locale.sql`, 기본 en). 언어 전환 버튼이 로그인 상태면 프로필에도 저장. `notification_recipients()` 가 locale 반환 |
+| i18n | 로그인 메일 | 한국어 | Supabase 템플릿은 수신자 언어를 알 수 없어 **영어+한국어 병기**(대시보드에 다시 붙여넣기 필요) |
+| i18n | PWA·정적 파일 | 한국어 | manifest 영어(`lang: en`), 오프라인 안내는 영어+한국어 병기(서비스 워커는 언어를 모르고 스크립트를 쓰지 않는다), 명단 양식 예시 영어. 명단 CSV 열 이름·역할·"17기" 는 한글도 계속 인식 |
+| i18n | 날짜·상대 시간 | `ko-KR` 고정 | 언어별 `Intl`(`formatDate`, `formatRelativeTime(locale)`). 기수 표기 "Cohort 17" / "17기" |
+
 ## 12. Open Items (Do 착수 전 결정·준비 필요)
 
 | # | 항목 | 필요한 것 | 담당 |
@@ -985,6 +994,7 @@ tests/{rls,e2e}/
 | 14 | 실제 메일 코드 로그인 시험 | 교수님 Gmail로 1회 (기본 SMTP는 팀 멤버 주소만 발송될 수 있음). `example.com` 주소는 Supabase가 코드 발송을 거절함 | 교수님 + Claude |
 | 15 | **실제 알림 메일 발송 시험** | Resend 계정 + 발송 도메인(SPF/DKIM) + `RESEND_API_KEY`·`EMAIL_FROM` 등록. 지금까지는 개발용 `log` 제공자와 가짜 제공자 테스트로만 검증됨 | 교수님 + Claude |
 | 16 | ~~`008_input_constraints.sql` 적용~~ (개발·운영 DB 모두 완료) | SQL Editor 에서 개발·운영 DB 각각 실행 (여러 번 실행해도 안전). 운영은 회원 초대 전에. 적용 전에는 `tests/rls/10-input-constraints` 가 실패하는 것이 정상 | 교수님 |
+| 17 | **`009_profile_locale.sql` 적용 + 로그인 메일 템플릿 교체** | 개발·운영 DB 각각 SQL Editor 에서 실행(여러 번 실행해도 안전). Supabase 템플릿 2종(`supabase/email-templates/`)을 영어+한국어 병기판으로 다시 붙여넣기. 적용 전에는 `tests/rls/11-locale` 이 실패하는 것이 정상이며 알림 메일은 모두 영어로 나간다 | 교수님 |
 
 ---
 

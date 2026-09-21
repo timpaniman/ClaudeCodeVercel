@@ -1,0 +1,100 @@
+{
+  "home": {
+    "title": "Home — AI4CEO",
+    "greeting": "Welcome, {name}",
+    "searchLabel": "Search resources",
+    "searchPlaceholder": "Search resources",
+    "loadError": "We couldn't load some of the content. Please try again in a little while.",
+    "announcements": "Announcements",
+    "viewAll": "View all",
+    "noAnnouncements": "No announcements yet.",
+    "newResources": "New resources",
+    "lastDays": "Last {days} days",
+    "myCohort": "My cohort's resources",
+    "allResources": "All resources",
+    "noNew": "No new resources in the last {days} days.",
+    "goAdmin": "Go to the admin area",
+    "loading": "Loading home"
+  },
+  "library": {
+    "title": "Library",
+    "metaTitle": "Library — AI4CEO",
+    "count": "{count, plural, one {# item} other {# items}}",
+    "upload": "Upload a resource",
+    "loadError": "We couldn't load the resources. Please try again in a little while.",
+    "retry": "Try again",
+    "noResults": "No results found.",
+    "empty": "No resources have been added yet.",
+    "clearFilters": "Clear filters",
+    "loadMore": "Show more ({shown} / {remaining} remaining)",
+    "loading": "Loading resources",
+    "search": {
+      "placeholder": "Search titles, descriptions and tags",
+      "label": "Search resources"
+    },
+    "filters": {
+      "cohort": "Cohort",
+      "all": "All",
+      "common": "Common",
+      "lockedTitle": "You don't have access to this cohort",
+      "lockedSr": "(no access)",
+      "category": "Category",
+      "week": "Week",
+      "allWeeks": "All weeks",
+      "weekOption": "Week {number}",
+      "sort": "Sort",
+      "latest": "Newest first",
+      "downloads": "Most downloaded"
+    },
+    "item": {
+      "week": "Week {number}",
+      "downloads": "{count, plural, one {# download} other {# downloads}}"
+    },
+    "detail": {
+      "back": "All resources",
+      "unpublished": "This resource isn't published yet. Only administrators can see it.",
+      "tags": "Tags",
+      "edit": "Edit"
+    },
+    "notFound": {
+      "title": "This resource can't be opened",
+      "body": "It may no longer exist, or you may not have permission to view it. Current students can only see their own cohort's resources and common resources.",
+      "back": "Back to the library"
+    },
+    "categories": {
+      "lecture": "Lecture",
+      "code": "Code",
+      "video": "Video",
+      "reference": "Reference",
+      "assignment": "Assignment"
+    },
+    "fileKinds": {
+      "pdf": "PDF",
+      "code": "Code",
+      "video": "Video",
+      "image": "Image",
+      "link": "Link",
+      "other": "File"
+    },
+    "download": {
+      "button": "Download",
+      "openLink": "Open link"
+    },
+    "preview": {
+      "loading": "Loading preview…",
+      "error": "We couldn't load the preview.",
+      "errorNote": "You can still download the file with the button below.",
+      "iframeTitle": "{title} preview",
+      "openPdf": "Open PDF",
+      "errorPdf": "We couldn't open the PDF."
+    },
+    "copy": {
+      "copy": "Copy code",
+      "copied": "Copied"
+    },
+    "tagErrors": {
+      "tooLong": "Tags can be up to {max} characters. (\"{tag}…\")",
+      "tooMany": "You can add up to {max} tags."
+    }
+  }
+}

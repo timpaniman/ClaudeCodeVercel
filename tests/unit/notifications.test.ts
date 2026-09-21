@@ -12,6 +12,7 @@ import {
 } from '@/features/notifications/process'
 import { createLogProvider, createResendProvider, type EmailMessage, type EmailProvider, type SendOutcome } from '@/features/notifications/provider'
 import { isClaimable } from '@/features/notifications/store'
+import { localeOf } from '@/features/notifications/emailCopy'
 import { buildAnnouncementEmail, buildResourceEmail, cleanSubject, escapeHtml } from '@/features/notifications/templates'
 import { signUnsubscribeToken, unsubscribePatch, verifyUnsubscribeToken } from '@/features/notifications/unsubscribe'
 
@@ -57,21 +58,38 @@ describe('수신 해제 토큰', () => {
 })
 
 describe('이메일 본문', () => {
-  const data = { name: '홍길동', title: '<script>alert(1)</script> 자료', cohortLabel: '12기', categoryLabel: '강의자료', url: 'https://x.co/library/1', unsubscribeUrl: 'https://x.co/unsubscribe?t=abc&x=1' }
-  test('HTML 은 이스케이프되고 링크·수신 해제·인사말이 들어간다', () => {
+  const data = { locale: 'ko' as const, name: '홍길동', title: '<script>alert(1)</script> 자료', cohortNumber: 12, category: 'lecture' as const, url: 'https://x.co/library/1', unsubscribeUrl: 'https://x.co/unsubscribe?t=abc&x=1' }
+  test('HTML 은 이스케이프되고 링크·수신 해제·인사말이 들어간다 (한국어)', () => {
     const m = buildResourceEmail(data)
     expect(m.html).not.toContain('<script>')
     expect(m.html).toContain('&lt;script&gt;')
     expect(m.html).toContain('href="https://x.co/library/1"')
     expect(m.html).toContain('href="https://x.co/unsubscribe?t=abc&amp;x=1"')
     expect(m.html).toContain('홍길동 대표님, 안녕하세요.')
+    expect(m.html).toContain('12기 · 강의자료')
     expect(m.text).toContain('https://x.co/library/1')
     expect(m.text).toContain('https://x.co/unsubscribe?t=abc&x=1')
     expect(m.subject).toBe('[AI4CEO] 새 자료: <script>alert(1)</script> 자료') // 제목 헤더는 텍스트라 이스케이프하지 않는다
   })
+  test('같은 자료 메일을 영어로: 인사말·부제·제목·버튼·수신 해제가 영어', () => {
+    const m = buildResourceEmail({ ...data, locale: 'en' })
+    expect(m.subject).toBe('[AI4CEO] New resource: <script>alert(1)</script> 자료')
+    expect(m.html).toContain('Hello, 홍길동.')
+    expect(m.html).toContain('Cohort 12 · Lecture')
+    expect(m.html).toContain('View in the portal')
+    expect(m.html).toContain('click here to unsubscribe')
+    expect(m.html).toContain('href="https://x.co/unsubscribe?t=abc&amp;x=1"')
+    expect(m.text).toContain('View in the portal: https://x.co/library/1')
+    expect(m.text).not.toMatch(/[가-힣]{2}.*안녕하세요/)
+  })
+  test('공용 자료의 부제 ("공용" / "Common")', () => {
+    expect(buildResourceEmail({ ...data, cohortNumber: null }).html).toContain('공용 · 강의자료')
+    expect(buildResourceEmail({ ...data, cohortNumber: null, locale: 'en' }).html).toContain('Common · Lecture')
+  })
   test('이름이 없으면 일반 인사말', () => {
     expect(buildResourceEmail({ ...data, name: '  ' }).text).toContain('안녕하세요.')
     expect(buildResourceEmail({ ...data, name: '  ' }).text).not.toContain('대표님')
+    expect(buildResourceEmail({ ...data, name: '  ', locale: 'en' }).text).toContain('Hello.')
   })
   test('제목의 줄바꿈으로 헤더를 주입할 수 없고 길이는 제한된다', () => {
     expect(cleanSubject('제목\r\nBcc: evil@x.com')).toBe('제목 Bcc: evil@x.com')
@@ -79,14 +97,24 @@ describe('이메일 본문', () => {
     expect(cleanSubject('가'.repeat(400))).toHaveLength(150)
     expect(buildResourceEmail({ ...data, title: 'a\r\nBcc: x@y.z' }).subject).not.toMatch(/[\r\n]/)
   })
-  test('공지 메일: 요약문 유무', () => {
-    const a = buildAnnouncementEmail({ name: '김', title: '공지', excerpt: '요약 <b>', url: 'https://x.co/announcements/1', unsubscribeUrl: 'https://x.co/u' })
+  test('공지 메일: 요약문 유무, 두 언어', () => {
+    const a = buildAnnouncementEmail({ locale: 'ko', name: '김', title: '공지', excerpt: '요약 <b>', url: 'https://x.co/announcements/1', unsubscribeUrl: 'https://x.co/u' })
     expect(a.subject).toBe('[AI4CEO] 공지: 공지')
     expect(a.html).toContain('요약 &lt;b&gt;')
-    expect(buildAnnouncementEmail({ name: '김', title: '공지', excerpt: '', url: 'u', unsubscribeUrl: 'v' }).html).not.toContain('color:#374151')
+    const en = buildAnnouncementEmail({ locale: 'en', name: '김', title: 'News', excerpt: 'x', url: 'https://x.co/announcements/1', unsubscribeUrl: 'https://x.co/u' })
+    expect(en.subject).toBe('[AI4CEO] Announcement: News')
+    expect(en.html).toContain('Read the announcement')
+    expect(buildAnnouncementEmail({ locale: 'ko', name: '김', title: '공지', excerpt: '', url: 'u', unsubscribeUrl: 'v' }).html).not.toContain('color:#374151')
   })
   test('escapeHtml', () => {
     expect(escapeHtml(`<a href="x" onclick='y'>&</a>`)).toBe('&lt;a href=&quot;x&quot; onclick=&#39;y&#39;&gt;&amp;&lt;/a&gt;')
+  })
+  test('localeOf: 모르는 값은 기본 언어(영어)', () => {
+    expect(localeOf('ko')).toBe('ko')
+    expect(localeOf('en')).toBe('en')
+    expect(localeOf('fr')).toBe('en')
+    expect(localeOf(null)).toBe('en')
+    expect(localeOf(undefined)).toBe('en')
   })
 })
 
@@ -154,7 +182,7 @@ describe('Resend 발송기', () => {
     expect((fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(1)
     expect(out).toHaveLength(4)
     expect(out.every((o) => !o.ok && o.retryable)).toBe(true)
-    expect((out[0] as { error: string }).error).toContain('시간 제한')
+    expect((out[0] as { error: string }).error).toContain('time limit')
   })
   test('건별 발송에는 Idempotency-Key 가 붙는다', async () => {
     const seen: string[] = []
@@ -249,7 +277,7 @@ function fakeStore(over: { subject?: Subject | null; recipients?: Recipient[]; j
   const finished: { status: string; error?: string | null }[] = []
   const store: NotificationStore = {
     claimJobs: async () => [job],
-    loadSubject: async () => (over.subject === undefined ? { kind: 'resource', id: 'res-1', title: '자료', cohortLabel: '12기', categoryLabel: '강의자료' } : over.subject),
+    loadSubject: async () => (over.subject === undefined ? { kind: 'resource', id: 'res-1', title: '자료', cohortNumber: 12, category: 'lecture' } : over.subject),
     recipients: async () => allRecipients.filter((r) => !sent.has(r.user_id)), // 이미 발송한 사람은 제외 (실제 RPC 와 같은 규칙)
     recordDeliveries: async (_id, rows) => {
       deliveries.push(...rows)
@@ -279,7 +307,7 @@ describe('processNotificationJobs', () => {
 
     const m = provider.calls[0][0]
     expect(m.to).toBe('u0@example.com')
-    expect(m.subject).toBe('[AI4CEO] 새 자료: 자료')
+    expect(m.subject).toBe('[AI4CEO] New resource: 자료') // 수신자 언어가 없으면 기본 언어(영어)
     expect(m.html).toContain('https://portal.example.com/library/res-1')
     expect(m.idempotencyKey).toBe(`job-1:${uid(0)}`)
     const unsub = m.headers?.['List-Unsubscribe'] ?? ''
@@ -318,7 +346,7 @@ describe('processNotificationJobs', () => {
     }
     const first = (await processNotificationJobs({ store, provider, ...opts }))[0]
     expect(first).toMatchObject({ recipients: 3, sent: 2, failed: 1, status: 'failed' })
-    expect(first.note).toContain('1명 발송 실패')
+    expect(first.note).toContain('1 failed')
     expect(finished[0].status).toBe('failed')
     expect(Array.from(sent).sort()).toEqual([uid(0), uid(2)])
 
@@ -333,7 +361,7 @@ describe('processNotificationJobs', () => {
     const provider: EmailProvider = { name: 'log', maxBatch: 100, sendBatch: async (ms) => ms.map(() => ({ ok: false as const, error: 'HTTP 422', retryable: false })) }
     const [s] = await processNotificationJobs({ store, provider, ...opts })
     expect(s.status).toBe('failed')
-    expect(finished[0].error).toContain('재시도 한도')
+    expect(finished[0].error).toContain('retry limit reached')
   })
 
   test('대상이 사라졌거나 공개되지 않았으면 발송하지 않고 done 으로 끝낸다', async () => {
@@ -374,7 +402,7 @@ describe('processNotificationJobs', () => {
     const first = await processNotificationJobs({ store, provider: wrapped, ...opts, deadlineAt: 30_000 })
     spy.mockRestore()
     expect(first[0]).toMatchObject({ sent: 2, failed: 0, status: 'failed' })
-    expect(first[0].note).toContain('3명은 시간 제한')
+    expect(first[0].note).toContain('3 deferred')
     expect(deliveries).toHaveLength(2) // 미룬 사람은 기록하지 않는다
     expect(finished[0].status).toBe('failed')
 

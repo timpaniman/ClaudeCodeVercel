@@ -5,8 +5,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { describe, expect, test } from 'vitest'
-import en from '@/messages/en.json'
-import ko from '@/messages/ko.json'
+import { messages } from '@/messages'
 
 type Tree = { [k: string]: string | Tree }
 
@@ -21,8 +20,8 @@ function flatten(tree: Tree, prefix = ''): Record<string, string> {
 }
 
 const HANGUL = /[가-힣]/
-const enFlat = flatten(en as Tree)
-const koFlat = flatten(ko as Tree)
+const enFlat = flatten(messages.en as unknown as Tree)
+const koFlat = flatten(messages.ko as unknown as Tree)
 
 describe('문구 파일 (en / ko)', () => {
   test('두 파일의 키가 같다', () => {
@@ -33,7 +32,8 @@ describe('문구 파일 (en / ko)', () => {
   })
 
   test('자리표시자({name})와 서식 태그(<tag>)가 두 언어에서 같다', () => {
-    const tokens = (s: string) => Array.from(s.matchAll(/\{(\w+)\}|<(\w+)>/g)).map((m) => m[1] ?? `<${m[2]}>`).sort()
+    // ICU 인자 이름만 뽑는다: {name} 과 {count, plural, …} 모두 "name"/"count" 로 본다 (복수형 안쪽의 {# item} 은 제외)
+    const tokens = (s: string) => Array.from(new Set(Array.from(s.matchAll(/\{(\w+)\s*[,}]|<(\w+)>/g)).map((m) => m[1] ?? `<${m[2]}>`))).sort()
     for (const key of Object.keys(enFlat)) {
       expect(tokens(koFlat[key] ?? ''), key).toEqual(tokens(enFlat[key]))
     }
@@ -73,82 +73,17 @@ function hasUserFacingHangul(source: string): boolean {
   })
 }
 
-// 아직 영어로 변환하지 않은 파일 (P1~P4 진행에 따라 이 목록이 줄어든다. 끝나면 빈 배열)
-const PENDING: string[] = [
-  'src/app/(admin)/admin/announcements/[id]/edit/page.tsx',
-  'src/app/(admin)/admin/announcements/new/page.tsx',
-  'src/app/(admin)/admin/announcements/page.tsx',
-  'src/app/(admin)/admin/approvals/page.tsx',
-  'src/app/(admin)/admin/page.tsx',
-  'src/app/(admin)/admin/resources/[id]/edit/page.tsx',
-  'src/app/(admin)/admin/resources/new/page.tsx',
-  'src/app/(admin)/admin/resources/page.tsx',
-  'src/app/(admin)/admin/roster/page.tsx',
-  'src/app/(main)/announcements/[id]/not-found.tsx',
-  'src/app/(main)/announcements/[id]/page.tsx',
-  'src/app/(main)/announcements/page.tsx',
-  'src/app/(main)/directory/[cohortNumber]/page.tsx',
-  'src/app/(main)/directory/page.tsx',
-  'src/app/(main)/home/loading.tsx',
-  'src/app/(main)/home/page.tsx',
-  'src/app/(main)/library/[id]/not-found.tsx',
-  'src/app/(main)/library/[id]/page.tsx',
-  'src/app/(main)/library/loading.tsx',
-  'src/app/(main)/library/page.tsx',
-  'src/app/(main)/me/page.tsx',
-  'src/app/api/admin/publish/route.ts',
-  'src/app/api/admin/roster/commit/route.ts',
-  'src/app/api/admin/roster/preview/route.ts',
-  'src/app/api/cron/notify/route.ts',
-  'src/app/api/resources/[id]/download/route.ts',
-  'src/app/api/unsubscribe/route.ts',
-  'src/app/unsubscribe/page.tsx',
-  'src/features/admin/components/AdminNav.tsx',
-  'src/features/admin/components/AnnouncementAdminList.tsx',
-  'src/features/admin/components/AnnouncementForm.tsx',
-  'src/features/admin/components/ApprovalList.tsx',
-  'src/features/admin/components/ResourceAdminTable.tsx',
-  'src/features/admin/components/ResourceForm.tsx',
-  'src/features/admin/components/RosterManager.tsx',
-  'src/features/admin/components/StatsCharts.tsx',
-  'src/features/admin/publishClient.ts',
-  'src/features/admin/services/roster.ts',
-  'src/features/admin/services/rosterContext.ts',
-  'src/features/announcements/components/AnnouncementItem.tsx',
-  'src/features/announcements/queries.ts',
-  'src/features/announcements/text.ts',
-  'src/features/directory/components/MemberCard.tsx',
-  'src/features/directory/queries.ts',
-  'src/features/library/components/CopyButton.tsx',
-  'src/features/library/components/DownloadButton.tsx',
-  'src/features/library/components/FileTypeIcon.tsx',
-  'src/features/library/components/LibraryFilters.tsx',
-  'src/features/library/components/ResourceItem.tsx',
-  'src/features/library/components/SignedPreview.tsx',
-  'src/features/library/fileType.ts',
-  'src/features/library/params.ts',
-  'src/features/library/queries.ts',
-  'src/features/library/tags.ts',
-  'src/features/me/components/InstallHint.tsx',
-  'src/features/me/components/NotificationSettings.tsx',
-  'src/features/me/components/ProfileForm.tsx',
-  'src/features/me/profile.ts',
-  'src/features/migration/manifest.ts',
-  'src/features/notifications/process.ts',
-  'src/features/notifications/provider.ts',
-  'src/features/notifications/store.ts',
-  'src/features/notifications/templates.ts',
-  'src/features/notifications/unsubscribe.ts',
-  'src/lib/auth/session.ts',
-  'src/lib/supabase/admin.ts',
-  'src/lib/utils.ts',
-  'src/middleware.ts',
-]
+// 아직 영어로 변환하지 않은 파일. 영어화가 끝나 비어 있다 — 새 파일에 한국어 화면 문구를 넣으면 이 검사가 실패하니 src/messages 로 옮긴다.
+const PENDING: string[] = []
+
+// 예외 폴더: 운영진이 터미널에서 쓰는 드라이브 이전 도구는 한국어 CSV 를 읽고 한국어로 안내한다 (포털 화면이 아니다)
+const IGNORED_DIRS = ['src/features/migration/']
 
 describe('영어화 진행 (한글이 남은 소스 파일)', () => {
   const actual = walk(SRC)
-    .filter((f) => hasUserFacingHangul(readFileSync(f, 'utf8')))
     .map((f) => relative(process.cwd(), f).split('\\').join('/'))
+    .filter((f) => !IGNORED_DIRS.some((d) => f.startsWith(d)))
+    .filter((f) => hasUserFacingHangul(readFileSync(join(process.cwd(), f), 'utf8')))
     .sort()
 
   test('한글이 남은 파일 목록이 PENDING 과 정확히 같다', () => {

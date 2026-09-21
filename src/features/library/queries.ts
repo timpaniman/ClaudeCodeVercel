@@ -26,7 +26,7 @@ export interface ResourceListItem {
 
 export async function loadCohorts(supabase: ServerClient): Promise<CohortInfo[]> {
   const { data, error } = await supabase.from('cohorts').select('id, number, is_active').order('number')
-  if (error) throw new Error(`cohorts 조회 실패: ${error.message}`)
+  if (error) throw new Error(`cohorts query failed: ${error.message}`)
   return (data ?? []).map((c) => ({ id: c.id, number: c.number, isActive: c.is_active }))
 }
 
@@ -60,7 +60,7 @@ export async function searchResources(
       : q.order('published_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false })
 
   const { data, error, count } = await q.range(0, params.page * PAGE_SIZE - 1)
-  if (error) throw new Error(`resources 조회 실패: ${error.message}`)
+  if (error) throw new Error(`resources query failed: ${error.message}`)
 
   const items = (data ?? []).map((r) => toListItem(r, numberById))
   return { items, total: count ?? items.length }
@@ -101,7 +101,7 @@ export async function recentResources(
     .gte('published_at', since)
     .order('published_at', { ascending: false })
     .limit(opts.limit ?? 10)
-  if (error) throw new Error(`resources 조회 실패: ${error.message}`)
+  if (error) throw new Error(`resources query failed: ${error.message}`)
   const numberById = new Map(cohorts.map((c) => [c.id, c.number]))
   return (data ?? []).map((r) => toListItem(r, numberById))
 }
@@ -111,6 +111,6 @@ export type ResourceRow = Tables<'resources'>
 /** RLS 가 열람 권한을 판단한다. 없는 자료와 권한 없는 자료는 구분하지 않는다(존재 여부 노출 방지). */
 export async function getResource(supabase: ServerClient, id: string): Promise<ResourceRow | null> {
   const { data, error } = await supabase.from('resources').select('*').eq('id', id).maybeSingle()
-  if (error) throw new Error(`resources 조회 실패: ${error.message}`)
+  if (error) throw new Error(`resources query failed: ${error.message}`)
   return data
 }

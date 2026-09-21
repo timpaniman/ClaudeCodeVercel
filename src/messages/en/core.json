@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "title": "AI4CEO — Alumni Portal",
+    "description": "Resources and announcements for AI4CEO alumni"
+  },
+  "brand": {
+    "portal": "Alumni Portal"
+  },
+  "common": {
+    "cohort": "Cohort {number}"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "ko": "한국어"
+  },
+  "nav": {
+    "home": "Home",
+    "library": "Library",
+    "announcements": "Announcements",
+    "directory": "Members",
+    "me": "Me",
+    "myProfile": "My profile",
+    "admin": "Admin",
+    "signOut": "Sign out",
+    "mainMenu": "Main menu",
+    "bottomMenu": "Bottom navigation",
+    "unread": "{count} unread announcements"
+  },
+  "apiErrors": {
+    "UNAUTHORIZED": "Please sign in to continue.",
+    "FORBIDDEN": "You don't have permission to do that.",
+    "NOT_FOUND": "We couldn't find what you were looking for.",
+    "INVALID_FILE": "That file can't be used. Please check it and try again.",
+    "INVALID_INPUT": "Please check what you entered and try again.",
+    "UNKNOWN_COHORT": "That cohort doesn't exist.",
+    "ADMIN_CONFIRM_REQUIRED": "Some rows grant administrator access. Please confirm and try again.",
+    "RATE_LIMITED": "Too many requests. Please try again in a little while.",
+    "INTERNAL": "Something went wrong. Please try again in a little while.",
+    "generic": "Something went wrong. Please try again in a little while."
+  }
+}

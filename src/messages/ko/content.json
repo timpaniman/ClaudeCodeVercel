@@ -1,0 +1,129 @@
+{
+  "announcements": {
+    "title": "공지",
+    "metaTitle": "공지 — AI4CEO",
+    "write": "공지 작성",
+    "loadError": "공지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "retry": "다시 시도",
+    "empty": "아직 공지가 없습니다.",
+    "more": "더 보기 (남은 {remaining}건)",
+    "back": "공지 목록",
+    "unpublished": "아직 게시되지 않은 공지입니다. 운영진에게만 보입니다.",
+    "pinned": "고정 공지",
+    "unread": "안 읽음",
+    "edit": "수정",
+    "notFound": {
+      "title": "공지를 찾을 수 없습니다",
+      "body": "삭제되었거나 아직 게시되지 않은 공지입니다.",
+      "back": "공지 목록으로"
+    },
+    "errors": {
+      "titleRequired": "제목을 입력해 주세요.",
+      "titleTooLong": "제목은 {max}자 이내로 입력해 주세요.",
+      "bodyRequired": "내용을 입력해 주세요.",
+      "bodyTooLong": "내용은 {max, number}자 이내로 입력해 주세요."
+    }
+  },
+  "directory": {
+    "title": "멤버",
+    "metaTitle": "멤버 — AI4CEO",
+    "back": "멤버",
+    "searchLabel": "멤버 검색",
+    "cohortSearchLabel": "이 기수에서 검색",
+    "placeholder": "이름·회사·직책 검색",
+    "loadError": "멤버 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "count": "{count}명",
+    "resultsFor": "“{q}” 검색 결과 {count}명",
+    "topOnly": " (상위 {max}명만 표시)",
+    "noResults": "검색 결과가 없습니다.",
+    "browseByCohort": "기수별로 보기",
+    "cohortGrid": "기수별 멤버",
+    "empty": "아직 표시할 멤버가 없습니다.",
+    "website": "웹사이트",
+    "linksLabel": "{name} 링크"
+  },
+  "me": {
+    "metaTitle": "내 프로필 — AI4CEO",
+    "profile": "프로필",
+    "profileNote": "다른 졸업생이 멤버 화면에서 볼 수 있는 정보입니다. 이메일은 공개되지 않습니다.",
+    "notifications": "이메일 알림",
+    "account": "계정",
+    "email": "이메일",
+    "cohort": "기수",
+    "status": "상태",
+    "statusActive": "이용 중",
+    "statusActiveAdmin": "이용 중 (운영진)",
+    "contactAdmin": "이메일이나 기수를 바꾸려면 운영진에게 문의해 주세요.",
+    "adminArea": "관리자 화면",
+    "signOut": "로그아웃",
+    "language": "언어",
+    "fields": {
+      "name": "이름",
+      "company": "회사",
+      "position": "직책",
+      "bio": "소개",
+      "github_url": "GitHub",
+      "linkedin_url": "LinkedIn",
+      "website_url": "웹사이트"
+    },
+    "positionPlaceholder": "예: 대표이사",
+    "bioHint": "다른 졸업생에게 보이는 한두 줄 소개입니다.",
+    "form": {
+      "save": "저장",
+      "saved": "저장했습니다.",
+      "fixInput": "입력 내용을 확인해 주세요.",
+      "errFormat": "입력 형식이 올바르지 않습니다. 링크는 https:// 로 시작해야 하고 글자 수 제한이 있습니다.",
+      "errSave": "저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+    },
+    "profileErrors": {
+      "nameRequired": "이름을 입력해 주세요.",
+      "nameTooLong": "이름은 {max}자 이내로 입력해 주세요.",
+      "companyTooLong": "회사는 {max}자 이내로 입력해 주세요.",
+      "positionTooLong": "직책은 {max}자 이내로 입력해 주세요.",
+      "bioTooLong": "소개는 {max}자 이내로 입력해 주세요.",
+      "urlTooLong": "{label} 주소가 너무 깁니다.",
+      "urlHttps": "{label} 주소는 https:// 로 시작해야 합니다.",
+      "urlHost": "{label} 주소를 https://{host}/… 형식으로 입력해 주세요."
+    },
+    "notify": {
+      "newResource": {
+        "title": "새 자료 알림",
+        "desc": "내가 볼 수 있는 새 자료가 올라오면 이메일로 알려 드립니다."
+      },
+      "announcement": {
+        "title": "공지 알림",
+        "desc": "운영진이 공지를 올리면 이메일로 알려 드립니다."
+      },
+      "on": "켜짐",
+      "off": "꺼짐",
+      "errSave": "설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+      "allOff": "지금은 알림 메일을 받지 않습니다. 새 자료와 공지는 포털에서 직접 확인해 주세요."
+    },
+    "install": {
+      "title": "홈 화면에 추가",
+      "prompt": "홈 화면에 추가하면 앱처럼 바로 열 수 있습니다.",
+      "button": "홈 화면에 추가",
+      "iosOther": "iPhone에서는 <b>Safari</b>로 열어야 홈 화면에 추가할 수 있습니다. 카카오톡 등 앱 안에서 연 화면이라면 주소를 복사해 Safari에서 열어 주세요.",
+      "step1": "Safari 아래의 <b>공유</b> 버튼을 누릅니다.",
+      "step2": "<b>홈 화면에 추가</b>를 선택합니다."
+    }
+  },
+  "unsubscribe": {
+    "metaTitle": "알림 수신 해제 — AI4CEO",
+    "doneTitle": "수신을 해제했습니다",
+    "doneBody": "이제 <b>{scope}</b> 메일을 보내지 않습니다. 새 자료와 공지는 포털에서 직접 확인하실 수 있고, 알림은 포털의 <b>내 프로필</b>에서 언제든 다시 켤 수 있습니다.",
+    "openSettings": "알림 설정 열기",
+    "invalidTitle": "링크를 확인할 수 없습니다",
+    "invalidBody": "링크가 올바르지 않거나 손상되었습니다. 포털에 로그인해서 <b>내 프로필 → 이메일 알림</b>에서 직접 설정을 바꿀 수 있습니다.",
+    "toProfile": "내 프로필로 이동",
+    "confirmTitle": "알림 수신을 해제할까요?",
+    "confirmBody": "<b>{scope}</b> 이메일을 더 이상 보내지 않습니다.",
+    "confirm": "수신 해제",
+    "cancel": "취소",
+    "scopes": {
+      "resource": "새 자료 알림",
+      "announcement": "공지 알림",
+      "all": "모든 알림"
+    }
+  }
+}

@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 import { localeCookieString, locales, type Locale } from '@/i18n/config'
 
 // 언어 전환. 선택은 쿠키(NEXT_LOCALE)에 저장되고, 서버가 다시 그리도록 새로고침한다.
@@ -12,9 +13,17 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   const current = useLocale()
   const router = useRouter()
 
-  const change = (locale: Locale) => {
+  const change = async (locale: Locale) => {
     if (locale === current) return
     document.cookie = localeCookieString(locale)
+    // 로그인한 회원이면 알림 메일도 이 언어로 받도록 프로필에 함께 저장한다 (실패해도 화면 언어 전환에는 영향이 없다)
+    try {
+      const supabase = createClient()
+      const { data } = await supabase.auth.getUser()
+      if (data.user) await supabase.from('profiles').update({ locale }).eq('id', data.user.id)
+    } catch {
+      /* 무시 */
+    }
     router.refresh()
   }
 

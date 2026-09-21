@@ -14,10 +14,10 @@ const VIEW_URL_TTL = 300
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const { supabase, user, profile } = await getSessionProfile()
-  if (!user) return apiError('UNAUTHORIZED', '로그인이 필요합니다.', 401)
-  if (!profile || profile.status !== 'active') return apiError('FORBIDDEN', '열람 권한이 없습니다.', 403)
+  if (!user) return apiError('UNAUTHORIZED', 'Sign-in required.', 401)
+  if (!profile || profile.status !== 'active') return apiError('FORBIDDEN', 'Not allowed to view this resource.', 403)
 
-  if (!z.uuid().safeParse(params.id).success) return apiError('NOT_FOUND', '자료를 찾을 수 없습니다.', 404)
+  if (!z.uuid().safeParse(params.id).success) return apiError('NOT_FOUND', 'Resource not found.', 404)
 
   let mode: 'download' | 'view' = 'download'
   try {
@@ -34,10 +34,10 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .maybeSingle()
   if (error) {
     console.error('[download] select', error)
-    return apiError('INTERNAL', '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.', 500)
+    return apiError('INTERNAL', 'Something went wrong. Please try again later.', 500)
   }
   // 미공개 자료는 운영진만 (RLS 가 이미 걸러 주지만 한 번 더 확인)
-  if (!r || (!r.is_published && profile.role !== 'admin')) return apiError('NOT_FOUND', '자료를 찾을 수 없습니다.', 404)
+  if (!r || (!r.is_published && profile.role !== 'admin')) return apiError('NOT_FOUND', 'Resource not found.', 404)
 
   const countIt = mode === 'download' && r.is_published
 
@@ -48,15 +48,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
       p_device: detectDevice(request.headers.get('user-agent')),
     })
     if (!recErr) return null
-    if (recErr.code === '42501') return apiError('FORBIDDEN', '열람 권한이 없습니다.', 403)
-    if (recErr.code === 'P0002') return apiError('NOT_FOUND', '자료를 찾을 수 없습니다.', 404)
+    if (recErr.code === '42501') return apiError('FORBIDDEN', 'Not allowed to view this resource.', 403)
+    if (recErr.code === 'P0002') return apiError('NOT_FOUND', 'Resource not found.', 404)
     console.error('[download] record_download', recErr)
-    return apiError('INTERNAL', '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.', 500)
+    return apiError('INTERNAL', 'Something went wrong. Please try again later.', 500)
   }
 
   // 외부 링크 자료
   if (!r.storage_path) {
-    if (!r.external_url) return apiError('NOT_FOUND', '자료를 찾을 수 없습니다.', 404)
+    if (!r.external_url) return apiError('NOT_FOUND', 'Resource not found.', 404)
     const failed = await record()
     if (failed) return failed
     return NextResponse.json({ url: r.external_url, external: true })
@@ -68,7 +68,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: signed, error: signErr } = await supabase.storage.from('resources').createSignedUrl(r.storage_path, ttl)
   if (signErr || !signed) {
     console.error('[download] sign', signErr)
-    return apiError('NOT_FOUND', '파일을 찾을 수 없습니다. 운영진에게 문의해 주세요.', 404)
+    return apiError('NOT_FOUND', 'File not found.', 404)
   }
 
   const failed = await record()

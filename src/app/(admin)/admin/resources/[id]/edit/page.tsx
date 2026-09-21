@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { z } from 'zod'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { ResourceForm } from '@/features/admin/components/ResourceForm'
 import { getResource, loadCohorts } from '@/features/library/queries'
@@ -7,13 +8,15 @@ import { getResource, loadCohorts } from '@/features/library/queries'
 export default async function EditResourcePage({ params }: { params: { id: string } }) {
   if (!z.uuid().safeParse(params.id).success) notFound()
 
+  const t = await getTranslations('admin.titles')
+
   const { supabase, user } = await getSessionProfile()
   const [resource, cohorts] = await Promise.all([getResource(supabase, params.id), loadCohorts(supabase)])
   if (!resource) notFound()
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold text-white">자료 수정</h1>
+      <h1 className="text-2xl font-bold text-white">{t('resourceEdit')}</h1>
       <ResourceForm
         mode="edit"
         cohorts={cohorts.map((c) => ({ id: c.id, number: c.number }))}

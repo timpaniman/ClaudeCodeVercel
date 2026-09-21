@@ -19,21 +19,22 @@ export async function POST(request: Request) {
   try {
     form = await request.formData()
   } catch {
-    return apiError('INVALID_FILE', 'CSV 파일을 업로드해 주세요.', 400)
+    return apiError('INVALID_FILE', 'Please upload a CSV file.', 400)
   }
 
   const file = form.get('file')
-  if (!(file instanceof File)) return apiError('INVALID_FILE', 'CSV 파일을 업로드해 주세요.', 400)
-  if (file.size === 0) return apiError('INVALID_FILE', '빈 파일입니다.', 400)
+  if (!(file instanceof File)) return apiError('INVALID_FILE', 'Please upload a CSV file.', 400)
+  if (file.size === 0) return apiError('INVALID_FILE', 'The file is empty.', 400)
   if (file.size > MAX_ROSTER_FILE_BYTES) {
-    return apiError('INVALID_FILE', `파일이 너무 큽니다. (최대 ${MAX_ROSTER_FILE_BYTES / 1024 / 1024}MB)`, 400)
+    return apiError('INVALID_FILE', `File too large (max ${MAX_ROSTER_FILE_BYTES / 1024 / 1024}MB).`, 400)
   }
   if (!/\.(csv|txt)$/i.test(file.name)) {
-    return apiError('INVALID_FILE', 'CSV 파일(.csv)만 올릴 수 있습니다.', 400)
+    return apiError('INVALID_FILE', 'Only .csv files are accepted.', 400)
   }
 
   const parsed = parseRosterCsv(await file.text())
-  if (parsed.error) return apiError('INVALID_FILE', parsed.error, 400)
+  // 파일 안의 문제는 키와 값(details.reason)으로 돌려주고, 화면이 현재 언어로 번역한다
+  if (parsed.error) return apiError('INVALID_FILE', `Invalid roster file: ${parsed.error.key}`, 400, { reason: parsed.error })
 
   try {
     const ctx = await loadRosterContext(gate.supabase)
@@ -41,6 +42,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ summary: summarizeRoster(rows), hasAdminRows: hasAdminRows(rows), rows })
   } catch (e) {
     console.error('[roster/preview]', e)
-    return apiError('INTERNAL', '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.', 500)
+    return apiError('INTERNAL', 'Something went wrong. Please try again later.', 500)
   }
 }

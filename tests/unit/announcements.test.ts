@@ -42,10 +42,10 @@ describe('countUnread / badgeLabel', () => {
 describe('validateAnnouncement', () => {
   test('정상/빈 값/길이 제한', () => {
     expect(validateAnnouncement({ title: '공지', body: '내용' })).toBeNull()
-    expect(validateAnnouncement({ title: '  ', body: '내용' })).toContain('제목')
-    expect(validateAnnouncement({ title: '공지', body: ' \n ' })).toContain('내용')
-    expect(validateAnnouncement({ title: 'a'.repeat(MAX_TITLE_LENGTH + 1), body: 'x' })).toContain('제목은')
-    expect(validateAnnouncement({ title: 'a', body: 'x'.repeat(MAX_BODY_LENGTH + 1) })).toContain('내용은')
+    expect(validateAnnouncement({ title: '  ', body: '내용' })).toEqual({ key: 'titleRequired' })
+    expect(validateAnnouncement({ title: '공지', body: ' \n ' })).toEqual({ key: 'bodyRequired' })
+    expect(validateAnnouncement({ title: 'a'.repeat(MAX_TITLE_LENGTH + 1), body: 'x' })).toEqual({ key: 'titleTooLong', max: MAX_TITLE_LENGTH })
+    expect(validateAnnouncement({ title: 'a', body: 'x'.repeat(MAX_BODY_LENGTH + 1) })).toEqual({ key: 'bodyTooLong', max: MAX_BODY_LENGTH })
     expect(validateAnnouncement({ title: 'a'.repeat(MAX_TITLE_LENGTH), body: 'x'.repeat(MAX_BODY_LENGTH) })).toBeNull()
   })
 })

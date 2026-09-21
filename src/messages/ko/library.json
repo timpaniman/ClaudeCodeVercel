@@ -1,0 +1,100 @@
+{
+  "home": {
+    "title": "홈 — AI4CEO",
+    "greeting": "{name} 대표님, 안녕하세요",
+    "searchLabel": "자료 검색",
+    "searchPlaceholder": "자료 검색",
+    "loadError": "일부 내용을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "announcements": "공지",
+    "viewAll": "전체 보기",
+    "noAnnouncements": "아직 공지가 없습니다.",
+    "newResources": "새 자료",
+    "lastDays": "최근 {days}일",
+    "myCohort": "내 기수 자료",
+    "allResources": "전체 자료",
+    "noNew": "최근 {days}일 안에 올라온 새 자료가 없습니다.",
+    "goAdmin": "관리자 화면으로 이동",
+    "loading": "홈 화면을 불러오는 중"
+  },
+  "library": {
+    "title": "자료",
+    "metaTitle": "자료 — AI4CEO",
+    "count": "{count}건",
+    "upload": "자료 올리기",
+    "loadError": "자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "retry": "다시 시도",
+    "noResults": "검색 결과가 없습니다.",
+    "empty": "아직 등록된 자료가 없습니다.",
+    "clearFilters": "필터 초기화",
+    "loadMore": "더 보기 ({shown}건 / 남은 {remaining}건)",
+    "loading": "자료를 불러오는 중",
+    "search": {
+      "placeholder": "제목·설명·태그 검색",
+      "label": "자료 검색"
+    },
+    "filters": {
+      "cohort": "기수",
+      "all": "전체",
+      "common": "공용",
+      "lockedTitle": "열람 권한이 없는 기수입니다",
+      "lockedSr": "(열람 권한 없음)",
+      "category": "카테고리",
+      "week": "주차",
+      "allWeeks": "전체 주차",
+      "weekOption": "{number}주차",
+      "sort": "정렬",
+      "latest": "최신순",
+      "downloads": "다운로드순"
+    },
+    "item": {
+      "week": "{number}주차",
+      "downloads": "다운로드 {count}회"
+    },
+    "detail": {
+      "back": "자료 목록",
+      "unpublished": "아직 공개되지 않은 자료입니다. 운영진에게만 보입니다.",
+      "tags": "태그",
+      "edit": "수정"
+    },
+    "notFound": {
+      "title": "자료를 열 수 없습니다",
+      "body": "없어진 자료이거나 열람 권한이 없는 자료입니다. 재학 중인 기수는 본인 기수와 공용 자료만 볼 수 있습니다.",
+      "back": "자료 목록으로"
+    },
+    "categories": {
+      "lecture": "강의자료",
+      "code": "코드",
+      "video": "영상",
+      "reference": "참고자료",
+      "assignment": "과제"
+    },
+    "fileKinds": {
+      "pdf": "PDF",
+      "code": "코드",
+      "video": "영상",
+      "image": "이미지",
+      "link": "링크",
+      "other": "파일"
+    },
+    "download": {
+      "button": "다운로드",
+      "openLink": "링크 열기"
+    },
+    "preview": {
+      "loading": "미리보기를 불러오는 중…",
+      "error": "미리보기를 불러오지 못했습니다.",
+      "errorNote": "아래 다운로드 버튼으로 받아 보실 수 있습니다.",
+      "iframeTitle": "{title} 미리보기",
+      "openPdf": "PDF 열어 보기",
+      "errorPdf": "PDF를 열지 못했습니다."
+    },
+    "copy": {
+      "copy": "코드 복사",
+      "copied": "복사됨"
+    },
+    "tagErrors": {
+      "tooLong": "태그는 {max}자 이내로 입력해 주세요. (\"{tag}…\")",
+      "tooMany": "태그는 최대 {max}개까지 입력할 수 있습니다."
+    }
+  }
+}

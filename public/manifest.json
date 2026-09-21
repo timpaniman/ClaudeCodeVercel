@@ -1,9 +1,9 @@
 {
   "id": "/",
-  "name": "AI4CEO 졸업생 포털",
+  "name": "AI4CEO Alumni Portal",
   "short_name": "AI4CEO",
-  "description": "AI4CEO 졸업생을 위한 자료·공지 포털",
-  "lang": "ko",
+  "description": "Resources and announcements for AI4CEO alumni",
+  "lang": "en",
   "start_url": "/home",
   "scope": "/",
   "display": "standalone",
@@ -11,8 +11,23 @@
   "background_color": "#030712",
   "theme_color": "#6366f1",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ArrowRight, Search, ShieldCheck } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { CohortBadge } from '@/components/ui/CohortBadge'
 import { AnnouncementItem } from '@/features/announcements/components/AnnouncementItem'
@@ -7,13 +8,17 @@ import { listAnnouncements, type AnnouncementListItem } from '@/features/announc
 import { ResourceItem } from '@/features/library/components/ResourceItem'
 import { loadCohorts, recentResources, type ResourceListItem } from '@/features/library/queries'
 
-export const metadata = { title: '홈 — AI4CEO' }
+export async function generateMetadata() {
+  const t = await getTranslations('home')
+  return { title: t('title') }
+}
 
 const HOME_ANNOUNCEMENTS = 3
 const NEW_RESOURCE_DAYS = 7
 
 // Design Ref: §5.4 /home — 인사말+기수 배지, 고정 공지(최대 3, 안 읽음 점), 새 자료(최근 7일), 내 기수 자료 바로가기, 검색바
 export default async function HomePage() {
+  const t = await getTranslations('home')
   const { supabase, user, profile } = await getSessionProfile()
 
   let announcements: AnnouncementListItem[] = []
@@ -40,7 +45,7 @@ export default async function HomePage() {
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-8">
       <header className="space-y-3">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-2xl font-bold text-white">{profile?.name} 대표님, 안녕하세요</h1>
+          <h1 className="text-2xl font-bold text-white">{t('greeting', { name: profile?.name ?? '' })}</h1>
           {cohortNumber !== null && <CohortBadge cohortNumber={cohortNumber} size="lg" />}
         </div>
 
@@ -50,8 +55,8 @@ export default async function HomePage() {
             name="q"
             type="search"
             maxLength={100}
-            aria-label="자료 검색"
-            placeholder="자료 검색"
+            aria-label={t('searchLabel')}
+            placeholder={t('searchPlaceholder')}
             className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
         </form>
@@ -59,20 +64,20 @@ export default async function HomePage() {
 
       {failed && (
         <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-base text-red-300">
-          일부 내용을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
+          {t('loadError')}
         </div>
       )}
 
       <section aria-labelledby="home-announcements" className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 id="home-announcements" className="text-lg font-semibold text-white">공지</h2>
+          <h2 id="home-announcements" className="text-lg font-semibold text-white">{t('announcements')}</h2>
           <Link href="/announcements" className="inline-flex items-center gap-1 min-h-11 text-base text-indigo-300 hover:text-indigo-200">
-            전체 보기 <ArrowRight size={16} aria-hidden />
+            {t('viewAll')} <ArrowRight size={16} aria-hidden />
           </Link>
         </div>
         {announcements.length === 0 ? (
           <p className="rounded-2xl border border-white/10 bg-white/5 p-5 text-base text-gray-400" data-testid="home-announcements-empty">
-            아직 공지가 없습니다.
+            {t('noAnnouncements')}
           </p>
         ) : (
           <ul className="space-y-3" data-testid="home-announcements">
@@ -86,22 +91,22 @@ export default async function HomePage() {
       <section aria-labelledby="home-new" className="space-y-3">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 id="home-new" className="text-lg font-semibold text-white">
-            새 자료 <span className="text-base font-normal text-gray-400">최근 {NEW_RESOURCE_DAYS}일</span>
+            {t('newResources')} <span className="text-base font-normal text-gray-400">{t('lastDays', { days: NEW_RESOURCE_DAYS })}</span>
           </h2>
           <div className="flex items-center gap-4">
             {cohortNumber !== null && (
               <Link href={`/library?cohort=${cohortNumber}`} className="inline-flex items-center min-h-11 text-base text-indigo-300 hover:text-indigo-200">
-                내 기수 자료
+                {t('myCohort')}
               </Link>
             )}
             <Link href="/library" className="inline-flex items-center gap-1 min-h-11 text-base text-indigo-300 hover:text-indigo-200">
-              전체 자료 <ArrowRight size={16} aria-hidden />
+              {t('allResources')} <ArrowRight size={16} aria-hidden />
             </Link>
           </div>
         </div>
         {fresh.length === 0 ? (
           <p className="rounded-2xl border border-white/10 bg-white/5 p-5 text-base text-gray-400" data-testid="home-new-empty">
-            최근 {NEW_RESOURCE_DAYS}일 안에 올라온 새 자료가 없습니다.
+            {t('noNew', { days: NEW_RESOURCE_DAYS })}
           </p>
         ) : (
           <ul className="space-y-3" data-testid="home-new-resources">
@@ -118,7 +123,7 @@ export default async function HomePage() {
           className="flex items-center gap-3 min-h-14 bg-indigo-600/15 border border-indigo-500/30 rounded-2xl px-5 text-base font-medium text-indigo-200 hover:bg-indigo-600/25 transition-colors"
         >
           <ShieldCheck size={20} aria-hidden />
-          관리자 화면으로 이동
+          {t('goAdmin')}
         </Link>
       )}
     </div>

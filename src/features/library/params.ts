@@ -2,14 +2,6 @@
 export const CATEGORIES = ['lecture', 'code', 'video', 'reference', 'assignment'] as const
 export type Category = (typeof CATEGORIES)[number]
 
-export const CATEGORY_LABEL: Record<Category, string> = {
-  lecture: '강의자료',
-  code: '코드',
-  video: '영상',
-  reference: '참고자료',
-  assignment: '과제',
-}
-
 export const PAGE_SIZE = 20
 export const MAX_PAGE = 50
 export const MAX_WEEK = 20

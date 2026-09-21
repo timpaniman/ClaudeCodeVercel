@@ -14,7 +14,7 @@ describe(`스모크 (${BASE})`, () => {
     const r = await get('/login')
     expect(r.status).toBe(200)
     const html = await r.text()
-    expect(html).toContain('인증 코드 보내기')
+    expect(html).toContain('Send verification code') // 영어가 기본 언어
     expect(html).toContain('rel="manifest"')
   })
 
@@ -76,6 +76,6 @@ describe(`스모크 (${BASE})`, () => {
     expect((await get('/api/unsubscribe', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 't=forged.token' })).status).toBe(400)
     const page = await get('/unsubscribe?t=forged.token')
     expect(page.status).toBe(200)
-    expect(await page.text()).toContain('링크를 확인할 수 없습니다')
+    expect(await page.text()).toContain("We can't verify this link")
   })
 })

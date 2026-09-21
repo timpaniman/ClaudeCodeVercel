@@ -7,8 +7,8 @@ export async function loadRosterContext(supabase: ServerClient): Promise<Validat
     supabase.from('cohorts').select('number'),
     supabase.from('roster').select('email, claimed_by').limit(20000),
   ])
-  if (cohorts.error) throw new Error(`cohorts 조회 실패: ${cohorts.error.message}`)
-  if (roster.error) throw new Error(`roster 조회 실패: ${roster.error.message}`)
+  if (cohorts.error) throw new Error(`cohorts query failed: ${cohorts.error.message}`)
+  if (roster.error) throw new Error(`roster query failed: ${roster.error.message}`)
 
   return {
     cohortNumbers: new Set((cohorts.data ?? []).map((c) => c.number)),

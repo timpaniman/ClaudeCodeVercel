@@ -42,13 +42,13 @@ describe('parseRosterCsv', () => {
   test('필수 열이 없으면 오류 메시지를 준다', () => {
     const r = parseRosterCsv('email,name\na@b.com,홍길동')
     expect(r.rows).toEqual([])
-    expect(r.error).toContain('cohort_number(기수)')
+    expect(r.error).toEqual({ key: 'missingColumns', columns: 'cohort_number' })
   })
 
   test('데이터 행이 없거나 너무 많으면 오류', () => {
-    expect(parseRosterCsv('email,name,cohort_number\n').error).toContain('데이터 행이 없습니다')
+    expect(parseRosterCsv('email,name,cohort_number\n').error).toEqual({ key: 'noRows' })
     const many = 'email,name,cohort_number\n' + Array.from({ length: MAX_ROSTER_ROWS + 1 }, (_, i) => `u${i}@b.com,n,1`).join('\n')
-    expect(parseRosterCsv(many).error).toContain(`${MAX_ROSTER_ROWS}행`)
+    expect(parseRosterCsv(many).error).toEqual({ key: 'tooManyRows', max: MAX_ROSTER_ROWS, count: MAX_ROSTER_ROWS + 1 })
   })
 
   test('따옴표로 감싼 쉼표 포함 이름', () => {
@@ -80,11 +80,11 @@ describe('validateRosterRows', () => {
       ctx(),
     )
     expect(out.map((r) => r.status)).toEqual(['invalid', 'invalid', 'invalid', 'invalid', 'invalid'])
-    expect(out[0].reason).toContain('이메일 형식')
-    expect(out[1].reason).toContain('이름')
-    expect(out[2].reason).toContain('기수 값')
-    expect(out[3].reason).toContain('99기')
-    expect(out[4].reason).toContain('역할')
+    expect(out[0].reason).toEqual({ key: 'emailFormat' })
+    expect(out[1].reason).toEqual({ key: 'nameEmpty' })
+    expect(out[2].reason).toEqual({ key: 'cohortUnreadable', value: 'abc' })
+    expect(out[3].reason).toEqual({ key: 'cohortUnknown', cohort: 99 })
+    expect(out[4].reason).toEqual({ key: 'roleInvalid', value: 'root' })
   })
 
   test('파일 안 중복은 첫 행만 사용 (대소문자 무시)', () => {

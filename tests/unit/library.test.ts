@@ -96,11 +96,11 @@ describe('파일 종류·업로드 검증', () => {
 
   test('validateUpload: 허용 확장자·빈 파일·크기', () => {
     expect(validateUpload({ name: '강의.pdf', size: 1000 })).toBeNull()
-    expect(validateUpload({ name: 'run.exe', size: 1000 })).toContain('올릴 수 없는')
-    expect(validateUpload({ name: 'a.pdf', size: 0 })).toBe('빈 파일입니다.')
-    expect(validateUpload({ name: 'a.pdf', size: MAX_UPLOAD_BYTES + 1 })).toContain('너무 큽니다')
+    expect(validateUpload({ name: 'run.exe', size: 1000 })).toMatchObject({ key: 'badType' })
+    expect(validateUpload({ name: 'a.pdf', size: 0 })).toEqual({ key: 'empty' })
+    expect(validateUpload({ name: 'a.pdf', size: MAX_UPLOAD_BYTES + 1 })).toEqual({ key: 'tooLarge', max: MAX_UPLOAD_BYTES / 1024 / 1024 })
     expect(validateUpload({ name: 'a.pdf', size: MAX_UPLOAD_BYTES })).toBeNull()
-    expect(validateUpload({ name: 'a.PDF.exe', size: 10 })).toContain('올릴 수 없는') // 마지막 확장자 기준
+    expect(validateUpload({ name: 'a.PDF.exe', size: 10 })).toMatchObject({ key: 'badType' }) // 마지막 확장자 기준
   })
 
   test('저장 경로는 ASCII 고정 (한글 파일명 키 문제 회피)', () => {

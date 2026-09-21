@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { loginQueryError, mapAuthError } from '@/features/auth/authErrors'
-import en from '@/messages/en.json'
-import ko from '@/messages/ko.json'
+import { messages } from '@/messages'
+
+const en = messages.en
+const ko = messages.ko
 
 // mapAuthError / loginQueryError 는 문구가 아니라 "키"를 돌려준다. 키가 언어별 문구 파일에 실제로 있는지도 함께 확인한다.
 describe('mapAuthError', () => {

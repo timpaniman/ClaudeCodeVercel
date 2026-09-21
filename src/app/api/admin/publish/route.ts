@@ -32,10 +32,10 @@ export async function POST(request: Request) {
   try {
     json = await request.json()
   } catch {
-    return apiError('INVALID_INPUT', '요청 형식이 올바르지 않습니다.', 400)
+    return apiError('INVALID_INPUT', 'Invalid request format.', 400)
   }
   const body = bodySchema.safeParse(json)
-  if (!body.success) return apiError('INVALID_INPUT', '요청 내용을 확인해 주세요.', 400)
+  if (!body.success) return apiError('INVALID_INPUT', 'Invalid request body.', 400)
   const { kind, id, notify } = body.data
 
   const { data: jobId, error } =
@@ -43,10 +43,10 @@ export async function POST(request: Request) {
       ? await gate.supabase.rpc('publish_resource', { p_id: id, p_notify: notify })
       : await gate.supabase.rpc('publish_announcement', { p_id: id, p_notify: notify })
   if (error) {
-    if (error.code === '42501') return apiError('FORBIDDEN', '운영진만 사용할 수 있습니다.', 403)
-    if (error.code === 'P0002') return apiError('NOT_FOUND', '대상을 찾을 수 없습니다.', 404)
+    if (error.code === '42501') return apiError('FORBIDDEN', 'Administrators only.', 403)
+    if (error.code === 'P0002') return apiError('NOT_FOUND', 'Target not found.', 404)
     console.error('[admin/publish] rpc', error)
-    return apiError('INTERNAL', '일시적인 오류입니다. 잠시 후 다시 시도해 주세요.', 500)
+    return apiError('INTERNAL', 'Something went wrong. Please try again later.', 500)
   }
 
   let notification: NotificationOutcome = { status: 'not_requested' }

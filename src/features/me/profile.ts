@@ -23,7 +23,17 @@ export interface ProfileValue {
   website_url: string | null
 }
 
-export type ProfileValidation = { ok: true; value: ProfileValue } | { ok: false; errors: Partial<Record<ProfileField, string>> }
+/** 링크 필드 (오류 문구의 {label} 은 me.fields.<field> 를 번역한 값) */
+export type UrlField = 'github_url' | 'linkedin_url' | 'website_url'
+
+/** 입력 오류: key 는 me.profileErrors.* 문구이고 나머지는 문구의 자리표시자 값이다 */
+export type ProfileError =
+  | { key: 'nameRequired' }
+  | { key: 'nameTooLong' | 'companyTooLong' | 'positionTooLong' | 'bioTooLong'; max: number }
+  | { key: 'urlTooLong' | 'urlHttps'; field: UrlField }
+  | { key: 'urlHost'; field: UrlField; host: string }
+
+export type ProfileValidation = { ok: true; value: ProfileValue } | { ok: false; errors: Partial<Record<ProfileField, ProfileError>> }
 
 /** https 주소이고, hosts 를 지정하면 그 도메인(또는 하위 도메인)이어야 한다. 통과하면 정규화된 주소를 돌려준다 */
 export function normalizeUrl(raw: string, hosts?: readonly string[]): string | null {
@@ -42,34 +52,34 @@ export function normalizeUrl(raw: string, hosts?: readonly string[]): string | n
 }
 
 export function validateProfile(input: ProfileInput): ProfileValidation {
-  const errors: Partial<Record<ProfileField, string>> = {}
+  const errors: Partial<Record<ProfileField, ProfileError>> = {}
   const L = PROFILE_LIMITS
 
   const name = input.name.trim()
-  if (!name) errors.name = '이름을 입력해 주세요.'
-  else if (name.length > L.name) errors.name = `이름은 ${L.name}자 이내로 입력해 주세요.`
+  if (!name) errors.name = { key: 'nameRequired' }
+  else if (name.length > L.name) errors.name = { key: 'nameTooLong', max: L.name }
 
   const company = input.company.trim()
-  if (company.length > L.company) errors.company = `회사는 ${L.company}자 이내로 입력해 주세요.`
+  if (company.length > L.company) errors.company = { key: 'companyTooLong', max: L.company }
   const position = input.position.trim()
-  if (position.length > L.position) errors.position = `직책은 ${L.position}자 이내로 입력해 주세요.`
+  if (position.length > L.position) errors.position = { key: 'positionTooLong', max: L.position }
   const bio = input.bio.trim()
-  if (bio.length > L.bio) errors.bio = `소개는 ${L.bio}자 이내로 입력해 주세요.`
+  if (bio.length > L.bio) errors.bio = { key: 'bioTooLong', max: L.bio }
 
-  const url = (field: ProfileField, label: string, hosts?: readonly string[]): string | null => {
+  const url = (field: UrlField, hosts?: readonly string[]): string | null => {
     const raw = input[field].trim()
     if (!raw) return null
     if (raw.length > L.url) {
-      errors[field] = `${label} 주소가 너무 깁니다.`
+      errors[field] = { key: 'urlTooLong', field }
       return null
     }
     const ok = normalizeUrl(raw, hosts)
-    if (!ok) errors[field] = hosts ? `${label} 주소를 https://${hosts[0]}/… 형식으로 입력해 주세요.` : `${label} 주소는 https:// 로 시작해야 합니다.`
+    if (!ok) errors[field] = hosts ? { key: 'urlHost', field, host: hosts[0] } : { key: 'urlHttps', field }
     return ok
   }
-  const github = url('github_url', 'GitHub', ['github.com'])
-  const linkedin = url('linkedin_url', 'LinkedIn', ['linkedin.com'])
-  const website = url('website_url', '웹사이트')
+  const github = url('github_url', ['github.com'])
+  const linkedin = url('linkedin_url', ['linkedin.com'])
+  const website = url('website_url')
 
   if (Object.keys(errors).length > 0) return { ok: false, errors }
   return {

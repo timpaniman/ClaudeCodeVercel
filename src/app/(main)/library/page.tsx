@@ -1,18 +1,23 @@
 import Link from 'next/link'
 import { Upload } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { LibraryFilters } from '@/features/library/components/LibraryFilters'
 import { ResourceItem } from '@/features/library/components/ResourceItem'
 import { PAGE_SIZE, parseLibraryParams, toSearchString } from '@/features/library/params'
 import { loadCohorts, searchResources, type ResourceListItem } from '@/features/library/queries'
 
-export const metadata = { title: '자료 — AI4CEO' }
+export async function generateMetadata() {
+  const t = await getTranslations('library')
+  return { title: t('metaTitle') }
+}
 
 export default async function LibraryPage({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>
 }) {
+  const t = await getTranslations('library')
   const params = parseLibraryParams(searchParams)
   const { supabase, profile } = await getSessionProfile()
 
@@ -41,14 +46,14 @@ export default async function LibraryPage({
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
       <header className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">
-          자료 {!failed && <span className="text-base font-normal text-gray-400">{total}건</span>}
+          {t('title')} {!failed && <span className="text-base font-normal text-gray-400">{t('count', { count: total })}</span>}
         </h1>
         {profile?.role === 'admin' && (
           <Link
             href="/admin/resources/new"
             className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold"
           >
-            <Upload size={18} aria-hidden /> 자료 올리기
+            <Upload size={18} aria-hidden /> {t('upload')}
           </Link>
         )}
       </header>
@@ -57,17 +62,17 @@ export default async function LibraryPage({
 
       {failed ? (
         <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-base text-red-300 space-y-3">
-          <p>자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+          <p>{t('loadError')}</p>
           <Link href={`/library${toSearchString(params, { page: params.page })}`} className="inline-flex items-center min-h-11 underline underline-offset-4">
-            다시 시도
+            {t('retry')}
           </Link>
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center space-y-3" data-testid="library-empty">
-          <p className="text-base text-gray-300">{hasFilter ? '검색 결과가 없습니다.' : '아직 등록된 자료가 없습니다.'}</p>
+          <p className="text-base text-gray-300">{hasFilter ? t('noResults') : t('empty')}</p>
           {hasFilter && (
             <Link href="/library" className="inline-flex items-center min-h-11 text-base text-indigo-300 underline underline-offset-4">
-              필터 초기화
+              {t('clearFilters')}
             </Link>
           )}
         </div>
@@ -85,7 +90,7 @@ export default async function LibraryPage({
               scroll={false}
               className="flex items-center justify-center min-h-12 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-base font-medium text-gray-200"
             >
-              더 보기 ({Math.min(PAGE_SIZE, remaining)}건 / 남은 {remaining}건)
+              {t('loadMore', { shown: Math.min(PAGE_SIZE, remaining), remaining })}
             </Link>
           )}
         </>

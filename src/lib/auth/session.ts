@@ -30,9 +30,9 @@ type AdminGate =
 /** Route Handler 용: 활성 운영진만 통과. 아니면 401/403 JSON 응답 */
 export async function requireAdminApi(): Promise<AdminGate> {
   const { supabase, user, profile } = await getSessionProfile()
-  if (!user) return { ok: false, response: apiError('UNAUTHORIZED', '로그인이 필요합니다.', 401) }
+  if (!user) return { ok: false, response: apiError('UNAUTHORIZED', 'Sign-in required.', 401) }
   if (!profile || profile.status !== 'active' || profile.role !== 'admin') {
-    return { ok: false, response: apiError('FORBIDDEN', '운영진만 사용할 수 있습니다.', 403) }
+    return { ok: false, response: apiError('FORBIDDEN', 'Administrators only.', 403) }
   }
   return { ok: true, supabase, user, profile }
 }

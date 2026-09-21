@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { cn } from '@/lib/utils'
 import {
   barPercents,
@@ -48,25 +49,28 @@ function Panel({ title, note, children, testId }: { title: string; note?: string
   )
 }
 
-const Empty = ({ children = '아직 기록이 없습니다.' }: { children?: React.ReactNode }) => (
-  <p className="text-base text-gray-500 py-4">{children}</p>
-)
+function Empty() {
+  const t = useTranslations('admin.stats')
+  return <p className="text-base text-gray-500 py-4">{t('empty')}</p>
+}
 
 export function CohortBars({ rows }: { rows: CohortUsers[] }) {
+  const t = useTranslations('admin.stats.cohorts')
+  const tc = useTranslations('common')
   const widths = barPercents(rows.map((r) => r.users))
   return (
-    <Panel title="기수별 접속자" note="최근 30일, 기수별로 접속한 회원 수" testId="chart-cohorts">
+    <Panel title={t('title')} note={t('note')} testId="chart-cohorts">
       {rows.length === 0 ? (
         <Empty />
       ) : (
         <ul className="space-y-2">
           {rows.map((r, i) => (
             <li key={r.cohortNumber} className="flex items-center gap-3 text-base">
-              <span className="w-10 shrink-0 text-gray-300">{r.cohortNumber}기</span>
+              <span className="w-16 shrink-0 text-gray-300">{tc('cohort', { number: r.cohortNumber })}</span>
               <span className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden" aria-hidden>
                 <span className="block h-full rounded-full bg-indigo-500" style={{ width: `${Math.max(widths[i], r.users > 0 ? 3 : 0)}%` }} />
               </span>
-              <span className="w-10 shrink-0 text-right font-semibold text-white">{r.users}명</span>
+              <span className="w-24 shrink-0 text-right font-semibold text-white">{t('users', { count: r.users })}</span>
             </li>
           ))}
         </ul>
@@ -80,13 +84,14 @@ const H = 120
 const shortDate = (iso: string) => `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`
 
 export function WeeklyLine({ rows }: { rows: WeekUsers[] }) {
+  const t = useTranslations('admin.stats.weekly')
   const values = rows.map((r) => r.users)
   const pts = linePoints(values, W, H)
   const total = values.reduce((a, b) => a + b, 0)
   const max = Math.max(...values, 0)
   const last = rows[rows.length - 1]
   return (
-    <Panel title="주간 접속자" note="최근 12주, 주마다 접속한 회원 수" testId="chart-weekly">
+    <Panel title={t('title')} note={t('note')} testId="chart-weekly">
       {total === 0 ? (
         <Empty />
       ) : (
@@ -95,7 +100,7 @@ export function WeeklyLine({ rows }: { rows: WeekUsers[] }) {
             viewBox={`0 0 ${W} ${H}`}
             className="w-full h-auto"
             role="img"
-            aria-label={`최근 12주 주간 접속자 추이. 이번 주 ${last?.users ?? 0}명, 최고 ${max}명`}
+            aria-label={t('aria', { last: last?.users ?? 0, max })}
           >
             <line x1="8" y1={H - 8} x2={W - 8} y2={H - 8} className="stroke-white/15" strokeWidth="1" />
             <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" className="stroke-indigo-400" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
@@ -106,7 +111,7 @@ export function WeeklyLine({ rows }: { rows: WeekUsers[] }) {
           <div className="flex justify-between text-sm text-gray-500">
             <span>{shortDate(rows[0].week)}</span>
             <span>
-              이번 주 <b className="text-gray-200">{last?.users ?? 0}명</b> · 최고 {max}명
+              {t.rich('summary', { last: last?.users ?? 0, max, b: (chunks) => <b className="text-gray-200">{chunks}</b> })}
             </span>
             <span>{shortDate(last.week)}</span>
           </div>
@@ -117,6 +122,7 @@ export function WeeklyLine({ rows }: { rows: WeekUsers[] }) {
 }
 
 export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
+  const t = useTranslations('admin.stats.device')
   const slices = donutSlices([
     { key: 'mobile', value: device.mobile },
     { key: 'desktop', value: device.desktop },
@@ -124,14 +130,14 @@ export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
   ])
   const mobile = mobilePercent(device)
   const COLOR: Record<string, string> = { mobile: 'stroke-indigo-400', desktop: 'stroke-sky-400', other: 'stroke-gray-500' }
-  const LABEL: Record<string, string> = { mobile: '모바일', desktop: 'PC', other: '기타' }
+  const LABEL: Record<string, string> = { mobile: t('mobile'), desktop: t('desktop'), other: t('other') }
   return (
-    <Panel title="모바일 vs PC" note="최근 30일 접속 기록 기준 (사람 수가 아니라 접속 횟수)" testId="chart-device">
+    <Panel title={t('title')} note={t('note')} testId="chart-device">
       {slices.length === 0 ? (
         <Empty />
       ) : (
         <div className="flex items-center gap-6">
-          <svg viewBox="0 0 40 40" className="w-32 h-32 shrink-0" role="img" aria-label={`모바일 ${mobile}%`}>
+          <svg viewBox="0 0 40 40" className="w-32 h-32 shrink-0" role="img" aria-label={t('aria', { percent: mobile ?? 0 })}>
             <circle cx="20" cy="20" r="16" fill="none" className="stroke-white/10" strokeWidth="6" />
             {slices.map((s) => (
               <circle
@@ -157,7 +163,7 @@ export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
               <li key={s.key} className="flex items-center gap-2 text-gray-300">
                 <span className={cn('inline-block size-3 rounded-full', s.key === 'mobile' ? 'bg-indigo-400' : s.key === 'desktop' ? 'bg-sky-400' : 'bg-gray-500')} aria-hidden />
                 {LABEL[s.key]} <b className="text-white">{s.percent}%</b>
-                <span className="text-gray-500">({s.value}회)</span>
+                <span className="text-gray-500">{t('times', { count: s.value })}</span>
               </li>
             ))}
           </ul>
@@ -168,8 +174,9 @@ export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
 }
 
 export function TopResources({ rows }: { rows: TopResource[] }) {
+  const t = useTranslations('admin.stats.top')
   return (
-    <Panel title="인기 자료 Top 10" note="최근 30일, 다운로드 → 조회 순" testId="chart-top-resources">
+    <Panel title={t('title')} note={t('note')} testId="chart-top-resources">
       {rows.length === 0 ? (
         <Empty />
       ) : (
@@ -181,7 +188,7 @@ export function TopResources({ rows }: { rows: TopResource[] }) {
                 {r.title}
               </Link>
               <span className="shrink-0 text-sm text-gray-400">
-                다운로드 <b className="text-white">{r.downloads}</b> · 조회 <b className="text-white">{r.views}</b>
+                {t.rich('counts', { downloads: r.downloads, views: r.views, b: (chunks) => <b className="text-white">{chunks}</b> })}
               </span>
             </li>
           ))}

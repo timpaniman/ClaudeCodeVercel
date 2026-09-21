@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
   if (!isSupabaseConfigured(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)) {
     // 운영: 환경변수가 잘못되면 가드 없이 반쯤 동작하지 않도록 즉시 막는다 (값은 노출하지 않는다).
     if (process.env.NODE_ENV === 'production') {
-      return new NextResponse('서비스 설정 오류: Supabase 환경변수(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)를 확인해 주세요.', {
+      return new NextResponse('Service configuration error: please check the Supabase environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY).', {
         status: 503,
         headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
       })

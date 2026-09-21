@@ -1,12 +1,17 @@
 import Link from 'next/link'
 import { PenLine } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { AnnouncementItem } from '@/features/announcements/components/AnnouncementItem'
 import { ANNOUNCEMENT_PAGE_SIZE, listAnnouncements, type AnnouncementListItem } from '@/features/announcements/queries'
 
-export const metadata = { title: '공지 — AI4CEO' }
+export async function generateMetadata() {
+  const t = await getTranslations('announcements')
+  return { title: t('metaTitle') }
+}
 
 export default async function AnnouncementsPage({ searchParams }: { searchParams: { page?: string } }) {
+  const t = await getTranslations('announcements')
   const { supabase, user, profile } = await getSessionProfile()
   const page = Math.min(Math.max(Number.parseInt(searchParams.page ?? '1', 10) || 1, 1), 50)
 
@@ -25,27 +30,27 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
       <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-white">공지</h1>
+        <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
         {profile?.role === 'admin' && (
           <Link
             href="/admin/announcements/new"
             className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold"
           >
-            <PenLine size={18} aria-hidden /> 공지 작성
+            <PenLine size={18} aria-hidden /> {t('write')}
           </Link>
         )}
       </header>
 
       {failed ? (
         <div role="alert" className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-base text-red-300 space-y-3">
-          <p>공지를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>
+          <p>{t('loadError')}</p>
           <Link href="/announcements" className="inline-flex items-center min-h-11 underline underline-offset-4">
-            다시 시도
+            {t('retry')}
           </Link>
         </div>
       ) : items.length === 0 ? (
         <p className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center text-base text-gray-300" data-testid="announcements-empty">
-          아직 공지가 없습니다.
+          {t('empty')}
         </p>
       ) : (
         <>
@@ -60,7 +65,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
               scroll={false}
               className="flex items-center justify-center min-h-12 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-base font-medium text-gray-200"
             >
-              더 보기 (남은 {remaining}건)
+              {t('more', { remaining })}
             </Link>
           )}
         </>

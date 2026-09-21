@@ -17,7 +17,7 @@ const b64 = (buf: Buffer) => buf.toString('base64url')
 const sign = (secret: string, body: string) => createHmac('sha256', secret).update(body).digest()
 
 export function signUnsubscribeToken(secret: string, payload: UnsubscribePayload): string {
-  if (secret.length < 16) throw new Error('UNSUBSCRIBE_HMAC_SECRET 은 16자 이상이어야 합니다.')
+  if (secret.length < 16) throw new Error('UNSUBSCRIBE_HMAC_SECRET must be at least 16 characters.')
   const body = b64(Buffer.from(JSON.stringify({ u: payload.u, s: payload.s }), 'utf8'))
   return `${body}.${b64(sign(secret, body))}`
 }
@@ -55,8 +55,3 @@ export function unsubscribePatch(scope: UnsubscribeScope): { notify_new_resource
   return { notify_new_resource: false, notify_announcement: false }
 }
 
-export const SCOPE_LABEL: Record<UnsubscribeScope, string> = {
-  resource: '새 자료 알림',
-  announcement: '공지 알림',
-  all: '모든 알림',
-}

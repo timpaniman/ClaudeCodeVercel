@@ -5,7 +5,9 @@
 // 재시도: 실패한 사람이 있으면 작업이 failed 가 되고, MAX_ATTEMPTS 번까지 다음 실행에서 실패한 사람에게만 다시 보낸다.
 import type { EmailMessage, EmailProvider, SendOutcome } from './provider'
 import { buildAnnouncementEmail, buildResourceEmail, type EmailContent } from './templates'
+import { localeOf } from './emailCopy'
 import { signUnsubscribeToken } from './unsubscribe'
+import type { Category } from '@/features/library/params'
 
 export const MAX_ATTEMPTS = 5
 export const STALE_PROCESSING_MS = 10 * 60 * 1000
@@ -24,10 +26,12 @@ export interface Recipient {
   user_id: string
   email: string
   name: string
+  /** 수신자가 쓰는 언어 (profiles.locale). 모르는 값이면 기본 언어로 보낸다 */
+  locale?: string | null
 }
 
 export type Subject =
-  | { kind: 'resource'; id: string; title: string; cohortLabel: string; categoryLabel: string }
+  | { kind: 'resource'; id: string; title: string; cohortNumber: number | null; category: Category }
   | { kind: 'announcement'; id: string; title: string; excerpt: string }
 
 export interface DeliveryRow {
@@ -82,14 +86,15 @@ function chunks<T>(items: readonly T[], size: number): T[][] {
 }
 
 function buildContent(subject: Subject, recipient: Recipient, siteUrl: string, unsubscribeUrl: string): EmailContent {
+  const locale = localeOf(recipient.locale)
   if (subject.kind === 'resource') {
     return buildResourceEmail({
-      name: recipient.name, title: subject.title, cohortLabel: subject.cohortLabel, categoryLabel: subject.categoryLabel,
+      locale, name: recipient.name, title: subject.title, cohortNumber: subject.cohortNumber, category: subject.category,
       url: `${siteUrl}/library/${subject.id}`, unsubscribeUrl,
     })
   }
   return buildAnnouncementEmail({
-    name: recipient.name, title: subject.title, excerpt: subject.excerpt,
+    locale, name: recipient.name, title: subject.title, excerpt: subject.excerpt,
     url: `${siteUrl}/announcements/${subject.id}`, unsubscribeUrl,
   })
 }
@@ -124,7 +129,7 @@ async function processOne(job: JobRecord, opts: ProcessOptions): Promise<JobSumm
   try {
     const subject = await store.loadSubject(job)
     if (!subject) {
-      const note = '대상이 없어졌거나 공개되지 않아 발송하지 않았습니다.'
+      const note = 'Nothing was sent: the item was removed or is not published.'
       await store.finishJob(job.id, { status: 'done', error: note })
       return { ...base, recipients: 0, sent: 0, failed: 0, status: 'done', note }
     }
@@ -149,10 +154,10 @@ async function processOne(job: JobRecord, opts: ProcessOptions): Promise<JobSumm
       try {
         outcomes = await provider.sendBatch(messages, { deadlineAt: opts.deadlineAt })
       } catch (e) {
-        outcomes = messages.map(() => ({ ok: false as const, error: `발송기 오류: ${e instanceof Error ? e.message : String(e)}`, retryable: true }))
+        outcomes = messages.map(() => ({ ok: false as const, error: `Provider error: ${e instanceof Error ? e.message : String(e)}`, retryable: true }))
       }
       if (outcomes.length !== group.length) {
-        outcomes = group.map(() => ({ ok: false as const, error: '발송 결과 개수가 맞지 않습니다.', retryable: true }))
+        outcomes = group.map(() => ({ ok: false as const, error: 'The number of send results did not match.', retryable: true }))
       }
 
       const rows: DeliveryRow[] = group.map((r, i) => {
@@ -172,12 +177,12 @@ async function processOne(job: JobRecord, opts: ProcessOptions): Promise<JobSumm
       await store.finishJob(job.id, { status: 'done', error: null })
       return { ...base, recipients: recipients.length, sent, failed, status: 'done' }
     }
-    const parts = [failed > 0 ? `${failed}명 발송 실패 (${Array.from(errors).slice(0, 2).join(' / ')})` : null, deferred > 0 ? `${deferred}명은 시간 제한으로 다음 실행에서 이어 발송` : null].filter(Boolean)
-    const note = `${parts.join(', ')}${job.attempts >= MAX_ATTEMPTS ? ' — 재시도 한도 도달' : ''}`
+    const parts = [failed > 0 ? `${failed} failed (${Array.from(errors).slice(0, 2).join(' / ')})` : null, deferred > 0 ? `${deferred} deferred to the next run (time limit)` : null].filter(Boolean)
+    const note = `${parts.join(', ')}${job.attempts >= MAX_ATTEMPTS ? ' — retry limit reached' : ''}`
     await store.finishJob(job.id, { status: 'failed', error: note.slice(0, 500) })
     return { ...base, recipients: recipients.length, sent, failed, status: 'failed', note }
   } catch (e) {
-    const note = `처리 중 오류: ${e instanceof Error ? e.message : String(e)}`.slice(0, 500)
+    const note = `Processing error: ${e instanceof Error ? e.message : String(e)}`.slice(0, 500)
     try {
       await store.finishJob(job.id, { status: 'failed', error: note })
     } catch {

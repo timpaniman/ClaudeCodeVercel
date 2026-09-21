@@ -1,9 +1,9 @@
 // Design Ref: §2.2-④ 드라이브 이전 — 폴더 → manifest.csv(운영진이 검수·수정) → 일괄 업로드 → 검수 후 공개.
 // 이 파일은 스캔(추측)·검증·CSV 입출력만 담당하는 순수 로직이다 (파일/DB 접근 없음, 단위 테스트 대상).
 import Papa from 'papaparse'
-import { CATEGORIES, CATEGORY_LABEL, MAX_WEEK, type Category } from '../library/params'
+import { CATEGORIES, MAX_WEEK, type Category } from '../library/params'
 import { MAX_UPLOAD_BYTES, UPLOAD_EXTENSIONS, extensionOf, isSafeExternalUrl } from '../library/fileType'
-import { parseTags } from '../library/tags'
+import { parseTags, type TagError } from '../library/tags'
 
 export const MANIFEST_COLUMNS = [
   'status', 'path', 'external_url', 'cohort_number', 'week_number', 'category', 'title', 'tags', 'description', 'note', 'resource_id',
@@ -161,7 +161,11 @@ export interface ImportItem {
 
 export type RowValidation = { ok: true; item: ImportItem } | { ok: false; errors: string[] }
 
-const CATEGORY_BY_LABEL = new Map<string, Category>(CATEGORIES.map((c) => [CATEGORY_LABEL[c], c]))
+// CSV 의 category 칸에 한국어 이름(강의자료 등)도 쓸 수 있다
+const CATEGORY_KO: Record<Category, string> = { lecture: '강의자료', code: '코드', video: '영상', reference: '참고자료', assignment: '과제' }
+const CATEGORY_BY_LABEL = new Map<string, Category>(CATEGORIES.map((c) => [CATEGORY_KO[c], c]))
+
+const tagErrorText = (e: TagError) => (e.key === 'tooLong' ? `태그는 ${e.max}자 이내로 입력해 주세요. ("${e.tag}…")` : `태그는 최대 ${e.max}개까지 입력할 수 있습니다.`)
 
 export function validateManifestRow(row: ManifestRow, ctx: { cohortNumbers: Set<number> }): RowValidation {
   const errors: string[] = []
@@ -204,7 +208,7 @@ export function validateManifestRow(row: ManifestRow, ctx: { cohortNumbers: Set<
   else if (title.length > 200) errors.push('title 은 200자 이내여야 합니다.')
 
   const tags = parseTags(row.tags)
-  if (tags.error) errors.push(tags.error)
+  if (tags.error) errors.push(tagErrorText(tags.error))
 
   const description = row.description.trim()
   if (description.length > 5000) errors.push('description 은 5,000자 이내여야 합니다.')

@@ -18,9 +18,9 @@ describe('validateProfile', () => {
     expect(v).toMatchObject({ ok: true, value: { name: '홍길동', company: '테스트(주)', github_url: 'https://github.com/hong', website_url: 'https://example.com/' } })
   })
   test('이름은 필수, 길이 제한', () => {
-    expect(validateProfile(input({ name: '  ' }))).toMatchObject({ ok: false, errors: { name: expect.stringContaining('입력') } })
-    expect(validateProfile(input({ name: 'a'.repeat(PROFILE_LIMITS.name + 1) }))).toMatchObject({ ok: false, errors: { name: expect.any(String) } })
-    expect(validateProfile(input({ bio: 'a'.repeat(PROFILE_LIMITS.bio + 1) }))).toMatchObject({ ok: false, errors: { bio: expect.any(String) } })
+    expect(validateProfile(input({ name: '  ' }))).toMatchObject({ ok: false, errors: { name: { key: 'nameRequired' } } })
+    expect(validateProfile(input({ name: 'a'.repeat(PROFILE_LIMITS.name + 1) }))).toMatchObject({ ok: false, errors: { name: { key: 'nameTooLong', max: PROFILE_LIMITS.name } } })
+    expect(validateProfile(input({ bio: 'a'.repeat(PROFILE_LIMITS.bio + 1) }))).toMatchObject({ ok: false, errors: { bio: { key: 'bioTooLong', max: PROFILE_LIMITS.bio } } })
     expect(validateProfile(input({ bio: 'a'.repeat(PROFILE_LIMITS.bio) })).ok).toBe(true)
   })
   test('여러 오류를 한 번에 알려 준다', () => {

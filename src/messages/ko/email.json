@@ -1,0 +1,21 @@
+{
+  "emails": {
+    "greetingNamed": "{name} 대표님, 안녕하세요.",
+    "greeting": "안녕하세요.",
+    "footer": "이 메일은 {brand} 졸업생 포털의 알림 설정에 따라 발송되었습니다.<br>더 이상 받고 싶지 않으시면 {unsubscribe}를 눌러 주세요. 포털의 <b>내 프로필</b>에서도 바꿀 수 있습니다.",
+    "unsubscribeLabel": "수신 해제",
+    "textUnsubscribe": "알림을 그만 받으시려면: {url}",
+    "resource": {
+      "subject": "[{brand}] 새 자료: {title}",
+      "intro": "새 자료가 올라왔습니다.",
+      "button": "포털에서 보기",
+      "textLink": "포털에서 보기: {url}"
+    },
+    "announcement": {
+      "subject": "[{brand}] 공지: {title}",
+      "intro": "새 공지가 올라왔습니다.",
+      "button": "공지 읽기",
+      "textLink": "공지 읽기: {url}"
+    }
+  }
+}

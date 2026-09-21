@@ -1,7 +1,9 @@
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { ApprovalList, type ApprovalItem } from '@/features/admin/components/ApprovalList'
 
 export default async function AdminApprovalsPage() {
+  const t = await getTranslations('admin')
   const { supabase } = await getSessionProfile()
 
   const [{ data: cohorts }, { data: people }] = await Promise.all([
@@ -26,10 +28,9 @@ export default async function AdminApprovalsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      <h1 className="text-2xl font-bold text-white">승인 대기</h1>
+      <h1 className="text-2xl font-bold text-white">{t('titles.approvals')}</h1>
       <p className="text-base text-gray-400">
-        명단에 없는 이메일로 가입한 분들입니다. 기수를 확인하고 승인하면 바로 이용할 수 있습니다.
-        명단에 나중에 등록하면 자동으로 승인되므로 이 화면에서 처리하지 않아도 됩니다.
+        {t('approvalsNote')}
       </p>
       <ApprovalList items={items} cohorts={cohorts ?? []} />
     </div>

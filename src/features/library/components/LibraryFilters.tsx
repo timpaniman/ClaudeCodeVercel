@@ -5,9 +5,10 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Lock, Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CATEGORIES, CATEGORY_LABEL, DEFAULT_PARAMS, MAX_WEEK, toSearchString, type LibraryParams } from '../params'
+import { CATEGORIES, DEFAULT_PARAMS, MAX_WEEK, toSearchString, type LibraryParams } from '../params'
 import type { CohortInfo } from '../queries'
 
 interface Props {
@@ -27,6 +28,8 @@ const selectClass =
   'min-h-11 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white focus:outline-none focus:border-indigo-500'
 
 export function LibraryFilters({ params, cohorts, lockedNumbers }: Props) {
+  const t = useTranslations('library')
+  const tc = useTranslations('common')
   const router = useRouter()
   const [q, setQ] = useState(params.q)
   const lastPushed = useRef(params.q)
@@ -64,68 +67,68 @@ export function LibraryFilters({ params, cohorts, lockedNumbers }: Props) {
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="제목·설명·태그 검색"
-          aria-label="자료 검색"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.label')}
           maxLength={100}
           className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
         />
       </div>
 
       {/* 기수 */}
-      <div role="group" aria-label="기수" className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
+      <div role="group" aria-label={t('filters.cohort')} className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
         <Link href={href({ cohort: null })} scroll={false} className={chip(params.cohort === null)} aria-current={params.cohort === null ? 'true' : undefined}>
-          전체
+          {t('filters.all')}
         </Link>
         <Link href={href({ cohort: 'common' })} scroll={false} className={chip(params.cohort === 'common')} aria-current={params.cohort === 'common' ? 'true' : undefined}>
-          공용
+          {t('filters.common')}
         </Link>
         {cohorts.map((c) =>
           locked.has(c.number) ? (
-            <span key={c.id} aria-disabled="true" title="열람 권한이 없는 기수입니다" className="inline-flex items-center gap-1.5 min-h-11 px-4 rounded-full text-base whitespace-nowrap bg-white/[0.03] text-gray-600 cursor-not-allowed">
-              <Lock size={14} aria-hidden /> {c.number}기
-              <span className="sr-only">(열람 권한 없음)</span>
+            <span key={c.id} aria-disabled="true" title={t('filters.lockedTitle')} className="inline-flex items-center gap-1.5 min-h-11 px-4 rounded-full text-base whitespace-nowrap bg-white/[0.03] text-gray-600 cursor-not-allowed">
+              <Lock size={14} aria-hidden /> {tc('cohort', { number: c.number })}
+              <span className="sr-only">{t('filters.lockedSr')}</span>
             </span>
           ) : (
             <Link key={c.id} href={href({ cohort: c.number })} scroll={false} className={chip(params.cohort === c.number)} aria-current={params.cohort === c.number ? 'true' : undefined}>
-              {c.number}기
+              {tc('cohort', { number: c.number })}
             </Link>
           ),
         )}
       </div>
 
       {/* 카테고리 */}
-      <div role="tablist" aria-label="카테고리" className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
+      <div role="tablist" aria-label={t('filters.category')} className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
         <Link role="tab" aria-selected={params.category === null} href={href({ category: null })} scroll={false} className={chip(params.category === null)}>
-          전체
+          {t('filters.all')}
         </Link>
         {CATEGORIES.map((c) => (
           <Link key={c} role="tab" aria-selected={params.category === c} href={href({ category: c })} scroll={false} className={chip(params.category === c)}>
-            {CATEGORY_LABEL[c]}
+            {t(`categories.${c}`)}
           </Link>
         ))}
       </div>
 
       {/* 주차 · 정렬 */}
       <div className="flex flex-wrap items-center gap-3">
-        <label className="sr-only" htmlFor="week">주차</label>
+        <label className="sr-only" htmlFor="week">{t('filters.week')}</label>
         <select id="week" value={params.week ?? ''} onChange={(e) => router.push(href({ week: e.target.value ? Number(e.target.value) : null }), { scroll: false })} className={selectClass}>
-          <option value="">전체 주차</option>
+          <option value="">{t('filters.allWeeks')}</option>
           {Array.from({ length: MAX_WEEK }, (_, i) => i + 1).map((w) => (
             <option key={w} value={w}>
-              {w}주차
+              {t('filters.weekOption', { number: w })}
             </option>
           ))}
         </select>
 
-        <label className="sr-only" htmlFor="sort">정렬</label>
+        <label className="sr-only" htmlFor="sort">{t('filters.sort')}</label>
         <select id="sort" value={params.sort} onChange={(e) => router.push(href({ sort: e.target.value === 'downloads' ? 'downloads' : 'latest' }), { scroll: false })} className={selectClass}>
-          <option value="latest">최신순</option>
-          <option value="downloads">다운로드순</option>
+          <option value="latest">{t('filters.latest')}</option>
+          <option value="downloads">{t('filters.downloads')}</option>
         </select>
 
         {filtered && (
           <Link href={`/library${toSearchString(DEFAULT_PARAMS)}`} className="inline-flex items-center gap-1 min-h-11 px-2 text-base text-gray-400 hover:text-white">
-            <X size={16} aria-hidden /> 필터 초기화
+            <X size={16} aria-hidden /> {t('clearFilters')}
           </Link>
         )}
       </div>

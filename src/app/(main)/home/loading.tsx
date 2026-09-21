@@ -1,7 +1,10 @@
+import { useTranslations } from 'next-intl'
+
 // Design Ref: §5.4 /home — 로딩 상태(스켈레톤)
 export default function HomeLoading() {
+  const t = useTranslations('home')
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6" aria-busy="true" aria-label="홈 화면을 불러오는 중">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6" aria-busy="true" aria-label={t('loading')}>
       <div className="space-y-2">
         <div className="h-8 w-48 rounded-lg bg-white/10 animate-pulse" />
         <div className="h-5 w-24 rounded-full bg-white/5 animate-pulse" />

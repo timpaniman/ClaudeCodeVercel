@@ -31,7 +31,7 @@ export async function listAnnouncements(
     .lte('published_at', new Date().toISOString())
   if (opts.pinnedFirst !== false) q = q.order('is_pinned', { ascending: false })
   const { data, error, count } = await q.order('published_at', { ascending: false }).range(0, limit - 1)
-  if (error) throw new Error(`announcements 조회 실패: ${error.message}`)
+  if (error) throw new Error(`announcements query failed: ${error.message}`)
 
   const rows = data ?? []
   let readIds = new Set<string>()
@@ -41,7 +41,7 @@ export async function listAnnouncements(
       .select('announcement_id')
       .eq('user_id', userId)
       .in('announcement_id', rows.map((r) => r.id))
-    if (readErr) throw new Error(`announcement_reads 조회 실패: ${readErr.message}`)
+    if (readErr) throw new Error(`announcement_reads query failed: ${readErr.message}`)
     readIds = new Set((reads ?? []).map((r) => r.announcement_id))
   }
 
@@ -61,6 +61,6 @@ export async function listAnnouncements(
 /** RLS 가 열람 권한을 판단한다 (회원에게 임시저장 공지는 조회되지 않는다) */
 export async function getAnnouncement(supabase: ServerClient, id: string): Promise<AnnouncementRow | null> {
   const { data, error } = await supabase.from('announcements').select('*').eq('id', id).maybeSingle()
-  if (error) throw new Error(`announcements 조회 실패: ${error.message}`)
+  if (error) throw new Error(`announcements query failed: ${error.message}`)
   return data
 }

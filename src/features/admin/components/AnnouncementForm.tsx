@@ -5,6 +5,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { MarkdownBody } from '@/features/announcements/components/MarkdownBody'
@@ -23,6 +24,8 @@ const field =
   'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
 
 export function AnnouncementForm({ userId, initial, emailEnabled = false }: { userId: string; initial?: AnnouncementFormInitial; emailEnabled?: boolean }) {
+  const t = useTranslations('admin.announcementForm')
+  const te = useTranslations('announcements.errors')
   const router = useRouter()
   const isEdit = !!initial
   const isPublished = initial?.publishedAt != null
@@ -39,7 +42,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
     if (busy) return
     setError(null)
     const problem = validateAnnouncement({ title, body })
-    if (problem) return setError(problem)
+    if (problem) return setError(te(problem.key, { max: 'max' in problem ? problem.max : 0 }))
 
     setBusy(action)
     const supabase = createClient()
@@ -50,13 +53,13 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
       const { error: e } = await supabase.from('announcements').update(fields).eq('id', initial.id)
       if (e) {
         setBusy(null)
-        return setError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+        return setError(t('errSave'))
       }
     } else {
       const { data, error: e } = await supabase.from('announcements').insert({ author_id: userId, ...fields }).select('id').single()
       if (e || !data) {
         setBusy(null)
-        return setError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+        return setError(t('errSave'))
       }
       id = data.id
     }
@@ -75,7 +78,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
       }
       if (failed) {
         setBusy(null)
-        setError('임시저장은 됐지만 게시하지 못했습니다. 목록에서 "게시"를 눌러 주세요.')
+        setError(t('errPublishAfterSave'))
         router.refresh()
         return
       }
@@ -91,7 +94,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
     const { error: e } = await createClient().from('announcements').update({ published_at: null }).eq('id', initial.id)
     if (e) {
       setBusy(null)
-      return setError('게시를 취소하지 못했습니다.')
+      return setError(t('errUnpublish'))
     }
     router.push('/admin/announcements')
     router.refresh()
@@ -107,27 +110,27 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
 
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-2">
-          제목
+          {t('title')}
         </label>
-        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={MAX_TITLE_LENGTH} className={cn(field, 'min-h-12')} placeholder="예: 17기 8주차 자료가 올라왔습니다" />
+        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={MAX_TITLE_LENGTH} className={cn(field, 'min-h-12')} placeholder={t('titlePlaceholder')} />
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between gap-3">
           <label htmlFor="body" className="text-sm font-medium text-gray-300">
-            내용 <span className="text-gray-500 font-normal">(마크다운: **굵게**, - 목록, [링크](https://…))</span>
+            {t('body')} <span className="text-gray-500 font-normal">{t('markdownHint')}</span>
           </label>
           <div role="tablist" className="flex gap-1">
-            {(['edit', 'preview'] as const).map((t) => (
+            {(['edit', 'preview'] as const).map((tabKey) => (
               <button
-                key={t}
+                key={tabKey}
                 type="button"
                 role="tab"
-                aria-selected={tab === t}
-                onClick={() => setTab(t)}
-                className={cn('min-h-11 px-4 rounded-full text-sm font-medium', tab === t ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
+                aria-selected={tab === tabKey}
+                onClick={() => setTab(tabKey)}
+                className={cn('min-h-11 px-4 rounded-full text-sm font-medium', tab === tabKey ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
               >
-                {t === 'edit' ? '작성' : '미리보기'}
+                {tabKey === 'edit' ? t('tabEdit') : t('tabPreview')}
               </button>
             ))}
           </div>
@@ -137,21 +140,21 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
           <>
             <textarea id="body" value={body} onChange={(e) => setBody(e.target.value)} rows={14} className={cn(field, 'resize-y leading-relaxed')} />
             <p className="mt-1 text-right text-sm text-gray-500">
-              {body.length.toLocaleString('ko-KR')} / {MAX_BODY_LENGTH.toLocaleString('ko-KR')}자
+              {t('counter', { count: body.length, max: MAX_BODY_LENGTH })}
             </p>
           </>
         ) : (
           <div className="min-h-48 rounded-xl border border-white/10 bg-white/5 p-4" data-testid="announcement-preview">
-            {body.trim() ? <MarkdownBody source={body} /> : <p className="text-gray-500">미리볼 내용이 없습니다.</p>}
+            {body.trim() ? <MarkdownBody source={body} /> : <p className="text-gray-500">{t('noPreview')}</p>}
           </div>
         )}
       </div>
 
       <fieldset className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <legend className="px-1 text-sm font-medium text-gray-300">게시 설정</legend>
+        <legend className="px-1 text-sm font-medium text-gray-300">{t('settings')}</legend>
         <label className="flex items-center gap-3 min-h-11 text-base text-gray-200 cursor-pointer">
           <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="h-5 w-5 accent-indigo-500" />
-          상단에 고정
+          {t('pin')}
         </label>
         <label className={`flex items-center gap-3 min-h-11 text-base ${emailEnabled && !isPublished ? 'text-gray-200 cursor-pointer' : 'text-gray-500'}`}>
           <input
@@ -162,8 +165,8 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
             onChange={(e) => setNotify(e.target.checked)}
             className="h-5 w-5 accent-indigo-500"
           />
-          게시할 때 이메일 알림 발송
-          {!emailEnabled ? ' (이메일 서비스 설정 전)' : isPublished ? ' (이미 게시된 공지)' : ''}
+          {t('notify')}
+          {!emailEnabled ? t('notifyNoEmail') : isPublished ? t('notifyPublished') : ''}
         </label>
       </fieldset>
 
@@ -171,24 +174,24 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
         {isPublished ? (
           <>
             <button type="button" onClick={() => save('save')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold">
-              {busy === 'save' && <Loader2 size={18} className="animate-spin" aria-hidden />} 저장
+              {busy === 'save' && <Loader2 size={18} className="animate-spin" aria-hidden />} {t('save')}
             </button>
             <button type="button" onClick={unpublish} disabled={!!busy} className="min-h-12 px-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 text-base font-medium text-gray-100">
-              {busy === 'unpublish' ? '처리 중…' : '게시 취소(임시저장으로)'}
+              {busy === 'unpublish' ? t('working') : t('unpublish')}
             </button>
           </>
         ) : (
           <>
             <button type="button" onClick={() => save('publish')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold">
-              {busy === 'publish' && <Loader2 size={18} className="animate-spin" aria-hidden />} 게시
+              {busy === 'publish' && <Loader2 size={18} className="animate-spin" aria-hidden />} {t('publish')}
             </button>
             <button type="button" onClick={() => save('save')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 text-base font-medium text-gray-100">
-              {busy === 'save' && <Loader2 size={18} className="animate-spin" aria-hidden />} 임시저장
+              {busy === 'save' && <Loader2 size={18} className="animate-spin" aria-hidden />} {t('saveDraft')}
             </button>
           </>
         )}
         <button type="button" onClick={() => router.push('/admin/announcements')} disabled={!!busy} className="min-h-12 px-4 text-base text-gray-400 hover:text-white disabled:opacity-50">
-          {isEdit ? '취소' : '목록으로'}
+          {isEdit ? t('cancel') : t('toList')}
         </button>
       </div>
     </form>

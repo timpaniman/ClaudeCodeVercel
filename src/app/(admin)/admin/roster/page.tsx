@@ -1,7 +1,9 @@
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { RosterManager, type RosterEntry } from '@/features/admin/components/RosterManager'
 
 export default async function AdminRosterPage() {
+  const t = await getTranslations('admin.titles')
   const { supabase } = await getSessionProfile()
 
   const [{ data: cohorts }, { data: roster }] = await Promise.all([
@@ -20,7 +22,7 @@ export default async function AdminRosterPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <h1 className="text-2xl font-bold text-white">명단 관리</h1>
+      <h1 className="text-2xl font-bold text-white">{t('roster')}</h1>
       <RosterManager entries={entries} />
     </div>
   )

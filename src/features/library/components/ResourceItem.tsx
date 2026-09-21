@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import { Download } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { CohortBadge } from '@/components/ui/CohortBadge'
 import { formatDate } from '@/lib/utils'
-import { CATEGORY_LABEL } from '../params'
 import type { ResourceListItem } from '../queries'
 import { FileTypeIcon } from './FileTypeIcon'
 import { Highlight } from './Highlight'
 
 // Design Ref: §5.4 /library — 파일 아이콘 · 제목 · 기수 배지 · 날짜 · 다운로드 수
 export function ResourceItem({ item, query }: { item: ResourceListItem; query: string }) {
+  const t = useTranslations('library')
+  const locale = useLocale()
   const date = item.publishedAt ?? item.createdAt
 
   return (
@@ -27,13 +29,13 @@ export function ResourceItem({ item, query }: { item: ResourceListItem; query: s
             {item.cohortNumber !== null ? (
               <CohortBadge cohortNumber={item.cohortNumber} size="sm" />
             ) : (
-              <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-gray-200">공용</span>
+              <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-gray-200">{t('filters.common')}</span>
             )}
-            <span>{CATEGORY_LABEL[item.category]}</span>
-            {item.weekNumber !== null && <span>· {item.weekNumber}주차</span>}
-            <span>· {formatDate(date)}</span>
+            <span>{t(`categories.${item.category}`)}</span>
+            {item.weekNumber !== null && <span>· {t('item.week', { number: item.weekNumber })}</span>}
+            <span>· {formatDate(date, locale)}</span>
             <span className="inline-flex items-center gap-1">
-              · <Download size={13} aria-hidden /> <span aria-label={`다운로드 ${item.downloadCount}회`}>{item.downloadCount}</span>
+              · <Download size={13} aria-hidden /> <span aria-label={t('item.downloads', { count: item.downloadCount })}>{item.downloadCount}</span>
             </span>
           </div>
 

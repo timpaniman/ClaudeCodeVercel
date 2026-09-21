@@ -1,17 +1,24 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { LogOut, ShieldCheck } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { Avatar } from '@/components/ui/Avatar'
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher'
 import { CohortBadge } from '@/components/ui/CohortBadge'
 import { NotificationSettings } from '@/features/me/components/NotificationSettings'
 import { InstallHint } from '@/features/me/components/InstallHint'
 import { ProfileForm } from '@/features/me/components/ProfileForm'
 
-export const metadata = { title: '내 프로필 — AI4CEO' }
+export async function generateMetadata() {
+  const t = await getTranslations('me')
+  return { title: t('metaTitle') }
+}
 
 // Design Ref: §5.4 /me — 프로필 편집, 이메일 알림 설정, 읽기 전용 정보, 로그아웃
 export default async function MePage() {
+  const t = await getTranslations('me')
+  const tc = await getTranslations('common')
   const { supabase, user, profile } = await getSessionProfile()
   if (!user || !profile) redirect('/login')
 
@@ -37,8 +44,8 @@ export default async function MePage() {
       </header>
 
       <section aria-labelledby="me-profile" className="space-y-4">
-        <h2 id="me-profile" className="text-lg font-semibold text-white">프로필</h2>
-        <p className="text-sm text-gray-500">다른 졸업생이 멤버 화면에서 볼 수 있는 정보입니다. 이메일은 공개되지 않습니다.</p>
+        <h2 id="me-profile" className="text-lg font-semibold text-white">{t('profile')}</h2>
+        <p className="text-sm text-gray-500">{t('profileNote')}</p>
         <ProfileForm
           userId={user.id}
           initial={{
@@ -54,39 +61,44 @@ export default async function MePage() {
       </section>
 
       <section aria-labelledby="me-notify" className="space-y-4">
-        <h2 id="me-notify" className="text-lg font-semibold text-white">이메일 알림</h2>
+        <h2 id="me-notify" className="text-lg font-semibold text-white">{t('notifications')}</h2>
         <NotificationSettings
           userId={user.id}
           initial={{ notify_new_resource: profile.notify_new_resource, notify_announcement: profile.notify_announcement }}
         />
       </section>
 
+      <section aria-labelledby="me-language" className="space-y-3">
+        <h2 id="me-language" className="text-lg font-semibold text-white">{t('language')}</h2>
+        <LocaleSwitcher />
+      </section>
+
       <InstallHint />
 
       <section aria-labelledby="me-account" className="space-y-3">
-        <h2 id="me-account" className="text-lg font-semibold text-white">계정</h2>
+        <h2 id="me-account" className="text-lg font-semibold text-white">{t('account')}</h2>
         <dl className="rounded-2xl border border-white/10 bg-white/5 p-4 text-base space-y-2">
           <div className="flex justify-between gap-4">
-            <dt className="text-gray-400">이메일</dt>
+            <dt className="text-gray-400">{t('email')}</dt>
             <dd className="text-gray-200 break-all text-right">{profile.email}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-gray-400">기수</dt>
-            <dd className="text-gray-200">{cohortNumber !== null ? `${cohortNumber}기` : '-'}</dd>
+            <dt className="text-gray-400">{t('cohort')}</dt>
+            <dd className="text-gray-200">{cohortNumber !== null ? tc('cohort', { number: cohortNumber }) : '-'}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-gray-400">상태</dt>
-            <dd className="text-gray-200">{profile.role === 'admin' ? '이용 중 (운영진)' : '이용 중'}</dd>
+            <dt className="text-gray-400">{t('status')}</dt>
+            <dd className="text-gray-200">{profile.role === 'admin' ? t('statusActiveAdmin') : t('statusActive')}</dd>
           </div>
         </dl>
-        <p className="text-sm text-gray-500">이메일이나 기수를 바꾸려면 운영진에게 문의해 주세요.</p>
+        <p className="text-sm text-gray-500">{t('contactAdmin')}</p>
 
         {profile.role === 'admin' && (
           <Link
             href="/admin"
             className="flex items-center gap-3 min-h-14 bg-indigo-600/15 border border-indigo-500/30 rounded-2xl px-5 text-base font-medium text-indigo-200 hover:bg-indigo-600/25 transition-colors"
           >
-            <ShieldCheck size={20} aria-hidden /> 관리자 화면
+            <ShieldCheck size={20} aria-hidden /> {t('adminArea')}
           </Link>
         )}
 
@@ -95,7 +107,7 @@ export default async function MePage() {
             type="submit"
             className="flex w-full items-center justify-center gap-2 min-h-12 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-base font-medium text-gray-100"
           >
-            <LogOut size={18} aria-hidden /> 로그아웃
+            <LogOut size={18} aria-hidden /> {t('signOut')}
           </button>
         </form>
       </section>

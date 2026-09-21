@@ -1,15 +1,16 @@
 <!--
   Supabase 대시보드 → Authentication → Emails → Templates → "Confirm signup"
-  Subject:  [AI4CEO] 로그인 코드 {{ .Token }}
-  (처음 로그인하는 이메일이 코드를 요청할 때 나가는 메일. 화면상 경험은 Magic Link 와 같다)
+  Subject:  [AI4CEO] Your sign-in code {{ .Token }} / 로그인 코드
+  (처음 로그인하는 이메일이 코드를 요청할 때 나가는 메일. 화면상 경험은 Magic Link 와 같다. 영어와 한국어를 함께 싣는다)
 -->
 <div style="max-width:480px;margin:0 auto;padding:24px;font-family:-apple-system,'Segoe UI','Malgun Gothic',sans-serif;color:#111827">
-  <h2 style="margin:0 0 8px;font-size:20px">AI4CEO 졸업생 포털에 오신 것을 환영합니다</h2>
-  <p style="margin:0 0 20px;font-size:16px;line-height:1.6">로그인 화면에 아래 코드를 입력해 주세요.</p>
+  <h2 style="margin:0 0 8px;font-size:20px">Welcome to the AI4CEO Alumni Portal</h2>
+  <p style="margin:0 0 4px;font-size:14px;color:#6b7280">AI4CEO 졸업생 포털에 오신 것을 환영합니다</p>
+  <p style="margin:16px 0 20px;font-size:16px;line-height:1.6">Enter this code on the sign-in screen.<br><span style="color:#6b7280">로그인 화면에 아래 코드를 입력해 주세요.</span></p>
   <p style="margin:0 0 20px;font-size:36px;font-weight:700;letter-spacing:8px;text-align:center;background:#f3f4f6;border-radius:12px;padding:16px 0">{{ .Token }}</p>
-  <p style="font-size:14px;color:#6b7280;line-height:1.6;margin:0 0 24px">코드는 한 번만 사용할 수 있고, 유효 시간이 지나면 새 코드를 받아 주세요.</p>
-  <p style="margin:0 0 12px;font-size:16px;line-height:1.6">코드를 입력하는 대신 아래 버튼을 눌러도 로그인됩니다.</p>
+  <p style="font-size:14px;color:#6b7280;line-height:1.6;margin:0 0 24px">The code can be used once. If it has expired, please request a new one.<br>코드는 한 번만 사용할 수 있고, 유효 시간이 지나면 새 코드를 받아 주세요.</p>
+  <p style="margin:0 0 12px;font-size:16px;line-height:1.6">Or click the button below to sign in.<br><span style="color:#6b7280">코드를 입력하는 대신 아래 버튼을 눌러도 로그인됩니다.</span></p>
   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
-     style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;padding:14px 28px;border-radius:12px">로그인</a>
-  <p style="font-size:13px;color:#9ca3af;margin-top:28px;line-height:1.6">본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.</p>
+     style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;padding:14px 28px;border-radius:12px">Sign in / 로그인</a>
+  <p style="font-size:13px;color:#9ca3af;margin-top:28px;line-height:1.6">If you didn't request this, you can ignore this email.<br>본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.</p>
 </div>

@@ -34,12 +34,15 @@ export function badgeLabel(count: number): string | null {
 export const MAX_TITLE_LENGTH = 200
 export const MAX_BODY_LENGTH = 20_000
 
+/** 작성 폼 검증 오류: key 는 announcements.errors.* 문구이고 max 는 문구의 자리표시자 값이다 */
+export type AnnouncementError = { key: 'titleRequired' | 'bodyRequired' } | { key: 'titleTooLong' | 'bodyTooLong'; max: number }
+
 /** 작성 폼 검증. 문제가 없으면 null */
-export function validateAnnouncement(input: { title: string; body: string }): string | null {
+export function validateAnnouncement(input: { title: string; body: string }): AnnouncementError | null {
   const title = input.title.trim()
-  if (!title) return '제목을 입력해 주세요.'
-  if (title.length > MAX_TITLE_LENGTH) return `제목은 ${MAX_TITLE_LENGTH}자 이내로 입력해 주세요.`
-  if (!input.body.trim()) return '내용을 입력해 주세요.'
-  if (input.body.length > MAX_BODY_LENGTH) return `내용은 ${MAX_BODY_LENGTH.toLocaleString('ko-KR')}자 이내로 입력해 주세요.`
+  if (!title) return { key: 'titleRequired' }
+  if (title.length > MAX_TITLE_LENGTH) return { key: 'titleTooLong', max: MAX_TITLE_LENGTH }
+  if (!input.body.trim()) return { key: 'bodyRequired' }
+  if (input.body.length > MAX_BODY_LENGTH) return { key: 'bodyTooLong', max: MAX_BODY_LENGTH }
   return null
 }

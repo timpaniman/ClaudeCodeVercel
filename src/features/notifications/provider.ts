@@ -64,7 +64,7 @@ export function createResendProvider(opts: ResendOptions): EmailProvider {
       if (res.ok) return { ok: true, id: typeof body?.id === 'string' ? body.id : null }
       return { ok: false, error: errorText(res.status, body), retryable: isRetryableStatus(res.status) }
     } catch (e) {
-      return { ok: false, error: `네트워크 오류: ${e instanceof Error ? e.message : String(e)}`, retryable: true }
+      return { ok: false, error: `Network error: ${e instanceof Error ? e.message : String(e)}`, retryable: true }
     }
   }
 
@@ -106,7 +106,7 @@ export function createResendProvider(opts: ResendOptions): EmailProvider {
     const out: SendOutcome[] = []
     for (const half of [messages.slice(0, mid), messages.slice(mid)]) {
       if (deadlineAt !== undefined && Date.now() >= deadlineAt) {
-        out.push(...retryableFailure(half, '시간 제한으로 이번 실행에서 보내지 못했습니다 (다음 실행에서 이어 발송)'))
+        out.push(...retryableFailure(half, 'Not sent in this run because of the time limit (will continue in the next run)'))
         continue
       }
       await sleep(550) // Resend 기본 한도(초당 2건) 이하로 유지
@@ -117,7 +117,7 @@ export function createResendProvider(opts: ResendOptions): EmailProvider {
       const r = await batchWithRetry(half)
       if ('outcomes' in r) out.push(...r.outcomes)
       else if (isValidationRejection(r.lastError)) out.push(...(await isolate(half, deadlineAt)))
-      else out.push(...retryableFailure(half, r.lastError ? errorText(r.lastError.status, r.lastError.body) : '알 수 없는 오류'))
+      else out.push(...retryableFailure(half, r.lastError ? errorText(r.lastError.status, r.lastError.body) : 'Unknown error'))
     }
     return out
   }
@@ -131,7 +131,7 @@ export function createResendProvider(opts: ResendOptions): EmailProvider {
       if ('outcomes' in first) return first.outcomes
       if (isValidationRejection(first.lastError)) return isolate(messages, options?.deadlineAt)
       // 서버·네트워크 문제: 전원 "재시도 가능한 실패"로 돌려 다음 실행에서 이어 보낸다
-      return retryableFailure(messages, first.lastError ? errorText(first.lastError.status, first.lastError.body) : '알 수 없는 오류')
+      return retryableFailure(messages, first.lastError ? errorText(first.lastError.status, first.lastError.body) : 'Unknown error')
     },
   }
 }

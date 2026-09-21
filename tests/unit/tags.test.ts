@@ -13,10 +13,10 @@ describe('parseTags', () => {
     expect(parseTags(' , \n ,')).toEqual({ tags: [] })
   })
   test('길이·개수 제한', () => {
-    expect(parseTags('a'.repeat(MAX_TAG_LENGTH + 1)).error).toContain('이내')
+    expect(parseTags('a'.repeat(MAX_TAG_LENGTH + 1)).error).toEqual({ key: 'tooLong', max: MAX_TAG_LENGTH, tag: 'a'.repeat(12) })
     expect(parseTags('a'.repeat(MAX_TAG_LENGTH)).tags).toHaveLength(1)
     const many = Array.from({ length: MAX_TAGS + 1 }, (_, i) => `t${i}`).join(',')
-    expect(parseTags(many).error).toContain('최대')
+    expect(parseTags(many).error).toEqual({ key: 'tooMany', max: MAX_TAGS })
     expect(parseTags(many.split(',').slice(0, MAX_TAGS).join(',')).tags).toHaveLength(MAX_TAGS)
   })
 })

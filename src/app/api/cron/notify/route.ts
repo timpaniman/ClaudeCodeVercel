@@ -22,7 +22,7 @@ function authorized(request: Request): boolean {
 }
 
 export async function GET(request: Request) {
-  if (!authorized(request)) return apiError('UNAUTHORIZED', '인증이 필요합니다.', 401)
+  if (!authorized(request)) return apiError('UNAUTHORIZED', 'Authentication required.', 401)
 
   const config = loadNotificationConfig()
   if (!config) return NextResponse.json({ skipped: 'not_configured' })
@@ -40,6 +40,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ processed: summaries.length, jobs: summaries.map(({ jobId, kind, recipients, sent, failed, status }) => ({ jobId, kind, recipients, sent, failed, status })) })
   } catch (e) {
     console.error('[cron/notify]', e)
-    return apiError('INTERNAL', '처리 중 오류가 발생했습니다.', 500)
+    return apiError('INTERNAL', 'Processing failed.', 500)
   }
 }

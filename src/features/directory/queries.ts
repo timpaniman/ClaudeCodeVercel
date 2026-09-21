@@ -4,7 +4,7 @@ import type { Member } from './members'
 
 export async function loadMembers(supabase: ServerClient, cohortId?: number): Promise<Member[]> {
   const { data, error } = await supabase.rpc('directory_members', cohortId === undefined ? {} : { p_cohort_id: cohortId })
-  if (error) throw new Error(`directory_members 실패: ${error.message}`)
+  if (error) throw new Error(`directory_members failed: ${error.message}`)
   return (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,

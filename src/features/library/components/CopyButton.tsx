@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { Check, Copy } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export function CopyButton({ text }: { text: string }) {
+  const t = useTranslations('library.copy')
   const [copied, setCopied] = useState(false)
 
   const copy = async () => {
@@ -32,7 +34,7 @@ export function CopyButton({ text }: { text: string }) {
       aria-live="polite"
     >
       {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
-      {copied ? '복사됨' : '코드 복사'}
+      {copied ? t('copied') : t('copy')}
     </button>
   )
 }

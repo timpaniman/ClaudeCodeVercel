@@ -1,4 +1,7 @@
-// Design Ref: §4.2 POST /api/admin/publish — 브라우저에서 공개/게시 + 알림을 요청하는 클라이언트와 결과 문구.
+// Design Ref: §4.2 POST /api/admin/publish — 브라우저에서 공개/게시 + 알림을 요청하는 클라이언트와 결과 키.
+// 문구는 언어별 문구 파일(admin.notice.*)에 있고, 이 파일은 상태를 키로만 다룬다.
+import { apiErrorKey, type ClientApiErrorCode } from '@/lib/api/clientErrors'
+
 export type NotificationStatus = 'not_requested' | 'not_configured' | 'already_queued' | 'sent' | 'partial' | 'none'
 
 export interface NotificationResult {
@@ -7,7 +10,10 @@ export interface NotificationResult {
   failed?: number
 }
 
-export type PublishResult = { ok: true; notification: NotificationResult } | { ok: false; error: string }
+/** 실패 종류: 'network' = 연결 오류, 그 밖에는 API 오류 코드('generic' 포함). 화면이 현재 언어로 번역한다 */
+export type PublishFailure = 'network' | ClientApiErrorCode | 'generic'
+
+export type PublishResult = { ok: true; notification: NotificationResult } | { ok: false; error: PublishFailure }
 
 export async function publishWithNotify(kind: 'resource' | 'announcement', id: string, notify: boolean): Promise<PublishResult> {
   try {
@@ -17,32 +23,32 @@ export async function publishWithNotify(kind: 'resource' | 'announcement', id: s
       body: JSON.stringify({ kind, id, notify }),
     })
     const json = await res.json().catch(() => null)
-    if (!res.ok) return { ok: false, error: json?.error?.message ?? '공개하지 못했습니다. 잠시 후 다시 시도해 주세요.' }
+    if (!res.ok) return { ok: false, error: apiErrorKey(json) }
     return { ok: true, notification: (json?.notification ?? { status: 'not_requested' }) as NotificationResult }
   } catch {
-    return { ok: false, error: '네트워크 오류입니다. 연결을 확인하고 다시 시도해 주세요.' }
+    return { ok: false, error: 'network' }
   }
 }
 
-/** 알림 결과를 사람이 읽는 문구로. 알림을 요청하지 않았으면 null */
-export function describeNotification(n: NotificationResult): string | null {
+export type NoticeKey = 'notConfigured' | 'alreadyQueued' | 'none' | 'sent' | 'partialCounts' | 'partialUnknown'
+
+/** 알림 결과 → 문구 키(admin.notice.<key>)와 자리표시자 값. 알림을 요청하지 않았으면 null */
+export function noticeOf(n: NotificationResult): { key: NoticeKey; sent: number; failed: number } | null {
   const sent = n.sent ?? 0
   const failed = n.failed ?? 0
   switch (n.status) {
     case 'not_requested':
       return null
     case 'not_configured':
-      return '이메일 서비스가 아직 설정되지 않아 알림은 대기 중입니다. 설정이 끝나면 자동으로 발송됩니다.'
+      return { key: 'notConfigured', sent, failed }
     case 'already_queued':
-      return '이미 알림이 요청된 항목이라 다시 보내지 않았습니다.'
+      return { key: 'alreadyQueued', sent, failed }
     case 'none':
-      return '알림을 받을 대상이 없습니다.'
+      return { key: 'none', sent, failed }
     case 'sent':
-      return `${sent}명에게 알림 메일을 보냈습니다.`
+      return { key: 'sent', sent, failed }
     case 'partial':
-      return failed > 0 || sent > 0
-        ? `${sent}명에게 보냈고 ${failed}명은 실패했습니다. 실패한 분께는 자동으로 다시 시도합니다.`
-        : '알림 발송을 끝내지 못했습니다. 자동으로 다시 시도합니다.'
+      return { key: failed > 0 || sent > 0 ? 'partialCounts' : 'partialUnknown', sent, failed }
   }
 }
 
@@ -57,9 +63,9 @@ export function noticeQuery(n: NotificationResult): string {
   return `?${sp.toString()}`
 }
 
-/** 목록 화면이 쿼리에서 결과 문구를 복원한다 (허용된 코드와 숫자만 받는다) */
-export function noticeFromParams(sp: { n?: string; s?: string; f?: string }): string | null {
+/** 목록 화면이 쿼리에서 결과를 복원한다 (허용된 코드와 숫자만 받는다). 없으면 null */
+export function noticeFromParams(sp: { n?: string; s?: string; f?: string }): NotificationResult | null {
   if (!QUERY_STATUSES.includes(sp.n as NotificationStatus)) return null
   const num = (v?: string) => (v && /^\d{1,5}$/.test(v) ? Number(v) : 0)
-  return describeNotification({ status: sp.n as NotificationStatus, sent: num(sp.s), failed: num(sp.f) })
+  return { status: sp.n as NotificationStatus, sent: num(sp.s), failed: num(sp.f) }
 }

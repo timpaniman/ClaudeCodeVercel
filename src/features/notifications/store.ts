@@ -3,7 +3,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 import { excerptOf } from '@/features/announcements/text'
-import { CATEGORY_LABEL } from '@/features/library/params'
 import { MAX_ATTEMPTS, STALE_PROCESSING_MS, type DeliveryRow, type JobRecord, type NotificationStore, type Recipient, type Subject } from './process'
 
 type Db = SupabaseClient<Database>
@@ -18,6 +17,7 @@ interface JobRow {
 }
 
 /** 재시도 한도 이내의 queued/failed, 또는 오래 멈춘 processing 작업만 처리 대상이다 */
+
 export function isClaimable(row: Pick<JobRow, 'status' | 'attempts' | 'processed_at'>, now = Date.now()): boolean {
   if (row.status === 'queued' || row.status === 'failed') return row.attempts < MAX_ATTEMPTS
   if (row.status === 'processing') {
@@ -37,7 +37,7 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
         .limit(200)
       if (jobId) q = q.eq('id', jobId)
       const { data, error } = await q
-      if (error) throw new Error(`notification_jobs 조회 실패: ${error.message}`)
+      if (error) throw new Error(`notification_jobs query failed: ${error.message}`)
 
       const claimed: JobRecord[] = []
       for (const row of (data ?? []) as JobRow[]) {
@@ -53,7 +53,7 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
           .eq('attempts', row.attempts)
         upd = row.processed_at === null ? upd.is('processed_at', null) : upd.eq('processed_at', row.processed_at)
         const { data: won, error: updErr } = await upd.select('id, kind, ref_id, attempts')
-        if (updErr) throw new Error(`notification_jobs 선점 실패: ${updErr.message}`)
+        if (updErr) throw new Error(`notification_jobs claim failed: ${updErr.message}`)
         if (won && won.length === 1) claimed.push(won[0] as JobRecord)
       }
       return claimed
@@ -68,12 +68,13 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
           .maybeSingle()
         if (!data || !data.is_published) return null
 
-        let cohortLabel = '공용'
+        // 기수 번호와 카테고리만 넘기고, "12기 · 강의자료" 같은 표기는 수신자 언어로 메일을 만들 때 정한다
+        let cohortNumber: number | null = null
         if (data.cohort_id !== null) {
           const { data: c } = await supabase.from('cohorts').select('number').eq('id', data.cohort_id).maybeSingle()
-          cohortLabel = c ? `${c.number}기` : '공용'
+          cohortNumber = c?.number ?? null
         }
-        return { kind: 'resource', id: data.id, title: data.title, cohortLabel, categoryLabel: CATEGORY_LABEL[data.category] }
+        return { kind: 'resource', id: data.id, title: data.title, cohortNumber, category: data.category }
       }
 
       const { data } = await supabase.from('announcements').select('id, title, body, published_at').eq('id', job.ref_id).maybeSingle()
@@ -83,7 +84,7 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
 
     async recipients(job): Promise<Recipient[]> {
       const { data, error } = await supabase.rpc('notification_recipients', { p_kind: job.kind, p_ref: job.ref_id })
-      if (error) throw new Error(`notification_recipients 실패: ${error.message}`)
+      if (error) throw new Error(`notification_recipients failed: ${error.message}`)
       return data ?? []
     },
 
@@ -100,7 +101,7 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
         })),
         { onConflict: 'job_id,user_id' },
       )
-      if (error) throw new Error(`notification_deliveries 기록 실패: ${error.message}`)
+      if (error) throw new Error(`notification_deliveries write failed: ${error.message}`)
     },
 
     async finishJob(jobId, result) {
@@ -108,7 +109,7 @@ export function createSupabaseNotificationStore(supabase: Db): NotificationStore
         .from('notification_jobs')
         .update({ status: result.status, error: result.error ?? null, processed_at: new Date().toISOString() })
         .eq('id', jobId)
-      if (error) throw new Error(`notification_jobs 종료 기록 실패: ${error.message}`)
+      if (error) throw new Error(`notification_jobs finish failed: ${error.message}`)
     },
   }
 }

@@ -6,13 +6,13 @@ import type { Database } from '@/types/database'
 
 export function createAdminClient() {
   if (typeof window !== 'undefined') {
-    throw new Error('createAdminClient()는 서버에서만 사용할 수 있습니다.')
+    throw new Error('createAdminClient() can only be used on the server.')
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !serviceKey) {
-    throw new Error('NEXT_PUBLIC_SUPABASE_URL 또는 SUPABASE_SERVICE_ROLE_KEY 가 설정되지 않았습니다.')
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not set.')
   }
 
   return createClient<Database>(url, serviceKey, {

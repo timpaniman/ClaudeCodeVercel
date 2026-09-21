@@ -2,17 +2,20 @@
 
 // Design Ref: §5.4 /me — 이메일 알림 수신 설정. 스위치를 누르면 바로 저장하고, 실패하면 되돌린다.
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 type Key = 'notify_new_resource' | 'notify_announcement'
 
-const ITEMS: { key: Key; title: string; desc: string }[] = [
-  { key: 'notify_new_resource', title: '새 자료 알림', desc: '내가 볼 수 있는 새 자료가 올라오면 이메일로 알려 드립니다.' },
-  { key: 'notify_announcement', title: '공지 알림', desc: '운영진이 공지를 올리면 이메일로 알려 드립니다.' },
+// text 는 me.notify.<text>.title / desc 문구의 이름이다
+const ITEMS: { key: Key; text: 'newResource' | 'announcement' }[] = [
+  { key: 'notify_new_resource', text: 'newResource' },
+  { key: 'notify_announcement', text: 'announcement' },
 ]
 
 export function NotificationSettings({ userId, initial }: { userId: string; initial: Record<Key, boolean> }) {
+  const t = useTranslations('me.notify')
   const [values, setValues] = useState(initial)
   const [busy, setBusy] = useState<Key | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -28,17 +31,17 @@ export function NotificationSettings({ userId, initial }: { userId: string; init
     setBusy(null)
     if (e) {
       setValues((v) => ({ ...v, [key]: !next })) // 실패하면 되돌린다
-      setError('설정을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+      setError(t('errSave'))
     }
   }
 
   return (
     <div className="space-y-3" data-testid="notification-settings">
-      {ITEMS.map(({ key, title, desc }) => (
+      {ITEMS.map(({ key, text }) => (
         <div key={key} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
           <div className="min-w-0 flex-1">
-            <div id={`${key}-label`} className="text-base font-semibold text-white">{title}</div>
-            <p className="text-sm text-gray-400">{desc}</p>
+            <div id={`${key}-label`} className="text-base font-semibold text-white">{t(`${text}.title`)}</div>
+            <p className="text-sm text-gray-400">{t(`${text}.desc`)}</p>
           </div>
           <button
             type="button"
@@ -53,7 +56,7 @@ export function NotificationSettings({ userId, initial }: { userId: string; init
             )}
           >
             <span className={cn('absolute top-1 h-6 w-6 rounded-full bg-white transition-all', values[key] ? 'left-7' : 'left-1')} />
-            <span className="sr-only">{values[key] ? '켜짐' : '꺼짐'}</span>
+            <span className="sr-only">{values[key] ? t('on') : t('off')}</span>
           </button>
         </div>
       ))}
@@ -63,7 +66,7 @@ export function NotificationSettings({ userId, initial }: { userId: string; init
         </p>
       )}
       {!values.notify_new_resource && !values.notify_announcement && (
-        <p className="text-sm text-gray-500">지금은 알림 메일을 받지 않습니다. 새 자료와 공지는 포털에서 직접 확인해 주세요.</p>
+        <p className="text-sm text-gray-500">{t('allOff')}</p>
       )}
     </div>
   )

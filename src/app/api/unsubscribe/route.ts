@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const secret = process.env.UNSUBSCRIBE_HMAC_SECRET ?? ''
-  if (secret.length < 16) return text('수신 해제를 처리할 수 없습니다.', 503)
+  if (secret.length < 16) return text('Unsubscribe is temporarily unavailable.', 503)
 
   let token = new URL(request.url).searchParams.get('t')
   let oneClick = false
@@ -32,12 +32,12 @@ export async function POST(request: Request) {
   }
 
   const payload = verifyUnsubscribeToken(secret, token)
-  if (!payload) return text('링크가 올바르지 않습니다.', 400)
+  if (!payload) return text('This link is not valid.', 400)
 
   const { error } = await createAdminClient().from('profiles').update(unsubscribePatch(payload.s)).eq('id', payload.u)
   if (error) {
     console.error('[unsubscribe]', error)
-    return text('일시적인 오류입니다. 잠시 후 다시 시도해 주세요.', 500)
+    return text('Something went wrong. Please try again later.', 500)
   }
 
   if (oneClick) return text('OK', 200)

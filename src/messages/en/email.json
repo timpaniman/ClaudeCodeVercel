@@ -1,0 +1,21 @@
+{
+  "emails": {
+    "greetingNamed": "Hello, {name}.",
+    "greeting": "Hello.",
+    "footer": "You're receiving this email because of your notification settings on the {brand} alumni portal.<br>If you'd rather not get these emails, {unsubscribe}. You can also change this under <b>My profile</b> on the portal.",
+    "unsubscribeLabel": "click here to unsubscribe",
+    "textUnsubscribe": "To stop receiving these emails: {url}",
+    "resource": {
+      "subject": "[{brand}] New resource: {title}",
+      "intro": "A new resource has been added.",
+      "button": "View in the portal",
+      "textLink": "View in the portal: {url}"
+    },
+    "announcement": {
+      "subject": "[{brand}] Announcement: {title}",
+      "intro": "A new announcement has been posted.",
+      "button": "Read the announcement",
+      "textLink": "Read the announcement: {url}"
+    }
+  }
+}

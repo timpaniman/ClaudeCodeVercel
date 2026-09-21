@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { cn, formatRelativeTime } from '@/lib/utils'
 
@@ -23,6 +24,9 @@ interface Cohort {
 }
 
 export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohorts: Cohort[] }) {
+  const t = useTranslations('admin.approvals')
+  const tc = useTranslations('common')
+  const locale = useLocale()
   const router = useRouter()
   const [tab, setTab] = useState<'pending' | 'rejected'>('pending')
   const [busyId, setBusyId] = useState<string | null>(null)
@@ -42,7 +46,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
   const setStatus = async (id: string, status: 'active' | 'rejected'): Promise<boolean> => {
     const cohortId = cohortChoice[id]
     if (status === 'active' && !cohortId) {
-      setError('승인하려면 기수를 선택해 주세요.')
+      setError(t('errChooseCohort'))
       return false
     }
     const supabase = createClient()
@@ -52,7 +56,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
       ...(status === 'active' ? { p_cohort: Number(cohortId) } : {}),
     })
     if (err) {
-      setError(err.code === '42501' ? '운영진만 처리할 수 있습니다.' : '처리하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+      setError(err.code === '42501' ? t('errAdminOnly') : t('errGeneric'))
       return false
     }
     return true
@@ -90,8 +94,8 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
       <div role="tablist" className="flex gap-2">
         {(
           [
-            ['pending', `대기 ${pendingCount}`],
-            ['rejected', `거절됨 ${rejectedCount}`],
+            ['pending', t('tabPending', { count: pendingCount })],
+            ['rejected', t('tabRejected', { count: rejectedCount })],
           ] as const
         ).map(([key, label]) => (
           <button
@@ -122,13 +126,13 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
           className="min-h-12 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold"
         >
           {busyId === 'bulk' && <Loader2 size={16} className="inline animate-spin mr-2" />}
-          선택한 {selected.size}명 승인
+          {t('approveSelected', { count: selected.size })}
         </button>
       )}
 
       {list.length === 0 ? (
         <p className="rounded-2xl border border-white/10 bg-white/5 p-6 text-base text-gray-400" data-testid="approvals-empty">
-          {tab === 'pending' ? '승인 대기 중인 분이 없습니다.' : '거절한 분이 없습니다.'}
+          {tab === 'pending' ? t('emptyPending') : t('emptyRejected')}
         </p>
       ) : (
         <ul className="space-y-3" data-testid="approvals-list">
@@ -138,7 +142,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                 {tab === 'pending' && (
                   <input
                     type="checkbox"
-                    aria-label={`${p.name} 선택`}
+                    aria-label={t('selectAria', { name: p.name })}
                     checked={selected.has(p.id)}
                     onChange={() => toggle(p.id)}
                     className="mt-1 h-5 w-5 accent-indigo-500"
@@ -149,14 +153,14 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                   <div className="text-sm text-gray-300 break-all">{p.email}</div>
                   <div className="text-sm text-gray-400 mt-1">
                     {p.company ? `${p.company} · ` : ''}
-                    신청 기수 {p.requestedCohort ? `${p.requestedCohort}기` : '미입력'} · {formatRelativeTime(p.createdAt)}
+                    {t('requested', { cohort: p.requestedCohort ? tc('cohort', { number: p.requestedCohort }) : t('notEntered') })} · {formatRelativeTime(p.createdAt, locale)}
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
                 <label className="sr-only" htmlFor={`cohort-${p.id}`}>
-                  기수 선택
+                  {t('chooseCohort')}
                 </label>
                 <select
                   id={`cohort-${p.id}`}
@@ -164,10 +168,10 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                   onChange={(e) => setCohortChoice((prev) => ({ ...prev, [p.id]: e.target.value }))}
                   className="min-h-11 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white"
                 >
-                  <option value="">기수 선택</option>
+                  <option value="">{t('chooseCohort')}</option>
                   {cohorts.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.number}기
+                      {tc('cohort', { number: c.number })}
                     </option>
                   ))}
                 </select>
@@ -176,7 +180,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                   disabled={busyId !== null}
                   className="min-h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold"
                 >
-                  {busyId === p.id ? <Loader2 size={16} className="animate-spin" /> : '승인'}
+                  {busyId === p.id ? <Loader2 size={16} className="animate-spin" /> : t('approve')}
                 </button>
                 {tab === 'pending' && (
                   <button
@@ -184,7 +188,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                     disabled={busyId !== null}
                     className="min-h-11 px-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 disabled:opacity-50 text-gray-200 text-base font-medium"
                   >
-                    거절
+                    {t('reject')}
                   </button>
                 )}
               </div>

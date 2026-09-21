@@ -27,8 +27,20 @@ export interface ValidatedRosterRow {
   status: RosterRowStatus
   /** already_in_roster 일 때: 이미 가입해서 수정되지 않는 행인가 */
   claimed?: boolean
-  reason?: string
+  reason?: RosterReason
 }
+
+/** 행 검증 사유: key 는 admin.roster.reasons.* 문구이고 value·cohort 는 문구의 자리표시자 값이다 */
+export type RosterReason =
+  | { key: 'emailEmpty' | 'emailFormat' | 'nameEmpty' | 'duplicateInFile' | 'alreadyClaimed' | 'alreadyListed' }
+  | { key: 'cohortUnreadable' | 'roleInvalid'; value: string }
+  | { key: 'cohortUnknown'; cohort: number }
+
+/** 파일 전체 오류: key 는 admin.roster.fileErrors.* 문구이다 */
+export type RosterFileError =
+  | { key: 'missingColumns'; columns: string }
+  | { key: 'noRows' }
+  | { key: 'tooManyRows'; max: number; count: number }
 
 export interface RosterSummary {
   total: number
@@ -47,15 +59,15 @@ export interface ValidationContext {
 
 // ---- 헤더 별칭 (한글/영문) ----
 const HEADER_ALIASES: Record<string, 'email' | 'name' | 'cohort' | 'role'> = {
-  email: 'email', 'e-mail': 'email', 이메일: 'email', 메일: 'email',
-  name: 'name', 이름: 'name', 성명: 'name',
-  cohort_number: 'cohort', cohort: 'cohort', 기수: 'cohort', 기수번호: 'cohort',
-  role: 'role', 역할: 'role', 권한: 'role',
+  email: 'email', 'e-mail': 'email', 이메일: 'email', 메일: 'email', // i18n-ignore: 한글 열 이름도 인식
+  name: 'name', 이름: 'name', 성명: 'name', // i18n-ignore
+  cohort_number: 'cohort', cohort: 'cohort', 기수: 'cohort', 기수번호: 'cohort', // i18n-ignore
+  role: 'role', 역할: 'role', 권한: 'role', // i18n-ignore
 }
 
 const normalizeHeader = (h: string) => h.replace(/^﻿/, '').trim().toLowerCase().replace(/\s+/g, '_')
 
-export type ParseResult = { rows: ParsedRosterRow[]; error?: string }
+export type ParseResult = { rows: ParsedRosterRow[]; error?: RosterFileError }
 
 export function parseRosterCsv(text: string): ParseResult {
   const clean = text.replace(/^﻿/, '')
@@ -73,8 +85,9 @@ export function parseRosterCsv(text: string): ParseResult {
   const fields = parsed.meta.fields ?? []
   const missing = (['email', 'name', 'cohort'] as const).filter((f) => !fields.includes(f))
   if (missing.length > 0) {
-    const label = { email: 'email(이메일)', name: 'name(이름)', cohort: 'cohort_number(기수)' } as const
-    return { rows: [], error: `필수 열이 없습니다: ${missing.map((m) => label[m]).join(', ')}` }
+    // 열 이름은 CSV 에 실제로 쓰는 이름(영어)으로 안내한다
+    const label = { email: 'email', name: 'name', cohort: 'cohort_number' } as const
+    return { rows: [], error: { key: 'missingColumns', columns: missing.map((m) => label[m]).join(', ') } }
   }
   const rows = parsed.data
     .map((r, i) => ({
@@ -86,9 +99,9 @@ export function parseRosterCsv(text: string): ParseResult {
     }))
     .filter((r) => r.email || r.name || r.cohortRaw || r.roleRaw)
 
-  if (rows.length === 0) return { rows: [], error: '데이터 행이 없습니다.' }
+  if (rows.length === 0) return { rows: [], error: { key: 'noRows' } }
   if (rows.length > MAX_ROSTER_ROWS) {
-    return { rows: [], error: `한 번에 ${MAX_ROSTER_ROWS}행까지 등록할 수 있습니다. (현재 ${rows.length}행)` }
+    return { rows: [], error: { key: 'tooManyRows', max: MAX_ROSTER_ROWS, count: rows.length } }
   }
   return { rows }
 }
@@ -98,7 +111,7 @@ const emailSchema = z.email()
 
 /** "17", "17기", " 17 " → 17 / 그 외 null */
 export function parseCohortNumber(raw: string): number | null {
-  const m = raw.trim().match(/^(\d{1,3})\s*기?$/)
+  const m = raw.trim().match(/^(\d{1,3})\s*기?$/) // i18n-ignore: "17기" 도 인식
   if (!m) return null
   const n = Number(m[1])
   return n > 0 ? n : null
@@ -107,8 +120,8 @@ export function parseCohortNumber(raw: string): number | null {
 /** 빈 값 → member. member/admin 및 회원/운영진 허용. 그 외 null(오류) */
 export function parseRole(raw: string): RosterRole | null {
   const v = raw.trim().toLowerCase()
-  if (v === '' || v === 'member' || v === '회원' || v === '졸업생' || v === '재학생') return 'member'
-  if (v === 'admin' || v === '운영진' || v === '관리자') return 'admin'
+  if (v === '' || v === 'member' || v === '회원' || v === '졸업생' || v === '재학생') return 'member' // i18n-ignore: 한글 역할 이름도 인식
+  if (v === 'admin' || v === '운영진' || v === '관리자') return 'admin' // i18n-ignore
   return null
 }
 
@@ -121,19 +134,19 @@ export function validateRosterRows(rows: ParsedRosterRow[], ctx: ValidationConte
     const cohortNumber = parseCohortNumber(row.cohortRaw)
     const role = parseRole(row.roleRaw)
 
-    const invalid = (reason: string): ValidatedRosterRow => ({
+    const invalid = (reason: RosterReason): ValidatedRosterRow => ({
       ...base, cohortNumber, role: role ?? 'member', status: 'invalid', reason,
     })
 
-    if (!email) return invalid('이메일이 비어 있습니다.')
-    if (!emailSchema.safeParse(email).success) return invalid('이메일 형식이 올바르지 않습니다.')
-    if (!row.name) return invalid('이름이 비어 있습니다.')
-    if (cohortNumber === null) return invalid(`기수 값을 읽을 수 없습니다: "${row.cohortRaw}"`)
-    if (!ctx.cohortNumbers.has(cohortNumber)) return invalid(`존재하지 않는 기수입니다: ${cohortNumber}기`)
-    if (role === null) return invalid(`역할 값이 올바르지 않습니다: "${row.roleRaw}" (member 또는 admin)`)
+    if (!email) return invalid({ key: 'emailEmpty' })
+    if (!emailSchema.safeParse(email).success) return invalid({ key: 'emailFormat' })
+    if (!row.name) return invalid({ key: 'nameEmpty' })
+    if (cohortNumber === null) return invalid({ key: 'cohortUnreadable', value: row.cohortRaw })
+    if (!ctx.cohortNumbers.has(cohortNumber)) return invalid({ key: 'cohortUnknown', cohort: cohortNumber })
+    if (role === null) return invalid({ key: 'roleInvalid', value: row.roleRaw })
 
     if (seen.has(email)) {
-      return { ...base, cohortNumber, role, status: 'duplicate_in_file', reason: '파일 안에서 이메일이 중복됩니다. (첫 번째 행만 사용)' }
+      return { ...base, cohortNumber, role, status: 'duplicate_in_file', reason: { key: 'duplicateInFile' } }
     }
     seen.add(email)
 
@@ -141,7 +154,7 @@ export function validateRosterRows(rows: ParsedRosterRow[], ctx: ValidationConte
     if (existing) {
       return {
         ...base, cohortNumber, role, status: 'already_in_roster', claimed: existing.claimed,
-        reason: existing.claimed ? '이미 가입한 회원입니다. (수정되지 않음)' : '이미 명단에 있습니다. (내용을 갱신)',
+        reason: { key: existing.claimed ? 'alreadyClaimed' : 'alreadyListed' },
       }
     }
     return { ...base, cohortNumber, role, status: 'ok' }

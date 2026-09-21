@@ -1,7 +1,10 @@
+import { useTranslations } from 'next-intl'
+
 // Design Ref: §5.4 /library — 로딩 상태(스켈레톤)
 export default function LibraryLoading() {
+  const t = useTranslations('library')
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-5" aria-busy="true" aria-label="자료를 불러오는 중">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-5" aria-busy="true" aria-label={t('loading')}>
       <div className="h-8 w-32 rounded-lg bg-white/10 animate-pulse" />
       <div className="h-12 rounded-xl bg-white/5 animate-pulse" />
       <div className="flex gap-2">

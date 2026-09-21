@@ -5,9 +5,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Pin } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { cn, formatDate } from '@/lib/utils'
-import { describeNotification, publishWithNotify } from '../publishClient'
+import { publishWithNotify, type NotificationResult } from '../publishClient'
+import { useNoticeText } from '../useNoticeText'
 
 export interface AdminAnnouncementRow {
   id: string
@@ -17,11 +19,14 @@ export interface AdminAnnouncementRow {
   createdAt: string
 }
 
-export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotice = null }: { rows: AdminAnnouncementRow[]; emailEnabled?: boolean; initialNotice?: string | null }) {
+export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotice = null }: { rows: AdminAnnouncementRow[]; emailEnabled?: boolean; initialNotice?: NotificationResult | null }) {
+  const t = useTranslations('admin.announcements')
+  const locale = useLocale()
+  const text = useNoticeText()
   const router = useRouter()
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(initialNotice)
+  const [notice, setNotice] = useState<string | null>(() => text.notice(initialNotice))
 
   const run = async (id: string, action: () => PromiseLike<{ error: unknown }>, failMessage: string) => {
     setError(null)
@@ -38,7 +43,7 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
   if (rows.length === 0) {
     return (
       <p className="rounded-2xl border border-white/10 bg-white/5 p-6 text-base text-gray-400" data-testid="admin-announcements-empty">
-        작성한 공지가 없습니다. 위의 공지 작성 버튼으로 첫 공지를 올려 주세요.
+        {t('empty')}
       </p>
     )
   }
@@ -62,14 +67,14 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
             <li key={r.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
               <div>
                 <Link href={`/announcements/${r.id}`} className="text-base font-semibold text-white hover:underline break-words">
-                  {r.isPinned && <Pin size={14} className="mr-1.5 inline -mt-0.5 text-indigo-300" aria-label="고정" />}
+                  {r.isPinned && <Pin size={14} className="mr-1.5 inline -mt-0.5 text-indigo-300" aria-label={t('pinnedAria')} />}
                   {r.title}
                 </Link>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-400">
                   <span className={cn('rounded-full px-2 py-0.5 text-xs font-semibold', published ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300')}>
-                    {published ? '게시됨' : '임시저장'}
+                    {published ? t('published') : t('draft')}
                   </span>
-                  <span>{published ? `게시 ${formatDate(r.publishedAt as string)}` : `작성 ${formatDate(r.createdAt)}`}</span>
+                  <span>{published ? t('publishedOn', { date: formatDate(r.publishedAt as string, locale) }) : t('createdOn', { date: formatDate(r.createdAt, locale) })}</span>
                 </div>
               </div>
 
@@ -78,20 +83,20 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
                   <button
                     type="button"
                     disabled={busyId !== null}
-                    onClick={() => run(r.id, () => supabase().from('announcements').update({ published_at: null }).eq('id', r.id), '게시를 취소하지 못했습니다.')}
+                    onClick={() => run(r.id, () => supabase().from('announcements').update({ published_at: null }).eq('id', r.id), t('errUnpublish'))}
                     className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200')}
                   >
-                    게시 취소
+                    {t('unpublish')}
                   </button>
                 ) : (
                   <>
                     <button
                       type="button"
                       disabled={busyId !== null}
-                      onClick={() => run(r.id, () => supabase().rpc('publish_announcement', { p_id: r.id, p_notify: false }), '게시하지 못했습니다.')}
+                      onClick={() => run(r.id, () => supabase().rpc('publish_announcement', { p_id: r.id, p_notify: false }), t('errPublish'))}
                       className={cn(btn, 'bg-indigo-600 hover:bg-indigo-500 text-white')}
                     >
-                      게시
+                      {t('publish')}
                     </button>
                     {emailEnabled && (
                       <button
@@ -103,13 +108,13 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
                           setBusyId(r.id)
                           const res = await publishWithNotify('announcement', r.id, true)
                           setBusyId(null)
-                          if (!res.ok) return setError(res.error)
-                          setNotice(describeNotification(res.notification))
+                          if (!res.ok) return setError(text.failure(res.error))
+                          setNotice(text.notice(res.notification))
                           router.refresh()
                         }}
                         className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-indigo-500/40 text-indigo-200')}
                       >
-                        게시 + 알림
+                        {t('publishNotify')}
                       </button>
                     )}
                   </>
@@ -117,24 +122,24 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
                 <button
                   type="button"
                   disabled={busyId !== null}
-                  onClick={() => run(r.id, () => supabase().from('announcements').update({ is_pinned: !r.isPinned }).eq('id', r.id), '고정 상태를 바꾸지 못했습니다.')}
+                  onClick={() => run(r.id, () => supabase().from('announcements').update({ is_pinned: !r.isPinned }).eq('id', r.id), t('errPin'))}
                   className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200')}
                 >
-                  {r.isPinned ? '고정 해제' : '상단 고정'}
+                  {r.isPinned ? t('unpin') : t('pin')}
                 </button>
                 <Link href={`/admin/announcements/${r.id}/edit`} className={cn(btn, 'inline-flex items-center bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200')}>
-                  수정
+                  {t('edit')}
                 </Link>
                 <button
                   type="button"
                   disabled={busyId !== null}
                   onClick={() => {
-                    if (!window.confirm(`"${r.title}" 공지를 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`)) return
-                    void run(r.id, () => supabase().from('announcements').delete().eq('id', r.id), '삭제하지 못했습니다.')
+                    if (!window.confirm(t('confirmDelete', { title: r.title }))) return
+                    void run(r.id, () => supabase().from('announcements').delete().eq('id', r.id), t('errDelete'))
                   }}
                   className={cn(btn, 'bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300')}
                 >
-                  삭제
+                  {t('delete')}
                 </button>
               </div>
             </li>

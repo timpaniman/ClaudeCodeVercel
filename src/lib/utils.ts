@@ -5,27 +5,33 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat('ko-KR', {
+/** 앱 언어 코드(en/ko)를 Intl 이 쓰는 지역 코드로 */
+export const intlLocale = (locale: string) => (locale === 'ko' ? 'ko-KR' : 'en-US')
+
+export function formatDate(date: string | Date, locale: string) {
+  return new Intl.DateTimeFormat(intlLocale(locale), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   }).format(new Date(date))
 }
 
-export function formatRelativeTime(date: string | Date) {
-  const now = new Date()
+const JUST_NOW: Record<string, string> = { en: 'just now', ko: '방금 전' } // i18n-ignore: 상대 시간의 "방금 전" 은 Intl 이 만들지 않아 여기서 언어별로 둔다
+
+/** "5분 전" / "5 minutes ago". 일주일이 넘으면 날짜로 표시한다 */
+export function formatRelativeTime(date: string | Date, locale: string, now: Date = new Date()) {
   const d = new Date(date)
   const diff = now.getTime() - d.getTime()
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
+  const rtf = new Intl.RelativeTimeFormat(intlLocale(locale), { numeric: 'always' })
 
-  if (minutes < 1) return '방금 전'
-  if (minutes < 60) return `${minutes}분 전`
-  if (hours < 24) return `${hours}시간 전`
-  if (days < 7) return `${days}일 전`
-  return formatDate(date)
+  if (minutes < 1) return JUST_NOW[locale] ?? JUST_NOW.en
+  if (minutes < 60) return rtf.format(-minutes, 'minute')
+  if (hours < 24) return rtf.format(-hours, 'hour')
+  if (days < 7) return rtf.format(-days, 'day')
+  return formatDate(date, locale)
 }
 
 /** 기수 번호에 따른 Tailwind 색상 클래스 */

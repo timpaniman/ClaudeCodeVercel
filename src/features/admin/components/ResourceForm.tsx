@@ -6,8 +6,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { CATEGORIES, CATEGORY_LABEL, MAX_WEEK, type Category } from '@/features/library/params'
+import { CATEGORIES, MAX_WEEK, type Category } from '@/features/library/params'
 import { buildStoragePath, formatFileSize, inferFileType, isSafeExternalUrl, MAX_UPLOAD_BYTES, UPLOAD_EXTENSIONS, validateUpload } from '@/features/library/fileType'
 import { parseTags } from '@/features/library/tags'
 import { noticeQuery, publishWithNotify } from '../publishClient'
@@ -40,6 +41,11 @@ const selectField = 'w-full min-h-12 bg-gray-900 border border-white/15 rounded-
 const label = 'block text-sm font-medium text-gray-300 mb-2'
 
 export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = false }: Props) {
+  const t = useTranslations('admin.resourceForm')
+  const tu = useTranslations('admin.upload')
+  const tt = useTranslations('library.tagErrors')
+  const tl = useTranslations('library')
+  const tc = useTranslations('common')
   const router = useRouter()
   const isEdit = mode === 'edit'
 
@@ -67,21 +73,24 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
     setError(null)
 
     const cleanTitle = title.trim()
-    if (!cleanTitle) return setError('제목을 입력해 주세요.')
-    if (cleanTitle.length > 200) return setError('제목은 200자 이내로 입력해 주세요.')
-    if (description.length > 5000) return setError('설명은 5,000자 이내로 입력해 주세요.')
+    if (!cleanTitle) return setError(t('errTitle'))
+    if (cleanTitle.length > 200) return setError(t('errTitleLong'))
+    if (description.length > 5000) return setError(t('errDescriptionLong'))
 
     const parsedTags = parseTags(tagsText)
-    if (parsedTags.error) return setError(parsedTags.error)
+    if (parsedTags.error) {
+      const e = parsedTags.error
+      return setError(tt(e.key, { max: e.max, tag: 'tag' in e ? e.tag : '' }))
+    }
 
     if (!isEdit || !initial?.storagePath) {
       if (source === 'file' && !isEdit) {
-        if (!file) return setError('올릴 파일을 선택해 주세요.')
+        if (!file) return setError(t('errNoFile'))
         const problem = validateUpload(file)
-        if (problem) return setError(problem)
+        if (problem) return setError(tu(problem.key, { extensions: 'extensions' in problem ? problem.extensions : '', max: 'max' in problem ? problem.max : 0 }))
       }
       if (source === 'link') {
-        if (!isSafeExternalUrl(url.trim())) return setError('링크는 https:// 로 시작하는 주소만 등록할 수 있습니다.')
+        if (!isSafeExternalUrl(url.trim())) return setError(t('errLinkHttps'))
       }
     }
 
@@ -104,7 +113,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
         .eq('id', initial.id)
       if (upErr) {
         setBusy('idle')
-        return setError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+        return setError(t('errSave'))
       }
       router.push('/admin/resources')
       router.refresh()
@@ -124,7 +133,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
       })
       if (upErr) {
         setBusy('idle')
-        return setError(upErr.message.includes('exceeded') ? '파일이 허용 크기를 넘습니다.' : '파일을 올리지 못했습니다. 잠시 후 다시 시도해 주세요.')
+        return setError(upErr.message.includes('exceeded') ? t('errFileTooBig') : t('errUpload'))
       }
     }
 
@@ -143,7 +152,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
       // 행 저장에 실패하면 방금 올린 파일이 고아로 남지 않게 정리한다
       if (storagePath) await supabase.storage.from('resources').remove([storagePath])
       setBusy('idle')
-      return setError('저장하지 못했습니다. 잠시 후 다시 시도해 주세요.')
+      return setError(t('errSave'))
     }
 
     let query = ''
@@ -161,7 +170,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
       }
       if (failed) {
         setBusy('idle')
-        setError('자료는 저장됐지만 공개하지 못했습니다. 목록에서 "공개"를 눌러 주세요.')
+        setError(t('errPublishAfterSave'))
         router.refresh()
         return
       }
@@ -179,34 +188,34 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
       )}
 
       <div>
-        <label htmlFor="title" className={label}>제목</label>
-        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required className={field} placeholder="예: 12기 3주차 RAG 강의노트" />
+        <label htmlFor="title" className={label}>{t('title')}</label>
+        <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required className={field} placeholder={t('titlePlaceholder')} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
-          <label htmlFor="category" className={label}>카테고리</label>
+          <label htmlFor="category" className={label}>{t('category')}</label>
           <select id="category" value={category} onChange={(e) => setCategory(e.target.value as Category)} className={selectField}>
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>
+              <option key={c} value={c}>{tl(`categories.${c}`)}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="cohort" className={label}>기수</label>
+          <label htmlFor="cohort" className={label}>{t('cohort')}</label>
           <select id="cohort" value={cohortId} onChange={(e) => setCohortId(e.target.value)} className={selectField}>
-            <option value="">공용 (전체 기수)</option>
+            <option value="">{t('commonAll')}</option>
             {cohorts.map((c) => (
-              <option key={c.id} value={c.id}>{c.number}기</option>
+              <option key={c.id} value={c.id}>{tc('cohort', { number: c.number })}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="week" className={label}>주차 <span className="text-gray-500 font-normal">(선택)</span></label>
+          <label htmlFor="week" className={label}>{t('week')} <span className="text-gray-500 font-normal">{t('optional')}</span></label>
           <select id="week" value={week} onChange={(e) => setWeek(e.target.value)} className={selectField}>
-            <option value="">없음</option>
+            <option value="">{t('none')}</option>
             {Array.from({ length: MAX_WEEK }, (_, i) => i + 1).map((w) => (
-              <option key={w} value={w}>{w}주차</option>
+              <option key={w} value={w}>{t('weekOption', { number: w })}</option>
             ))}
           </select>
         </div>
@@ -215,7 +224,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
       {/* 자료 원본: 등록 시에만 선택. 수정에서는 파일을 바꾸지 않는다 */}
       {!isEdit && (
         <fieldset className="space-y-3">
-          <legend className={label}>자료 원본</legend>
+          <legend className={label}>{t('source')}</legend>
           <div role="radiogroup" className="flex gap-2">
             {(['file', 'link'] as const).map((s) => (
               <button
@@ -226,7 +235,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
                 onClick={() => setSource(s)}
                 className={`min-h-11 px-5 rounded-full text-base font-medium ${source === s ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
               >
-                {s === 'file' ? '파일 올리기' : '외부 링크'}
+                {s === 'file' ? t('sourceFile') : t('sourceLink')}
               </button>
             ))}
           </div>
@@ -246,7 +255,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
               }}
               className={`space-y-2 rounded-2xl border-2 border-dashed p-4 transition-colors ${dragging ? 'border-indigo-400 bg-indigo-600/10' : 'border-white/15'}`}
             >
-              <p className="text-base text-gray-300">파일을 여기로 끌어오거나 아래에서 선택하세요.</p>
+              <p className="text-base text-gray-300">{t('drop')}</p>
               <input
                 type="file"
                 data-testid="resource-file"
@@ -255,15 +264,15 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
                 className="block w-full text-base text-gray-300 file:mr-4 file:min-h-11 file:rounded-xl file:border-0 file:bg-indigo-600 file:px-5 file:text-base file:font-semibold file:text-white hover:file:bg-indigo-500"
               />
               <p className="text-sm text-gray-500">
-                {UPLOAD_EXTENSIONS.join(', ')} · 최대 {MAX_UPLOAD_BYTES / 1024 / 1024}MB. 큰 영상은 외부 링크(YouTube 비공개 등)로 등록해 주세요.
+                {t('limits', { extensions: UPLOAD_EXTENSIONS.join(', '), max: MAX_UPLOAD_BYTES / 1024 / 1024 })}
               </p>
-              {file && <p className="text-sm text-gray-300">선택한 파일: {file.name} ({formatFileSize(file.size)})</p>}
+              {file && <p className="text-sm text-gray-300">{t('selectedFile', { name: file.name, size: formatFileSize(file.size) })}</p>}
             </div>
           ) : (
             <div>
-              <label htmlFor="url" className="sr-only">외부 링크 주소</label>
-              <input id="url" type="url" inputMode="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://youtu.be/…" className={field} />
-              <p className="text-sm text-gray-500 mt-2">https:// 주소만 등록할 수 있습니다. YouTube·Vimeo 는 화면에서 바로 재생됩니다.</p>
+              <label htmlFor="url" className="sr-only">{t('linkLabel')}</label>
+              <input id="url" type="url" inputMode="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder={t('linkPlaceholder')} className={field} />
+              <p className="text-sm text-gray-500 mt-2">{t('linkNote')}</p>
             </div>
           )}
         </fieldset>
@@ -271,30 +280,30 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
 
       {isEdit && initial && !initial.storagePath && (
         <div>
-          <label htmlFor="url" className={label}>외부 링크 주소</label>
+          <label htmlFor="url" className={label}>{t('linkLabel')}</label>
           <input id="url" type="url" inputMode="url" value={url} onChange={(e) => setUrl(e.target.value)} className={field} />
         </div>
       )}
       {isEdit && initial?.storagePath && (
-        <p className="text-sm text-gray-500">저장된 파일은 수정 화면에서 바꿀 수 없습니다. 파일을 바꾸려면 새 자료로 등록하고 기존 자료를 삭제해 주세요.</p>
+        <p className="text-sm text-gray-500">{t('fileLocked')}</p>
       )}
 
       <div>
-        <label htmlFor="tags" className={label}>태그 <span className="text-gray-500 font-normal">(쉼표로 구분, 선택)</span></label>
-        <input id="tags" value={tagsText} onChange={(e) => setTagsText(e.target.value)} placeholder="예: RAG, 프롬프트, 실습" className={field} />
+        <label htmlFor="tags" className={label}>{t('tags')} <span className="text-gray-500 font-normal">{t('tagsHint')}</span></label>
+        <input id="tags" value={tagsText} onChange={(e) => setTagsText(e.target.value)} placeholder={t('tagsPlaceholder')} className={field} />
       </div>
 
       <div>
-        <label htmlFor="description" className={label}>설명 <span className="text-gray-500 font-normal">(선택)</span></label>
+        <label htmlFor="description" className={label}>{t('description')} <span className="text-gray-500 font-normal">{t('optional')}</span></label>
         <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={5} maxLength={5000} className={`${field} resize-y`} />
       </div>
 
       {!isEdit && (
         <fieldset className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <legend className="px-1 text-sm font-medium text-gray-300">공개 설정</legend>
+          <legend className="px-1 text-sm font-medium text-gray-300">{t('publishing')}</legend>
           <label className="flex items-center gap-3 min-h-11 text-base text-gray-200 cursor-pointer">
             <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} className="h-5 w-5 accent-indigo-500" />
-            저장하고 바로 공개
+            {t('publishNow')}
           </label>
           <label className={`flex items-center gap-3 min-h-11 text-base ${emailEnabled && publish ? 'text-gray-200 cursor-pointer' : 'text-gray-500'}`}>
             <input
@@ -305,10 +314,10 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
               onChange={(e) => setNotify(e.target.checked)}
               className="h-5 w-5 accent-indigo-500"
             />
-            이메일 알림 발송
-            {!emailEnabled ? ' (이메일 서비스 설정 전)' : !publish ? ' (바로 공개를 선택하면 사용할 수 있습니다)' : ''}
+            {t('notify')}
+            {!emailEnabled ? t('notifyNoEmail') : !publish ? t('notifyNeedPublish') : ''}
           </label>
-          <p className="text-sm text-gray-500">공개하지 않고 저장하면 운영진에게만 보입니다. 목록에서 검수한 뒤 공개할 수 있습니다.</p>
+          <p className="text-sm text-gray-500">{t('publishNote')}</p>
         </fieldset>
       )}
 
@@ -319,13 +328,13 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
           className="inline-flex items-center justify-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold"
         >
           {working && <Loader2 size={18} className="animate-spin" aria-hidden />}
-          {busy === 'uploading' ? '파일 올리는 중…' : busy === 'saving' ? '저장 중…' : isEdit ? '저장' : '등록'}
+          {busy === 'uploading' ? t('uploading') : busy === 'saving' ? t('saving') : isEdit ? t('submitSave') : t('submitCreate')}
         </button>
         <button type="button" onClick={() => router.push('/admin/resources')} disabled={working} className="min-h-12 px-4 text-base text-gray-400 hover:text-white disabled:opacity-50">
-          취소
+          {t('cancel')}
         </button>
       </div>
-      {busy === 'uploading' && <p role="status" className="text-sm text-gray-400">파일 크기에 따라 시간이 걸릴 수 있습니다. 창을 닫지 말고 기다려 주세요.</p>}
+      {busy === 'uploading' && <p role="status" className="text-sm text-gray-400">{t('uploadWait')}</p>}
     </form>
   )
 }
