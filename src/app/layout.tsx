@@ -1,16 +1,22 @@
 import type { Metadata, Viewport } from 'next'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages, getTranslations } from 'next-intl/server'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'AI4CEO — 졸업생 포털',
-  description: 'AI4CEO 졸업생을 위한 자료·공지 포털',
-  manifest: '/manifest.json',
-  icons: { icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }], apple: '/icons/apple-touch-icon.png' },
-  appleWebApp: { capable: true, title: 'AI4CEO', statusBarStyle: 'black' },
+// 제목·설명은 현재 언어(쿠키)에 따라 달라진다.
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('meta')
+  return {
+    title: t('title'),
+    description: t('description'),
+    manifest: '/manifest.json',
+    icons: { icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }], apple: '/icons/apple-touch-icon.png' },
+    appleWebApp: { capable: true, title: 'AI4CEO', statusBarStyle: 'black' },
+  }
 }
 
 // Next 14: themeColor/viewport 는 metadata 가 아니라 viewport export 로 둔다.
@@ -23,15 +29,17 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // 언어는 서버가 쿠키로 정하고, 같은 언어의 문구를 클라이언트 컴포넌트에도 내려준다 (하이드레이션 불일치 방지)
+  const locale = await getLocale()
+  const messages = await getMessages()
+
   return (
-    <html lang="ko" className="dark">
+    <html lang={locale} className="dark">
       <body className={`${inter.className} bg-gray-950 text-white antialiased`}>
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          {children}
+        </NextIntlClientProvider>
         <ServiceWorkerRegister />
       </body>
     </html>

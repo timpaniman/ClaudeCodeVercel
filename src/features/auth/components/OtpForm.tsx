@@ -4,33 +4,34 @@
 // 코드 자릿수는 Supabase 프로젝트 설정(Authentication → Email OTP Length)을 따른다: NEXT_PUBLIC_OTP_LENGTH.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { mapAuthError } from '../authErrors'
+import { mapAuthError, type AuthErrorKey } from '../authErrors'
 
 const OTP_LENGTH = Number(process.env.NEXT_PUBLIC_OTP_LENGTH ?? 6)
 const RESEND_SECONDS = 60
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === 'true'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-// 개인정보 수집·이용 동의 문구는 운영진이 확정해야 한다 (Design §12 #4). 확정되면 이 문구만 교체한다.
-const PRIVACY_LABEL = '개인정보 수집·이용에 동의합니다. (필수)'
-const PRIVACY_DETAIL =
-  '수집 항목: 이메일, 이름, 회사·직책 등 프로필 정보 / 이용 목적: 졸업생 포털 제공, 자료·공지 알림 발송'
+// 개인정보 수집·이용 동의 문구는 운영진이 확정해야 한다 (Design §12 #4). 확정되면 언어별 문구 파일의 auth.login.consentLabel / consentDetail 만 교체한다.
 
 const inputClass =
   'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors'
 const primaryButton =
   'w-full min-h-12 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2'
 
+type FormError = AuthErrorKey | 'consentRequired'
+
 export function OtpForm({ next }: { next: string }) {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<FormError | null>(null)
   const [cooldown, setCooldown] = useState(0)
   const verifying = useRef(false)
 
@@ -38,15 +39,15 @@ export function OtpForm({ next }: { next: string }) {
 
   useEffect(() => {
     if (cooldown <= 0) return
-    const t = setTimeout(() => setCooldown((c) => c - 1), 1000)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000)
+    return () => clearTimeout(timer)
   }, [cooldown])
 
   const sendCode = async (e?: React.FormEvent) => {
     e?.preventDefault()
     setError(null)
-    if (!EMAIL_RE.test(normalized)) return setError('이메일 주소를 확인해 주세요.')
-    if (!consent) return setError('개인정보 수집·이용에 동의해 주세요.')
+    if (!EMAIL_RE.test(normalized)) return setError('emailInvalid')
+    if (!consent) return setError('consentRequired')
 
     setBusy(true)
     const supabase = createClient()
@@ -98,25 +99,31 @@ export function OtpForm({ next }: { next: string }) {
     })
   }
 
+  const errorBox = error && (
+    <div role="alert" className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
+      {t(`errors.${error}`)}
+    </div>
+  )
+
   if (step === 'code') {
     return (
       <div className="space-y-5" data-testid="otp-step-code">
         <div className="text-center space-y-1">
-          <h2 className="text-lg font-bold text-white">인증 코드를 입력해 주세요</h2>
+          <h2 className="text-lg font-bold text-white">{t('login.codeTitle')}</h2>
           <p className="text-sm text-gray-400 break-all">
-            <span className="text-gray-200">{normalized}</span> 로 {OTP_LENGTH}자리 코드를 보냈습니다.
+            {t.rich('login.codeSent', {
+              length: OTP_LENGTH,
+              email: normalized,
+              highlight: (chunks) => <span className="text-gray-200">{chunks}</span>,
+            })}
           </p>
         </div>
 
-        {error && (
-          <div role="alert" className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
-            {error}
-          </div>
-        )}
+        {errorBox}
 
         <div>
           <label htmlFor="otp" className="sr-only">
-            인증 코드
+            {t('login.codeLabel')}
           </label>
           <input
             id="otp"
@@ -135,10 +142,10 @@ export function OtpForm({ next }: { next: string }) {
 
         <button type="button" onClick={() => verify(code)} disabled={busy || code.length !== OTP_LENGTH} className={primaryButton}>
           {busy && <Loader2 size={18} className="animate-spin" />}
-          로그인
+          {t('login.signIn')}
         </button>
 
-        <p className="text-center text-xs text-gray-500">메일의 “로그인” 버튼을 눌러도 로그인됩니다.</p>
+        <p className="text-center text-xs text-gray-500">{t('login.linkHint')}</p>
 
         <div className="flex items-center justify-between text-sm">
           <button
@@ -149,7 +156,7 @@ export function OtpForm({ next }: { next: string }) {
             }}
             className="min-h-11 px-2 text-gray-400 hover:text-white"
           >
-            이메일 다시 입력
+            {t('login.changeEmail')}
           </button>
           <button
             type="button"
@@ -157,7 +164,7 @@ export function OtpForm({ next }: { next: string }) {
             disabled={cooldown > 0 || busy}
             className="min-h-11 px-2 text-indigo-400 hover:text-indigo-300 disabled:text-gray-600 disabled:cursor-not-allowed"
           >
-            {cooldown > 0 ? `코드 다시 받기 (${cooldown}초)` : '코드 다시 받기'}
+            {cooldown > 0 ? t('login.resendIn', { seconds: cooldown }) : t('login.resend')}
           </button>
         </div>
       </div>
@@ -166,15 +173,11 @@ export function OtpForm({ next }: { next: string }) {
 
   return (
     <form onSubmit={sendCode} className="space-y-5" data-testid="otp-step-email">
-      {error && (
-        <div role="alert" className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
-          {error}
-        </div>
-      )}
+      {errorBox}
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-          이메일
+          {t('login.email')}
         </label>
         <input
           id="email"
@@ -197,14 +200,14 @@ export function OtpForm({ next }: { next: string }) {
             onChange={(e) => setConsent(e.target.checked)}
             className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-indigo-500"
           />
-          <span>{PRIVACY_LABEL}</span>
+          <span>{t('login.consentLabel')}</span>
         </label>
-        <p className="text-xs text-gray-500 pl-8">{PRIVACY_DETAIL}</p>
+        <p className="text-xs text-gray-500 pl-8">{t('login.consentDetail')}</p>
       </div>
 
       <button type="submit" disabled={busy} className={primaryButton}>
         {busy && <Loader2 size={18} className="animate-spin" />}
-        인증 코드 보내기
+        {t('login.sendCode')}
       </button>
 
       {GOOGLE_ENABLED && (
@@ -214,7 +217,7 @@ export function OtpForm({ next }: { next: string }) {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs text-gray-500">
-              <span className="bg-gray-950 px-3">또는</span>
+              <span className="bg-gray-950 px-3">{t('login.or')}</span>
             </div>
           </div>
           <button
@@ -222,7 +225,7 @@ export function OtpForm({ next }: { next: string }) {
             onClick={googleLogin}
             className="w-full min-h-12 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-base font-medium py-3 rounded-xl transition-colors"
           >
-            Google로 계속하기
+            {t('login.google')}
           </button>
         </>
       )}

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl'
 import { cn, getCohortColor } from '@/lib/utils'
 
 interface CohortBadgeProps {
@@ -7,6 +8,7 @@ interface CohortBadgeProps {
 }
 
 export function CohortBadge({ cohortNumber, size = 'md', className }: CohortBadgeProps) {
+  const t = useTranslations('common')
   const colorClass = getCohortColor(cohortNumber)
 
   return (
@@ -20,7 +22,7 @@ export function CohortBadge({ cohortNumber, size = 'md', className }: CohortBadg
         className
       )}
     >
-      {cohortNumber}기
+      {t('cohort', { number: cohortNumber })}
     </span>
   )
 }

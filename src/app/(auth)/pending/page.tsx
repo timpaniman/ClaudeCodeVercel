@@ -1,8 +1,11 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getSessionProfile } from '@/lib/auth/session'
 import { PendingForm } from '@/features/auth/components/PendingForm'
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher'
 
 export default async function PendingPage() {
+  const t = await getTranslations('auth.pending')
   const { profile } = await getSessionProfile()
   if (!profile) redirect('/login')
   if (profile.status === 'active') redirect('/home')
@@ -16,20 +19,15 @@ export default async function PendingPage() {
           <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl mx-auto mb-4">
             AI
           </div>
-          <h1 className="text-2xl font-bold text-white">{rejected ? '승인되지 않았습니다' : '승인 대기 중입니다'}</h1>
+          <h1 className="text-2xl font-bold text-white">{rejected ? t('titleRejected') : t('titlePending')}</h1>
           <p className="text-gray-400 text-base mt-2 break-all">{profile.email}</p>
         </div>
 
         {rejected ? (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-base text-gray-300 leading-relaxed">
-            가입 신청이 승인되지 않았습니다. 잘못된 결정이라고 생각하시면 운영진에게 문의해 주세요.
-          </div>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-base text-gray-300 leading-relaxed">{t('rejectedBody')}</div>
         ) : (
           <>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-base text-gray-300 leading-relaxed">
-              이 이메일은 졸업생 명단에서 확인되지 않았습니다. 아래 정보를 남겨 주시면 운영진이 확인한 뒤 승인합니다.
-              승인되면 다음 접속부터 바로 이용하실 수 있습니다.
-            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-base text-gray-300 leading-relaxed">{t('pendingBody')}</div>
             <PendingForm
               initial={{
                 name: profile.name,
@@ -42,9 +40,13 @@ export default async function PendingPage() {
 
         <form action="/auth/signout" method="post" className="text-center">
           <button type="submit" className="min-h-11 px-4 text-sm text-gray-400 hover:text-white underline underline-offset-4">
-            다른 이메일로 로그인
+            {t('signOutOther')}
           </button>
         </form>
+
+        <div className="flex justify-center">
+          <LocaleSwitcher />
+        </div>
       </div>
     </div>
   )

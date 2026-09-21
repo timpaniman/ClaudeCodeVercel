@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "title": "AI4CEO — Alumni Portal",
+    "description": "Resources and announcements for AI4CEO alumni"
+  },
+  "brand": {
+    "portal": "Alumni Portal"
+  },
+  "common": {
+    "cohort": "Cohort {number}"
+  },
+  "locale": {
+    "label": "Language",
+    "en": "English",
+    "ko": "한국어"
+  },
+  "nav": {
+    "home": "Home",
+    "library": "Library",
+    "announcements": "Announcements",
+    "directory": "Members",
+    "me": "Me",
+    "myProfile": "My profile",
+    "admin": "Admin",
+    "signOut": "Sign out",
+    "mainMenu": "Main menu",
+    "bottomMenu": "Bottom navigation",
+    "unread": "{count} unread announcements"
+  },
+  "auth": {
+    "login": {
+      "passwordless": "No password needed. Sign in with the code we email you.",
+      "email": "Email",
+      "consentLabel": "I agree to the collection and use of my personal information. (Required)",
+      "consentDetail": "Collected: email, name, and profile details such as company and title / Purpose: providing the alumni portal and sending resource and announcement notifications",
+      "sendCode": "Send verification code",
+      "or": "or",
+      "google": "Continue with Google",
+      "codeTitle": "Enter your verification code",
+      "codeSent": "We sent a {length}-digit code to <highlight>{email}</highlight>.",
+      "codeLabel": "Verification code",
+      "signIn": "Sign in",
+      "linkHint": "You can also sign in by clicking the “Sign in” button in the email.",
+      "changeEmail": "Use a different email",
+      "resend": "Resend code",
+      "resendIn": "Resend code ({seconds}s)"
+    },
+    "errors": {
+      "emailInvalid": "Please check your email address.",
+      "consentRequired": "Please agree to the collection and use of your personal information.",
+      "rateLimitSend": "You've reached the limit for sending emails. Please try again in a little while.",
+      "rateLimitVerify": "Too many requests. Please try again in a little while.",
+      "signupDisabled": "Sign-ups are currently restricted. Please contact the administrators.",
+      "emailNotAuthorized": "We can't send email to this address. Please contact the administrators.",
+      "codeExpired": "This code has expired. Please request a new one.",
+      "codeInvalid": "That code isn't correct. Please check the code in your email.",
+      "unknown": "Something went wrong. Please try again in a little while."
+    },
+    "linkErrors": {
+      "linkInvalid": "This sign-in link has expired or was already used. Please request a new code.",
+      "authFailed": "Sign-in failed. Please try again.",
+      "noProfile": "We couldn't load your account details. Please sign in again. If this keeps happening, contact the administrators."
+    },
+    "pending": {
+      "titlePending": "Waiting for approval",
+      "titleRejected": "Not approved",
+      "rejectedBody": "Your sign-up request was not approved. If you think this is a mistake, please contact the administrators.",
+      "pendingBody": "We couldn't find this email in the alumni roster. Leave the details below and the administrators will review and approve your request. Once approved, you can use the portal from your next visit.",
+      "signOutOther": "Sign in with a different email",
+      "form": {
+        "name": "Name",
+        "cohort": "Cohort",
+        "cohortPlaceholder": "e.g. 12",
+        "company": "Company",
+        "optional": "(optional)",
+        "submit": "Send approval request",
+        "resubmit": "Save again",
+        "saved": "Your request has been received. The administrators will review and approve it. To change anything, save again.",
+        "errName": "Please enter your name.",
+        "errCohort": "Please enter the cohort you graduated from (or are currently in) as a number, e.g. 12",
+        "errExpired": "Your session has expired. Please sign in again.",
+        "errSave": "We couldn't save that. Please try again in a little while."
+      }
+    }
+  }
+}

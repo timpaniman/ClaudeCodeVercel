@@ -1,12 +1,15 @@
+import { getTranslations } from 'next-intl/server'
 import { OtpForm } from '@/features/auth/components/OtpForm'
 import { loginQueryError } from '@/features/auth/authErrors'
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher'
 import { safeNext } from '@/lib/auth/safeNext'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: { next?: string; error?: string }
 }) {
+  const t = await getTranslations()
   const next = safeNext(searchParams.next)
   const queryError = loginQueryError(searchParams.error)
 
@@ -18,20 +21,22 @@ export default function LoginPage({
             AI
           </div>
           <h1 className="text-2xl font-bold text-white">AI4CEO</h1>
-          <p className="text-gray-400 text-base mt-1">졸업생 포털</p>
+          <p className="text-gray-400 text-base mt-1">{t('brand.portal')}</p>
         </div>
 
         {queryError && (
           <div role="alert" className="mb-4 bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl">
-            {queryError}
+            {t(`auth.linkErrors.${queryError}`)}
           </div>
         )}
 
         <OtpForm next={next} />
 
-        <p className="text-center text-sm text-gray-500 mt-8">
-          비밀번호는 필요 없습니다. 이메일로 받은 코드로 로그인합니다.
-        </p>
+        <p className="text-center text-sm text-gray-500 mt-8">{t('auth.login.passwordless')}</p>
+
+        <div className="flex justify-center mt-4">
+          <LocaleSwitcher />
+        </div>
       </div>
     </div>
   )

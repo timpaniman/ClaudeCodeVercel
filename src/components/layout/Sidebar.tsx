@@ -2,17 +2,20 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Home, BookOpen, Bell, Users, User, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Avatar } from '@/components/ui/Avatar'
 import { NavUnreadBadge } from '@/components/layout/NavUnreadBadge'
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher'
 
 // Design Ref: §5.1 — v1 내비게이션: 홈 · 자료 · 공지 · 멤버 · 나
+// label 은 문구 키(nav.*)이다.
 export const NAV_ITEMS = [
-  { href: '/home', label: '홈', icon: Home },
-  { href: '/library', label: '자료', icon: BookOpen },
-  { href: '/announcements', label: '공지', icon: Bell },
-  { href: '/directory', label: '멤버', icon: Users },
+  { href: '/home', label: 'home', icon: Home },
+  { href: '/library', label: 'library', icon: BookOpen },
+  { href: '/announcements', label: 'announcements', icon: Bell },
+  { href: '/directory', label: 'directory', icon: Users },
 ] as const
 
 interface SidebarProps {
@@ -33,6 +36,7 @@ const linkClass = (active: boolean) =>
   )
 
 export function Sidebar({ user, userId }: SidebarProps) {
+  const t = useTranslations()
   const pathname = usePathname()
   const is = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
@@ -42,15 +46,15 @@ export function Sidebar({ user, userId }: SidebarProps) {
         <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-sm">AI</div>
         <div>
           <div className="font-bold text-white text-base">AI4CEO</div>
-          <div className="text-xs text-gray-400">{user?.cohortNumber ? `${user.cohortNumber}기` : '졸업생 포털'}</div>
+          <div className="text-xs text-gray-400">{user?.cohortNumber ? t('common.cohort', { number: user.cohortNumber }) : t('brand.portal')}</div>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1" aria-label="주 메뉴">
+      <nav className="flex-1 px-3 py-4 space-y-1" aria-label={t('nav.mainMenu')}>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href} className={linkClass(is(href))} aria-current={is(href) ? 'page' : undefined}>
             <Icon size={18} />
-            <span>{label}</span>
+            <span>{t(`nav.${label}`)}</span>
             {href === '/announcements' && userId && <NavUnreadBadge userId={userId} className="ml-auto" />}
           </Link>
         ))}
@@ -60,12 +64,12 @@ export function Sidebar({ user, userId }: SidebarProps) {
         {user?.isAdmin && (
           <Link href="/admin" className={linkClass(is('/admin'))}>
             <ShieldCheck size={18} />
-            <span>관리자</span>
+            <span>{t('nav.admin')}</span>
           </Link>
         )}
         <Link href="/me" className={linkClass(is('/me'))}>
           <User size={18} />
-          <span>내 프로필</span>
+          <span>{t('nav.myProfile')}</span>
         </Link>
 
         {user && (
@@ -80,9 +84,13 @@ export function Sidebar({ user, userId }: SidebarProps) {
 
         <form action="/auth/signout" method="post">
           <button type="submit" className="w-full text-left px-3 min-h-11 rounded-lg text-sm text-gray-500 hover:text-white hover:bg-white/5">
-            로그아웃
+            {t('nav.signOut')}
           </button>
         </form>
+
+        <div className="px-3 pt-2">
+          <LocaleSwitcher />
+        </div>
       </div>
     </aside>
   )

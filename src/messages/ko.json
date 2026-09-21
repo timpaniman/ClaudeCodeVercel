@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "title": "AI4CEO — 졸업생 포털",
+    "description": "AI4CEO 졸업생을 위한 자료·공지 포털"
+  },
+  "brand": {
+    "portal": "졸업생 포털"
+  },
+  "common": {
+    "cohort": "{number}기"
+  },
+  "locale": {
+    "label": "언어",
+    "en": "English",
+    "ko": "한국어"
+  },
+  "nav": {
+    "home": "홈",
+    "library": "자료",
+    "announcements": "공지",
+    "directory": "멤버",
+    "me": "나",
+    "myProfile": "내 프로필",
+    "admin": "관리자",
+    "signOut": "로그아웃",
+    "mainMenu": "주 메뉴",
+    "bottomMenu": "하단 메뉴",
+    "unread": "안 읽은 공지 {count}건"
+  },
+  "auth": {
+    "login": {
+      "passwordless": "비밀번호는 필요 없습니다. 이메일로 받은 코드로 로그인합니다.",
+      "email": "이메일",
+      "consentLabel": "개인정보 수집·이용에 동의합니다. (필수)",
+      "consentDetail": "수집 항목: 이메일, 이름, 회사·직책 등 프로필 정보 / 이용 목적: 졸업생 포털 제공, 자료·공지 알림 발송",
+      "sendCode": "인증 코드 보내기",
+      "or": "또는",
+      "google": "Google로 계속하기",
+      "codeTitle": "인증 코드를 입력해 주세요",
+      "codeSent": "<highlight>{email}</highlight> 로 {length}자리 코드를 보냈습니다.",
+      "codeLabel": "인증 코드",
+      "signIn": "로그인",
+      "linkHint": "메일의 “로그인” 버튼을 눌러도 로그인됩니다.",
+      "changeEmail": "이메일 다시 입력",
+      "resend": "코드 다시 받기",
+      "resendIn": "코드 다시 받기 ({seconds}초)"
+    },
+    "errors": {
+      "emailInvalid": "이메일 주소를 확인해 주세요.",
+      "consentRequired": "개인정보 수집·이용에 동의해 주세요.",
+      "rateLimitSend": "메일 발송 횟수 제한에 도달했습니다. 잠시 후 다시 시도해 주세요.",
+      "rateLimitVerify": "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
+      "signupDisabled": "현재 가입이 제한되어 있습니다. 운영진에게 문의해 주세요.",
+      "emailNotAuthorized": "이 주소로는 메일을 보낼 수 없습니다. 운영진에게 문의해 주세요.",
+      "codeExpired": "코드가 만료되었습니다. 새 코드를 받아 주세요.",
+      "codeInvalid": "코드가 올바르지 않습니다. 메일의 코드를 다시 확인해 주세요.",
+      "unknown": "일시적인 오류입니다. 잠시 후 다시 시도해 주세요."
+    },
+    "linkErrors": {
+      "linkInvalid": "로그인 링크가 만료되었거나 이미 사용되었습니다. 코드를 다시 받아 주세요.",
+      "authFailed": "로그인에 실패했습니다. 다시 시도해 주세요.",
+      "noProfile": "계정 정보를 불러오지 못했습니다. 다시 로그인해 주세요. 계속되면 운영진에게 문의해 주세요."
+    },
+    "pending": {
+      "titlePending": "승인 대기 중입니다",
+      "titleRejected": "승인되지 않았습니다",
+      "rejectedBody": "가입 신청이 승인되지 않았습니다. 잘못된 결정이라고 생각하시면 운영진에게 문의해 주세요.",
+      "pendingBody": "이 이메일은 졸업생 명단에서 확인되지 않았습니다. 아래 정보를 남겨 주시면 운영진이 확인한 뒤 승인합니다. 승인되면 다음 접속부터 바로 이용하실 수 있습니다.",
+      "signOutOther": "다른 이메일로 로그인",
+      "form": {
+        "name": "이름",
+        "cohort": "기수",
+        "cohortPlaceholder": "예: 12",
+        "company": "회사",
+        "optional": "(선택)",
+        "submit": "승인 요청 보내기",
+        "resubmit": "다시 저장",
+        "saved": "신청 정보가 접수되었습니다. 운영진이 확인 후 승인합니다. 내용을 고치려면 다시 저장해 주세요.",
+        "errName": "이름을 입력해 주세요.",
+        "errCohort": "수료(또는 재학) 기수를 숫자로 입력해 주세요. 예: 12",
+        "errExpired": "로그인이 만료되었습니다. 다시 로그인해 주세요.",
+        "errSave": "저장하지 못했습니다. 잠시 후 다시 시도해 주세요."
+      }
+    }
+  }
+}
