@@ -984,7 +984,7 @@ tests/{rls,e2e}/
 | 13 | 개인정보 수집·이용 동의 문구 | 현재 로그인 화면은 임시 문구. `OtpForm.tsx`의 `PRIVACY_LABEL/DETAIL`만 교체 | 교수님 |
 | 14 | 실제 메일 코드 로그인 시험 | 교수님 Gmail로 1회 (기본 SMTP는 팀 멤버 주소만 발송될 수 있음). `example.com` 주소는 Supabase가 코드 발송을 거절함 | 교수님 + Claude |
 | 15 | **실제 알림 메일 발송 시험** | Resend 계정 + 발송 도메인(SPF/DKIM) + `RESEND_API_KEY`·`EMAIL_FROM` 등록. 지금까지는 개발용 `log` 제공자와 가짜 제공자 테스트로만 검증됨 | 교수님 + Claude |
-| 16 | **`008_input_constraints.sql` 적용** | SQL Editor 에서 개발·운영 DB 각각 실행 (여러 번 실행해도 안전). 운영은 회원 초대 전에. 적용 전에는 `tests/rls/10-input-constraints` 가 실패하는 것이 정상 | 교수님 |
+| 16 | ~~`008_input_constraints.sql` 적용~~ (개발·운영 DB 모두 완료) | SQL Editor 에서 개발·운영 DB 각각 실행 (여러 번 실행해도 안전). 운영은 회원 초대 전에. 적용 전에는 `tests/rls/10-input-constraints` 가 실패하는 것이 정상 | 교수님 |
 
 ---
 
