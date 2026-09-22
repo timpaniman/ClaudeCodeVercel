@@ -1,14 +1,36 @@
-# ai4ceo-alumni-portal Planning Document
+# kevin-community-alumni-portal Planning Document
 
-> **Summary**: AI4CEO 졸업생 약 500명이 카카오톡 단톡방·구글 드라이브 대신 사용하는 모바일 우선 웹 포털. v1은 "자료 라이브러리 우선"으로 최소 범위를 먼저 배포한다.
+> **Summary**: Kevin Community(구 AI4CEO) 졸업생 약 500명이 카카오톡 단톡방·구글 드라이브 대신 사용하는 모바일 우선 웹 포털. v1 "자료 라이브러리 우선" 범위(M1~M6)를 구현·배포 완료했고, 이후 영어 기본 다국어화와 브랜드 개편(Kevin Community, 초록색)까지 반영해 운영 중이다.
 >
-> **Project**: ai4ceo1 (ai4ceo1-next)
-> **Version**: 0.1.0
+> **Project**: ai4ceo1 (ai4ceo1-next) · Live: https://claude-code-vercel.vercel.app
+> **Version**: 0.3.0
 > **Author**: 장동인 교수 (with Claude)
-> **Date**: 2026-09-19
-> **Status**: Approved (2026-09-19, 장동인 교수)
+> **Date**: 2026-09-19 (최초) → 2026-09-22 (최종 갱신)
+> **Status**: **v1 구현·배포 완료** — 실제 500명 초대(운영 확산)는 대기 중. 상세는 "§0 현재 상태 요약" 참조
 > **Method**: Plan Plus (Brainstorming-Enhanced PDCA)
 > **Baseline**: [`../plan.md`](../plan.md) (v1.0, 2026-05-26)를 재검토·범위 축소한 v2 Plan
+> **후속 Plan**: [`portal-i18n-en.plan.md`](./portal-i18n-en.plan.md) — 영어 기본 다국어화(이 문서의 범위 밖에서 추가 결정됨)
+
+---
+
+## §0 현재 상태 요약 (2026-09-22)
+
+| 구분 | 상태 |
+|------|------|
+| **v1 모듈 (M1~M6)** | **완료·배포됨.** 명단·인증, 자료 라이브러리, 공지, 이메일 알림, 멤버 디렉토리·프로필, 관리자 통계·PWA |
+| **Check/Act (품질 검증)** | 완료. 보안 검토 반영(저장형 XSS, 외부 아바타로 인한 전체 오류, 알림 발송 시간 초과 수정 등). 자체 재산정 Match Rate ≈ 91.8% — `docs/03-analysis/ai4ceo-alumni-portal.analysis.md`. **독립 재검증(gap-detector 재실행)은 아직 안 함** |
+| **브랜드 개편** | 완료·배포됨. 이름 "AI4CEO" → **"Kevin Community"**, 브랜드색 인디고 → **초록**(`#16a34a`/`#22c55e`) |
+| **영어 기본 다국어화** | 완료·배포됨. 영어 기본 + 한국어 전환(쿠키), 알림 메일도 수신자 언어별 발송. 상세: [`portal-i18n-en.plan.md`](./portal-i18n-en.plan.md) |
+| **테스트** | 단위 291개, RLS/DB 92개+, API 7개, 스모크 14개 통과. 빌드·린트 오류 0 |
+| **실기기(iOS/Android) 점검** | **안 함** (브라우저 에뮬레이션으로만 확인) |
+| **드라이브 실제 이전** | **안 함** (스크립트는 완성, 17기 등 실제 자료 이전은 미실행) |
+| **Resend 발신 도메인 인증** | **안 함** (테스트 발신 주소로 교수님 본인 메일만 발송 확인됨. 다른 수신자에게는 발송 불가) |
+| **커스텀 도메인** | **안 함** (`claude-code-vercel.vercel.app` 그대로) |
+| **개인정보 동의 문구 확정** | **안 함** (임시 문구 사용 중) |
+| **졸업생 500명 실제 초대** | **안 함** |
+| **Claude Design 시안** | 브리프만 작성됨([`design-brief-v2-en.md`](../../02-design/design-brief-v2-en.md)), 실제 시안 작업은 별도 세션에서 진행 예정 |
+
+**정리**: 코드·인프라 관점의 v1은 끝났고 실제로 운영 중이다. 남은 일은 전부 **운영 준비(Resend 도메인, 명단, 드라이브 이전, 동의 문구, 실기기 점검, 도메인)**이며 코드 작업이 아니다.
 
 ---
 
@@ -114,14 +136,14 @@
 
 ### 3.1 Included (v1 Must-Have)
 
-- [ ] 명단(CSV) 기반 가입·로그인, 기수/역할 자동 부여 (M1)
-- [ ] 자료 라이브러리: 업로드, 기수·주차·주제 분류, 검색, PDF·영상·코드 열람 (M2)
-- [ ] 구글 드라이브 자료 일괄 이전 + 교수님 검수
-- [ ] 교수/운영진 공지 (읽기 전용 회원) (M3)
-- [ ] 새 자료/공지 이메일 알림 + 수신 설정 (M4) — *사용자 선택*
-- [ ] 기수별 멤버 디렉토리 + 내 프로필 (M5) — *사용자 선택*
-- [ ] 관리자 사용 통계 대시보드 (M6) — *사용자 선택*
-- [ ] PWA 홈화면 설치 — *사용자 선택*
+- [x] 명단(CSV) 기반 가입·로그인, 기수/역할 자동 부여 (M1)
+- [x] 자료 라이브러리: 업로드, 기수·주차·주제 분류, 검색, PDF·영상·코드 열람 (M2)
+- [ ] 구글 드라이브 자료 일괄 이전 + 교수님 검수 — 스크립트만 완료, 실행은 대기
+- [x] 교수/운영진 공지 (읽기 전용 회원) (M3)
+- [x] 새 자료/공지 이메일 알림 + 수신 설정 (M4) — *사용자 선택*
+- [x] 기수별 멤버 디렉토리 + 내 프로필 (M5) — *사용자 선택*
+- [x] 관리자 사용 통계 대시보드 (M6) — *사용자 선택*
+- [x] PWA 홈화면 설치 — *사용자 선택*
 
 ### 3.2 Deferred (v1.1+ Maybe)
 
@@ -173,23 +195,23 @@
 
 | ID | Requirement | Priority | Status |
 |----|-------------|----------|--------|
-| FR-01 | 운영진이 명단 CSV(이메일, 이름, 기수)를 업로드·검증·수정할 수 있다 | High | Pending |
-| FR-02 | 회원은 비밀번호 없이 이메일 매직링크로 로그인한다 (Google 로그인은 선택) | High | Pending |
-| FR-03 | 로그인 시 명단과 대조해 기수·역할(재학생/졸업생)을 자동 부여하고 즉시 사용 가능하게 한다 | High | Pending |
-| FR-04 | 명단에 없는 가입자는 '승인 대기'가 되며 운영진이 승인/거절한다 | High | Pending |
-| FR-05 | 운영진이 자료를 업로드하고 기수·주차·주제·태그·설명을 입력한다 (브라우저→Storage 직접 업로드) | High | Pending |
-| FR-06 | 회원은 자료를 기수·주차·주제로 필터링하고 최신순으로 볼 수 있다 | High | Pending |
-| FR-07 | 회원은 제목·태그·설명을 한글 포함 키워드로 검색할 수 있다 (pg_trgm) | High | Pending |
-| FR-08 | PDF 미리보기, 영상 링크 임베드, 코드 파일 보기/다운로드를 지원한다 | Medium | Pending |
-| FR-09 | 열람 권한: 졸업생=전 기수, 재학생=본 기수+공용, 승인 대기=없음, 업로드·수정=운영진 (RLS + 서명 URL) | High | Pending |
-| FR-10 | 운영진이 공지를 작성·고정하고, 회원은 읽음 상태를 볼 수 있다 | High | Pending |
-| FR-11 | 새 자료/공지 등록 시 수신 동의 회원에게 이메일을 발송하고 링크로 해당 항목에 이동시킨다 | High | Pending |
-| FR-12 | 회원이 이메일 알림 수신 여부를 설정할 수 있다 | Medium | Pending |
-| FR-13 | 회원은 기수별 멤버 디렉토리를 볼 수 있다 (공개 범위: 로그인 회원만) | Medium | Pending |
-| FR-14 | 회원은 내 프로필(회사·직책·링크)을 편집한다 | Medium | Pending |
-| FR-15 | 열람·다운로드·접속을 `activity_log`에 기록하고 관리자 대시보드에 MAU, 인기 자료, 모바일 비율을 표시한다 | Medium | Pending |
-| FR-16 | 홈 화면 설치(PWA manifest, 아이콘, 오프라인 폴백 페이지)를 지원한다 | Medium | Pending |
-| FR-17 | 구글 드라이브 자료를 폴더명(기수/주차) 기반 메타데이터 CSV로 매핑해 일괄 업로드하고, 공개 전 운영진 검수를 거친다 | High | Pending |
+| FR-01 | 운영진이 명단 CSV(이메일, 이름, 기수)를 업로드·검증·수정할 수 있다 | High | **Done** |
+| FR-02 | 회원은 비밀번호 없이 이메일 코드/링크로 로그인한다 (Google 로그인은 선택, 기본 꺼짐) | High | **Done** |
+| FR-03 | 로그인 시 명단과 대조해 기수·역할(재학생/졸업생)을 자동 부여하고 즉시 사용 가능하게 한다 | High | **Done** |
+| FR-04 | 명단에 없는 가입자는 '승인 대기'가 되며 운영진이 승인/거절한다 | High | **Done** |
+| FR-05 | 운영진이 자료를 업로드하고 기수·주차·주제·태그·설명을 입력한다 (브라우저→Storage 직접 업로드) | High | **Done** |
+| FR-06 | 회원은 자료를 기수·주차·주제로 필터링하고 최신순으로 볼 수 있다 | High | **Done** |
+| FR-07 | 회원은 제목·태그·설명을 한글 포함 키워드로 검색할 수 있다 | High | **Done** |
+| FR-08 | PDF 미리보기, 영상 링크 임베드, 코드 파일 보기/다운로드를 지원한다 | Medium | **Done** |
+| FR-09 | 열람 권한: 졸업생=전 기수, 재학생=본 기수+공용, 승인 대기=없음, 업로드·수정=운영진 (RLS + 서명 URL) | High | **Done** |
+| FR-10 | 운영진이 공지를 작성·고정하고, 회원은 읽음 상태를 볼 수 있다 | High | **Done** |
+| FR-11 | 새 자료/공지 등록 시 수신 동의 회원에게 이메일을 발송하고 링크로 해당 항목에 이동시킨다 | High | **Done** |
+| FR-12 | 회원이 이메일 알림 수신 여부를 설정할 수 있다 | Medium | **Done** |
+| FR-13 | 회원은 기수별 멤버 디렉토리를 볼 수 있다 (공개 범위: 로그인 회원만, 이메일 비노출) | Medium | **Done** |
+| FR-14 | 회원은 내 프로필(회사·직책·링크)을 편집한다 | Medium | **Done** |
+| FR-15 | 열람·다운로드·접속을 `activity_log`에 기록하고 관리자 대시보드에 MAU, 인기 자료, 모바일 비율을 표시한다 | Medium | **Done** |
+| FR-16 | 홈 화면 설치(PWA manifest, 아이콘, 오프라인 폴백 페이지)를 지원한다 | Medium | **Done** |
+| FR-17 | 구글 드라이브 자료를 폴더명(기수/주차) 기반 메타데이터 CSV로 매핑해 일괄 업로드하고, 공개 전 운영진 검수를 거친다 | High | **스크립트 완료 / 실제 이전 미실행** — `npm run migrate:scan` / `migrate:import` 준비됨, 17기 등 실제 자료 이전은 교수님 운영 작업으로 남음 |
 
 ### 5.2 Non-Functional Requirements
 
@@ -208,17 +230,17 @@
 
 ### 6.1 Definition of Done
 
-- [ ] FR-01 ~ FR-17 구현
-- [ ] RLS 정책 테스트 통과 (졸업생/재학생/승인대기/운영진 4개 역할)
-- [ ] 17기 파일럿 사용자 실기기(iOS/Android) 점검 완료
-- [ ] 드라이브 자료 이전 및 교수님 검수 완료
-- [ ] Vercel 프로덕션 배포 및 커스텀 도메인 연결
+- [x] FR-01 ~ FR-16 구현. FR-17은 스크립트까지 구현(실제 이전 실행은 운영 작업으로 남음)
+- [x] RLS 정책 테스트 통과 (졸업생/재학생/승인대기/운영진 4개 역할 — `npm run test:rls`, 92개+)
+- [ ] 17기 파일럿 사용자 실기기(iOS/Android) 점검 완료 — 브라우저 에뮬레이션만 확인, 실기기 미점검
+- [ ] 드라이브 자료 이전 및 교수님 검수 완료 — 스크립트만 준비됨
+- [x] Vercel 프로덕션 배포 (`claude-code-vercel.vercel.app`) — **커스텀 도메인 연결은 안 함**
 
 ### 6.2 Quality Criteria
 
-- [ ] Gap 분석 Match Rate 90% 이상 (`/pdca analyze`)
-- [ ] Lint 오류 0, 타입 체크·빌드 성공
-- [ ] Lighthouse 모바일 90+
+- [x] Gap 분석 Match Rate 90% 이상 — Check 단계 자체 재산정 ≈91.8% (`docs/03-analysis/ai4ceo-alumni-portal.analysis.md`). **독립된 gap-detector 재실행으로 확인되지는 않음**
+- [x] Lint 오류 0, 타입 체크·빌드 성공 (지속적으로 확인됨)
+- [ ] Lighthouse 모바일 90+ — 측정 안 함
 
 ---
 
@@ -338,20 +360,31 @@
 
 ## 10. Next Steps
 
-1. [ ] 이 Plan 문서 사용자 검토·승인
-2. [ ] `/pdca design ai4ceo-alumni-portal` — 003 마이그레이션(roster, announcements, activity_log), RLS 4개 역할 설계, 화면 보완(8.5), 이메일 서비스 확정, Supabase 프로젝트 적용 상태 확인
-3. [ ] `/pdca do ai4ceo-alumni-portal` — 제안 스프린트 순서:
+> M1~M6 구현·Check/Act·배포는 완료됐다. 아래는 실제 운영 확산을 위해 **교수님이 하실 운영 작업**과, 남은 **선택적 코드 작업**이다.
 
-| Sprint | 내용 |
-|--------|------|
-| S1 Foundation & Auth | `.gitignore`/시크릿 정리, 003 마이그레이션, M1 명단·인증 |
-| S2 Library | M2 자료 라이브러리 + 운영진 업로드 |
-| S3 Migration & Notice | 드라이브 이전 + 검수, M3 공지 |
-| S4 Notify & Directory | M4 이메일 알림, M5 디렉토리·프로필 |
-| S5 Admin & PWA | M6 통계, PWA, 17기 파일럿 |
-| S6 Deploy | Vercel 배포, 커스텀 도메인, 졸업생 500명 초대 |
+### 10.1 운영 작업 (코드 아님, 교수님)
+1. [ ] Resend 발신 도메인(SPF/DKIM) 인증 — 지금은 교수님 본인 메일만 발송 확인됨
+2. [ ] 개인정보 수집·이용 동의 문구 확정 (현재 임시 문구)
+3. [ ] 17기 명단 CSV 준비·등록, 드라이브 자료 실제 이전 실행(`migrate:scan` → 검수 → `migrate:import`)
+4. [ ] 17기 파일럿 진행 — 절차는 [`docs/05-ops/pilot-17th-cohort.md`](../../05-ops/pilot-17th-cohort.md)
+5. [ ] 실기기(iOS/Android) 점검, Lighthouse 측정
+6. [ ] 커스텀 도메인 연결 (선택)
+7. [ ] 파일럿 결과를 보고 졸업생 1~16기로 확산
 
-4. [ ] `/pdca analyze` → `/pdca iterate` (Match Rate 90%+) → `/pdca report`
+### 10.2 남은 코드 작업 (선택)
+1. [ ] 독립적인 Gap 분석 재실행(`gap-detector`)으로 Match Rate 재확인
+2. [ ] Claude Design에서 나온 시안을 코드에 반영 — 브리프: [`design-brief-v2-en.md`](../../02-design/design-brief-v2-en.md)
+3. [ ] L2(UI)·L3(E2E) 자동 테스트 도입 — [`portal-i18n-en.plan.md`](./portal-i18n-en.plan.md) §6 위험 참고
+
+### 10.3 (참고) 처음 세운 개발 순서 — 완료됨
+| Sprint | 내용 | 결과 |
+|--------|------|------|
+| S1 Foundation & Auth | `.gitignore`/시크릿 정리, 마이그레이션, M1 명단·인증 | 완료 |
+| S2 Library | M2 자료 라이브러리 + 운영진 업로드 | 완료 |
+| S3 Migration & Notice | 드라이브 이전 스크립트, M3 공지 | 스크립트만 완료 |
+| S4 Notify & Directory | M4 이메일 알림, M5 디렉토리·프로필 | 완료 |
+| S5 Admin & PWA | M6 통계, PWA | 완료 (17기 파일럿은 미실행) |
+| S6 Deploy | Vercel 배포 | 배포 완료, 커스텀 도메인·500명 초대는 미실행 |
 
 ---
 
@@ -377,3 +410,4 @@
 |---------|------|---------|--------|
 | 0.1 | 2026-09-19 | Initial draft (Plan Plus) — 기존 plan.md v1.0을 v1 범위로 축소·재정렬 | 장동인 교수 (with Claude) |
 | 0.2 | 2026-09-19 | Plan 승인, Context Anchor 추가. Design 단계에서 확정된 변경(보류 테이블 미생성, `cohort_members` 제거, 역할 파생, OTP 코드 로그인, dev/prod 분리 등)은 [Design §1.3](../../02-design/features/ai4ceo-alumni-portal.design.md) 참조 | 장동인 교수 (with Claude) |
+| 0.3 | 2026-09-19~22 | **M1~M6 구현, Check/Act(보안 수정), Vercel 배포 완료.** 이후 별도 결정으로 (1) 영어 기본 다국어화([`portal-i18n-en.plan.md`](./portal-i18n-en.plan.md), 회원 언어 선택 저장을 위한 `009_profile_locale.sql` 포함) (2) 브랜드명 "AI4CEO" → **"Kevin Community"**, 브랜드색 인디고 → **초록**으로 개편. 모두 배포 완료. 남은 항목은 §0·§10 참조 | 장동인 교수 (with Claude) |
