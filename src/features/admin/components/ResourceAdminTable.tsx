@@ -149,7 +149,7 @@ export function ResourceAdminTable({ rows, emailEnabled = false, initialNotice =
             type="button"
             aria-pressed={status === key}
             onClick={() => setStatus(key)}
-            className={cn('min-h-11 px-4 rounded-full text-base font-medium', status === key ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
+            className={cn('min-h-11 px-4 rounded-full text-base font-medium', status === key ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
           >
             {text}
           </button>
@@ -159,7 +159,7 @@ export function ResourceAdminTable({ rows, emailEnabled = false, initialNotice =
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
           aria-label={t('searchAria')}
-          className="min-h-11 flex-1 min-w-40 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+          className="min-h-11 flex-1 min-w-40 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
         />
       </div>
 
@@ -181,14 +181,14 @@ export function ResourceAdminTable({ rows, emailEnabled = false, initialNotice =
             data-testid="select-all-drafts"
             checked={allSelected}
             onChange={() => setSelected(allSelected ? new Set() : new Set(selectableIds))}
-            className="h-5 w-5 accent-indigo-500"
+            className="h-5 w-5 accent-green-500"
           />
           {t('selectDrafts', { count: selectableIds.length })}
         </label>
       )}
 
       {selected.size > 0 && (
-        <button type="button" onClick={bulkPublish} disabled={busyId !== null} className={cn(btn, 'bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold px-5 min-h-12')}>
+        <button type="button" onClick={bulkPublish} disabled={busyId !== null} className={cn(btn, 'bg-green-600 hover:bg-green-500 text-white text-base font-semibold px-5 min-h-12')}>
           {busyId === 'bulk' && <Loader2 size={16} className="inline animate-spin mr-2" aria-hidden />}
           {progress ? t('bulkProgress', { done: progress.done, total: progress.total }) : t('bulkPublish', { count: selected.size })}
         </button>
@@ -203,7 +203,7 @@ export function ResourceAdminTable({ rows, emailEnabled = false, initialNotice =
           {visible.map((r) => (
             <li key={r.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
               <div className="flex items-start gap-3">
-                <input type="checkbox" aria-label={t('selectAria', { title: r.title })} checked={selected.has(r.id)} onChange={() => toggle(r.id)} className="mt-1.5 h-5 w-5 accent-indigo-500" />
+                <input type="checkbox" aria-label={t('selectAria', { title: r.title })} checked={selected.has(r.id)} onChange={() => toggle(r.id)} className="mt-1.5 h-5 w-5 accent-green-500" />
                 <div className="min-w-0 flex-1">
                   <Link href={`/library/${r.id}`} className="text-base font-semibold text-white hover:underline break-words">
                     {r.title}
@@ -228,11 +228,11 @@ export function ResourceAdminTable({ rows, emailEnabled = false, initialNotice =
                   </button>
                 ) : (
                   <>
-                    <button type="button" onClick={() => publish(r.id)} disabled={busyId !== null} className={cn(btn, 'bg-indigo-600 hover:bg-indigo-500 text-white')}>
+                    <button type="button" onClick={() => publish(r.id)} disabled={busyId !== null} className={cn(btn, 'bg-green-600 hover:bg-green-500 text-white')}>
                       {busyId === r.id ? <Loader2 size={14} className="inline animate-spin" aria-hidden /> : t('publish')}
                     </button>
                     {emailEnabled && (
-                      <button type="button" onClick={() => publishAndNotify(r.id)} disabled={busyId !== null} className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-indigo-500/40 text-indigo-200')}>
+                      <button type="button" onClick={() => publishAndNotify(r.id)} disabled={busyId !== null} className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-green-500/40 text-green-200')}>
                         {t('publishNotify')}
                       </button>
                     )}

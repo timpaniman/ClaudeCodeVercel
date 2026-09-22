@@ -57,7 +57,7 @@ export default async function HomePage() {
             maxLength={100}
             aria-label={t('searchLabel')}
             placeholder={t('searchPlaceholder')}
-            className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
           />
         </form>
       </header>
@@ -71,7 +71,7 @@ export default async function HomePage() {
       <section aria-labelledby="home-announcements" className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 id="home-announcements" className="text-lg font-semibold text-white">{t('announcements')}</h2>
-          <Link href="/announcements" className="inline-flex items-center gap-1 min-h-11 text-base text-indigo-300 hover:text-indigo-200">
+          <Link href="/announcements" className="inline-flex items-center gap-1 min-h-11 text-base text-green-300 hover:text-green-200">
             {t('viewAll')} <ArrowRight size={16} aria-hidden />
           </Link>
         </div>
@@ -95,11 +95,11 @@ export default async function HomePage() {
           </h2>
           <div className="flex items-center gap-4">
             {cohortNumber !== null && (
-              <Link href={`/library?cohort=${cohortNumber}`} className="inline-flex items-center min-h-11 text-base text-indigo-300 hover:text-indigo-200">
+              <Link href={`/library?cohort=${cohortNumber}`} className="inline-flex items-center min-h-11 text-base text-green-300 hover:text-green-200">
                 {t('myCohort')}
               </Link>
             )}
-            <Link href="/library" className="inline-flex items-center gap-1 min-h-11 text-base text-indigo-300 hover:text-indigo-200">
+            <Link href="/library" className="inline-flex items-center gap-1 min-h-11 text-base text-green-300 hover:text-green-200">
               {t('allResources')} <ArrowRight size={16} aria-hidden />
             </Link>
           </div>
@@ -120,7 +120,7 @@ export default async function HomePage() {
       {profile?.role === 'admin' && (
         <Link
           href="/admin"
-          className="flex items-center gap-3 min-h-14 bg-indigo-600/15 border border-indigo-500/30 rounded-2xl px-5 text-base font-medium text-indigo-200 hover:bg-indigo-600/25 transition-colors"
+          className="flex items-center gap-3 min-h-14 bg-green-600/15 border border-green-500/30 rounded-2xl px-5 text-base font-medium text-green-200 hover:bg-green-600/25 transition-colors"
         >
           <ShieldCheck size={20} aria-hidden />
           {t('goAdmin')}

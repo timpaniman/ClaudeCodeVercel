@@ -38,7 +38,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           aria-pressed={current === locale}
           className={cn(
             'min-h-9 px-3 rounded-md text-sm font-medium transition-colors',
-            current === locale ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white',
+            current === locale ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white',
           )}
         >
           {t(locale)}

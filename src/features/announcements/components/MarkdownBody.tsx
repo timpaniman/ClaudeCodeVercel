@@ -13,7 +13,7 @@ const components: Components = {
   ul: ({ children }) => <ul className="my-3 list-disc space-y-1 pl-6">{children}</ul>,
   ol: ({ children }) => <ol className="my-3 list-decimal space-y-1 pl-6">{children}</ol>,
   li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-  blockquote: ({ children }) => <blockquote className="my-4 border-l-4 border-indigo-500/60 pl-4 text-gray-300">{children}</blockquote>,
+  blockquote: ({ children }) => <blockquote className="my-4 border-l-4 border-green-500/60 pl-4 text-gray-300">{children}</blockquote>,
   hr: () => <hr className="my-6 border-white/10" />,
   strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
   code: ({ children }) => <code className="rounded bg-white/10 px-1.5 py-0.5 text-[0.9em]">{children}</code>,
@@ -21,7 +21,7 @@ const components: Components = {
   // 위험한 주소(javascript: 등)는 기본 urlTransform 이 빈 문자열로 바꾼다. 그런 링크는 클릭 가능한 빈 링크가 아니라 일반 글자로 보여 준다.
   a: ({ href, children }) =>
     href ? (
-      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className="text-indigo-300 underline underline-offset-4 hover:text-indigo-200">
+      <a href={href} target="_blank" rel="noopener noreferrer nofollow" className="text-green-300 underline underline-offset-4 hover:text-green-200">
         {children}
       </a>
     ) : (

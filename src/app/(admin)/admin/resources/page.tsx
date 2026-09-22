@@ -34,7 +34,7 @@ export default async function AdminResourcesPage({ searchParams }: { searchParam
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="text-2xl font-bold text-white">{t('titles.resources')}</h1>
-        <Link href="/admin/resources/new" className="inline-flex items-center gap-2 min-h-12 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold">
+        <Link href="/admin/resources/new" className="inline-flex items-center gap-2 min-h-12 px-5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold">
           <Upload size={18} aria-hidden /> {t('uploadResource')}
         </Link>
       </div>

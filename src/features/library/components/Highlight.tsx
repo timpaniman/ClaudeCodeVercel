@@ -10,7 +10,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
   while (idx !== -1) {
     if (idx > from) parts.push(text.slice(from, idx))
     parts.push(
-      <mark key={idx} className="bg-indigo-500/30 text-white rounded px-0.5">
+      <mark key={idx} className="bg-green-500/30 text-white rounded px-0.5">
         {text.slice(idx, idx + q.length)}
       </mark>,
     )

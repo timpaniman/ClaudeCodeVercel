@@ -14,7 +14,7 @@ interface Props {
 type FormError = 'errName' | 'errCohort' | 'errExpired' | 'errSave'
 
 const inputClass =
-  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors'
+  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors'
 
 /** "12", "12기", "Cohort 12" 모두 12 로 읽는다 */
 export function parseCohortInput(raw: string): number {
@@ -104,7 +104,7 @@ export function PendingForm({ initial }: Props) {
       <button
         type="submit"
         disabled={busy}
-        className="w-full min-h-12 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+        className="w-full min-h-12 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
       >
         {busy && <Loader2 size={18} className="animate-spin" />}
         {saved ? t('resubmit') : t('submit')}

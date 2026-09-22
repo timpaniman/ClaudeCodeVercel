@@ -32,7 +32,7 @@ interface SidebarProps {
 const linkClass = (active: boolean) =>
   cn(
     'flex items-center gap-3 px-3 min-h-11 rounded-lg text-base font-medium transition-colors',
-    active ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5',
+    active ? 'bg-green-600 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5',
   )
 
 export function Sidebar({ user, userId }: SidebarProps) {
@@ -43,7 +43,7 @@ export function Sidebar({ user, userId }: SidebarProps) {
   return (
     <aside className="hidden lg:flex flex-col w-60 bg-gray-950 border-r border-white/10 min-h-screen fixed left-0 top-0 bottom-0">
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-        <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-sm">AI</div>
+        <div className="w-9 h-9 rounded-xl bg-green-600 flex items-center justify-center font-black text-white text-sm">AI</div>
         <div>
           <div className="font-bold text-white text-base">Kevin Community</div>
           <div className="text-xs text-gray-400">{user?.cohortNumber ? t('common.cohort', { number: user.cohortNumber }) : t('brand.portal')}</div>

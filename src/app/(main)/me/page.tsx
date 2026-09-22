@@ -96,7 +96,7 @@ export default async function MePage() {
         {profile.role === 'admin' && (
           <Link
             href="/admin"
-            className="flex items-center gap-3 min-h-14 bg-indigo-600/15 border border-indigo-500/30 rounded-2xl px-5 text-base font-medium text-indigo-200 hover:bg-indigo-600/25 transition-colors"
+            className="flex items-center gap-3 min-h-14 bg-green-600/15 border border-green-500/30 rounded-2xl px-5 text-base font-medium text-green-200 hover:bg-green-600/25 transition-colors"
           >
             <ShieldCheck size={20} aria-hidden /> {t('adminArea')}
           </Link>

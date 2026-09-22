@@ -17,9 +17,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // 개인정보 수집·이용 동의 문구는 운영진이 확정해야 한다 (Design §12 #4). 확정되면 언어별 문구 파일의 auth.login.consentLabel / consentDetail 만 교체한다.
 
 const inputClass =
-  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors'
+  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors'
 const primaryButton =
-  'w-full min-h-12 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2'
+  'w-full min-h-12 bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-base font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2'
 
 type FormError = AuthErrorKey | 'consentRequired'
 
@@ -162,7 +162,7 @@ export function OtpForm({ next }: { next: string }) {
             type="button"
             onClick={() => sendCode()}
             disabled={cooldown > 0 || busy}
-            className="min-h-11 px-2 text-indigo-400 hover:text-indigo-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+            className="min-h-11 px-2 text-green-400 hover:text-green-300 disabled:text-gray-600 disabled:cursor-not-allowed"
           >
             {cooldown > 0 ? t('login.resendIn', { seconds: cooldown }) : t('login.resend')}
           </button>
@@ -198,7 +198,7 @@ export function OtpForm({ next }: { next: string }) {
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-indigo-500"
+            className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-green-500"
           />
           <span>{t('login.consentLabel')}</span>
         </label>

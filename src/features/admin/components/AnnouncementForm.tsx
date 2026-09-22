@@ -21,7 +21,7 @@ export interface AnnouncementFormInitial {
 }
 
 const field =
-  'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+  'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500'
 
 export function AnnouncementForm({ userId, initial, emailEnabled = false }: { userId: string; initial?: AnnouncementFormInitial; emailEnabled?: boolean }) {
   const t = useTranslations('admin.announcementForm')
@@ -128,7 +128,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
                 role="tab"
                 aria-selected={tab === tabKey}
                 onClick={() => setTab(tabKey)}
-                className={cn('min-h-11 px-4 rounded-full text-sm font-medium', tab === tabKey ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
+                className={cn('min-h-11 px-4 rounded-full text-sm font-medium', tab === tabKey ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
               >
                 {tabKey === 'edit' ? t('tabEdit') : t('tabPreview')}
               </button>
@@ -153,7 +153,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
       <fieldset className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
         <legend className="px-1 text-sm font-medium text-gray-300">{t('settings')}</legend>
         <label className="flex items-center gap-3 min-h-11 text-base text-gray-200 cursor-pointer">
-          <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="h-5 w-5 accent-indigo-500" />
+          <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="h-5 w-5 accent-green-500" />
           {t('pin')}
         </label>
         <label className={`flex items-center gap-3 min-h-11 text-base ${emailEnabled && !isPublished ? 'text-gray-200 cursor-pointer' : 'text-gray-500'}`}>
@@ -163,7 +163,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
             checked={notify && emailEnabled && !isPublished}
             disabled={!emailEnabled || isPublished}
             onChange={(e) => setNotify(e.target.checked)}
-            className="h-5 w-5 accent-indigo-500"
+            className="h-5 w-5 accent-green-500"
           />
           {t('notify')}
           {!emailEnabled ? t('notifyNoEmail') : isPublished ? t('notifyPublished') : ''}
@@ -173,7 +173,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
       <div className="flex flex-wrap items-center gap-3">
         {isPublished ? (
           <>
-            <button type="button" onClick={() => save('save')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold">
+            <button type="button" onClick={() => save('save')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white text-base font-semibold">
               {busy === 'save' && <Loader2 size={18} className="animate-spin" aria-hidden />} {t('save')}
             </button>
             <button type="button" onClick={unpublish} disabled={!!busy} className="min-h-12 px-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 text-base font-medium text-gray-100">
@@ -182,7 +182,7 @@ export function AnnouncementForm({ userId, initial, emailEnabled = false }: { us
           </>
         ) : (
           <>
-            <button type="button" onClick={() => save('publish')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold">
+            <button type="button" onClick={() => save('publish')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-8 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white text-base font-semibold">
               {busy === 'publish' && <Loader2 size={18} className="animate-spin" aria-hidden />} {t('publish')}
             </button>
             <button type="button" onClick={() => save('save')} disabled={!!busy} className="inline-flex items-center gap-2 min-h-12 px-5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 disabled:opacity-60 text-base font-medium text-gray-100">

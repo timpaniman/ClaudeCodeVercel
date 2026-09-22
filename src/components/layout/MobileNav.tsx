@@ -32,7 +32,7 @@ export function MobileNav({ userId }: { userId?: string }) {
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'flex flex-1 flex-col items-center justify-center gap-1 min-h-14 rounded-xl transition-colors',
-                active ? 'text-indigo-400' : 'text-gray-400',
+                active ? 'text-green-400' : 'text-gray-400',
               )}
             >
               <span className="relative">

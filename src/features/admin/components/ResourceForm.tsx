@@ -36,8 +36,8 @@ interface Props {
 }
 
 const field =
-  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
-const selectField = 'w-full min-h-12 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white focus:outline-none focus:border-indigo-500'
+  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500'
+const selectField = 'w-full min-h-12 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white focus:outline-none focus:border-green-500'
 const label = 'block text-sm font-medium text-gray-300 mb-2'
 
 export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = false }: Props) {
@@ -233,7 +233,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
                 role="radio"
                 aria-checked={source === s}
                 onClick={() => setSource(s)}
-                className={`min-h-11 px-5 rounded-full text-base font-medium ${source === s ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
+                className={`min-h-11 px-5 rounded-full text-base font-medium ${source === s ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10'}`}
               >
                 {s === 'file' ? t('sourceFile') : t('sourceLink')}
               </button>
@@ -253,7 +253,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
                 const dropped = e.dataTransfer.files?.[0]
                 if (dropped) setFile(dropped)
               }}
-              className={`space-y-2 rounded-2xl border-2 border-dashed p-4 transition-colors ${dragging ? 'border-indigo-400 bg-indigo-600/10' : 'border-white/15'}`}
+              className={`space-y-2 rounded-2xl border-2 border-dashed p-4 transition-colors ${dragging ? 'border-green-400 bg-green-600/10' : 'border-white/15'}`}
             >
               <p className="text-base text-gray-300">{t('drop')}</p>
               <input
@@ -261,7 +261,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
                 data-testid="resource-file"
                 accept={UPLOAD_EXTENSIONS.map((x) => `.${x}`).join(',')}
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="block w-full text-base text-gray-300 file:mr-4 file:min-h-11 file:rounded-xl file:border-0 file:bg-indigo-600 file:px-5 file:text-base file:font-semibold file:text-white hover:file:bg-indigo-500"
+                className="block w-full text-base text-gray-300 file:mr-4 file:min-h-11 file:rounded-xl file:border-0 file:bg-green-600 file:px-5 file:text-base file:font-semibold file:text-white hover:file:bg-green-500"
               />
               <p className="text-sm text-gray-500">
                 {t('limits', { extensions: UPLOAD_EXTENSIONS.join(', '), max: MAX_UPLOAD_BYTES / 1024 / 1024 })}
@@ -302,7 +302,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
         <fieldset className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4">
           <legend className="px-1 text-sm font-medium text-gray-300">{t('publishing')}</legend>
           <label className="flex items-center gap-3 min-h-11 text-base text-gray-200 cursor-pointer">
-            <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} className="h-5 w-5 accent-indigo-500" />
+            <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} className="h-5 w-5 accent-green-500" />
             {t('publishNow')}
           </label>
           <label className={`flex items-center gap-3 min-h-11 text-base ${emailEnabled && publish ? 'text-gray-200 cursor-pointer' : 'text-gray-500'}`}>
@@ -312,7 +312,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
               checked={notify && publish && emailEnabled}
               disabled={!emailEnabled || !publish}
               onChange={(e) => setNotify(e.target.checked)}
-              className="h-5 w-5 accent-indigo-500"
+              className="h-5 w-5 accent-green-500"
             />
             {t('notify')}
             {!emailEnabled ? t('notifyNoEmail') : !publish ? t('notifyNeedPublish') : ''}
@@ -325,7 +325,7 @@ export function ResourceForm({ mode, cohorts, userId, initial, emailEnabled = fa
         <button
           type="submit"
           disabled={working}
-          className="inline-flex items-center justify-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold"
+          className="inline-flex items-center justify-center gap-2 min-h-12 px-8 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white text-base font-semibold"
         >
           {working && <Loader2 size={18} className="animate-spin" aria-hidden />}
           {busy === 'uploading' ? t('uploading') : busy === 'saving' ? t('saving') : isEdit ? t('submitSave') : t('submitCreate')}

@@ -34,7 +34,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
         {profile?.role === 'admin' && (
           <Link
             href="/admin/announcements/new"
-            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold"
+            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold"
           >
             <PenLine size={18} aria-hidden /> {t('write')}
           </Link>

@@ -51,7 +51,7 @@ export default async function LibraryPage({
         {profile?.role === 'admin' && (
           <Link
             href="/admin/resources/new"
-            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold"
+            className="inline-flex items-center gap-2 min-h-11 px-4 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold"
           >
             <Upload size={18} aria-hidden /> {t('upload')}
           </Link>
@@ -71,7 +71,7 @@ export default async function LibraryPage({
         <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center space-y-3" data-testid="library-empty">
           <p className="text-base text-gray-300">{hasFilter ? t('noResults') : t('empty')}</p>
           {hasFilter && (
-            <Link href="/library" className="inline-flex items-center min-h-11 text-base text-indigo-300 underline underline-offset-4">
+            <Link href="/library" className="inline-flex items-center min-h-11 text-base text-green-300 underline underline-offset-4">
               {t('clearFilters')}
             </Link>
           )}

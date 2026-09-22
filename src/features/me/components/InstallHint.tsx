@@ -44,7 +44,7 @@ export function InstallHint() {
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3 text-base text-gray-300">
         {mode === 'prompt' ? (
           <>
-            <p className="flex items-start gap-2"><Smartphone size={20} className="mt-0.5 shrink-0 text-indigo-300" aria-hidden /> {t('prompt')}</p>
+            <p className="flex items-start gap-2"><Smartphone size={20} className="mt-0.5 shrink-0 text-green-300" aria-hidden /> {t('prompt')}</p>
             <button
               type="button"
               onClick={async () => {
@@ -54,20 +54,20 @@ export function InstallHint() {
                 setPromptEvent(null)
                 setMode('none')
               }}
-              className="min-h-12 w-full rounded-xl bg-indigo-600 hover:bg-indigo-500 text-base font-semibold text-white"
+              className="min-h-12 w-full rounded-xl bg-green-600 hover:bg-green-500 text-base font-semibold text-white"
             >
               {t('button')}
             </button>
           </>
         ) : mode === 'ios-other-browser' ? (
           <p className="flex items-start gap-2">
-            <Share size={20} className="mt-0.5 shrink-0 text-indigo-300" aria-hidden />
+            <Share size={20} className="mt-0.5 shrink-0 text-green-300" aria-hidden />
             <span>{t.rich('iosOther', { b })}</span>
           </p>
         ) : (
           <ol className="space-y-2">
-            <li className="flex items-start gap-2"><Share size={20} className="mt-0.5 shrink-0 text-indigo-300" aria-hidden /> {t.rich('step1', { b })}</li>
-            <li className="flex items-start gap-2"><SquarePlus size={20} className="mt-0.5 shrink-0 text-indigo-300" aria-hidden /> {t.rich('step2', { b })}</li>
+            <li className="flex items-start gap-2"><Share size={20} className="mt-0.5 shrink-0 text-green-300" aria-hidden /> {t.rich('step1', { b })}</li>
+            <li className="flex items-start gap-2"><SquarePlus size={20} className="mt-0.5 shrink-0 text-green-300" aria-hidden /> {t.rich('step2', { b })}</li>
           </ol>
         )}
       </div>

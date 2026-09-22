@@ -52,7 +52,7 @@ export default async function AnnouncementDetailPage({ params }: { params: { id:
 
       <header className="space-y-2">
         <h1 className="text-2xl font-bold text-white leading-snug break-words">
-          {a.is_pinned && <Pin size={18} className="mr-2 inline -mt-1 text-indigo-300" aria-label={t('pinned')} />}
+          {a.is_pinned && <Pin size={18} className="mr-2 inline -mt-1 text-green-300" aria-label={t('pinned')} />}
           {a.title}
         </h1>
         {published && <p className="text-base text-gray-400">{formatDate(a.published_at as string, locale)}</p>}

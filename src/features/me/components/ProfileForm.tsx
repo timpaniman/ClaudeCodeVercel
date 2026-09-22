@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 import { PROFILE_LIMITS, validateProfile, type ProfileError, type ProfileField, type ProfileInput } from '../profile'
 
 const inputClass =
-  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'
+  'w-full min-h-12 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500'
 
 interface FieldSpec {
   name: ProfileField
@@ -118,7 +118,7 @@ export function ProfileForm({ userId, initial }: { userId: string; initial: Prof
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex items-center justify-center gap-2 min-h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold"
+        className="inline-flex items-center justify-center gap-2 min-h-12 px-8 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white text-base font-semibold"
       >
         {busy && <Loader2 size={18} className="animate-spin" aria-hidden />}
         {t('form.save')}

@@ -19,7 +19,7 @@ export function KpiCard({ label, value, sub, href, highlight }: { label: string;
   const cls = cn(
     'block rounded-2xl border p-4 sm:p-5 transition-colors',
     href && 'hover:bg-white/10',
-    highlight ? 'border-indigo-500/40 bg-indigo-600/10' : 'border-white/10 bg-white/5',
+    highlight ? 'border-green-500/40 bg-green-600/10' : 'border-white/10 bg-white/5',
   )
   const body = (
     <>
@@ -68,7 +68,7 @@ export function CohortBars({ rows }: { rows: CohortUsers[] }) {
             <li key={r.cohortNumber} className="flex items-center gap-3 text-base">
               <span className="w-16 shrink-0 text-gray-300">{tc('cohort', { number: r.cohortNumber })}</span>
               <span className="flex-1 h-3 rounded-full bg-white/10 overflow-hidden" aria-hidden>
-                <span className="block h-full rounded-full bg-indigo-500" style={{ width: `${Math.max(widths[i], r.users > 0 ? 3 : 0)}%` }} />
+                <span className="block h-full rounded-full bg-green-500" style={{ width: `${Math.max(widths[i], r.users > 0 ? 3 : 0)}%` }} />
               </span>
               <span className="w-24 shrink-0 text-right font-semibold text-white">{t('users', { count: r.users })}</span>
             </li>
@@ -103,9 +103,9 @@ export function WeeklyLine({ rows }: { rows: WeekUsers[] }) {
             aria-label={t('aria', { last: last?.users ?? 0, max })}
           >
             <line x1="8" y1={H - 8} x2={W - 8} y2={H - 8} className="stroke-white/15" strokeWidth="1" />
-            <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" className="stroke-indigo-400" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+            <polyline points={pts.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" className="stroke-green-400" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
             {pts.map((p, i) => (
-              <circle key={rows[i].week} cx={p.x} cy={p.y} r={i === pts.length - 1 ? 4 : 2.5} className="fill-indigo-300" />
+              <circle key={rows[i].week} cx={p.x} cy={p.y} r={i === pts.length - 1 ? 4 : 2.5} className="fill-green-300" />
             ))}
           </svg>
           <div className="flex justify-between text-sm text-gray-500">
@@ -129,7 +129,7 @@ export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
     { key: 'other', value: device.other },
   ])
   const mobile = mobilePercent(device)
-  const COLOR: Record<string, string> = { mobile: 'stroke-indigo-400', desktop: 'stroke-sky-400', other: 'stroke-gray-500' }
+  const COLOR: Record<string, string> = { mobile: 'stroke-green-400', desktop: 'stroke-sky-400', other: 'stroke-gray-500' }
   const LABEL: Record<string, string> = { mobile: t('mobile'), desktop: t('desktop'), other: t('other') }
   return (
     <Panel title={t('title')} note={t('note')} testId="chart-device">
@@ -161,7 +161,7 @@ export function DeviceDonut({ device }: { device: AdminStats['device'] }) {
           <ul className="space-y-1.5 text-base">
             {slices.map((s) => (
               <li key={s.key} className="flex items-center gap-2 text-gray-300">
-                <span className={cn('inline-block size-3 rounded-full', s.key === 'mobile' ? 'bg-indigo-400' : s.key === 'desktop' ? 'bg-sky-400' : 'bg-gray-500')} aria-hidden />
+                <span className={cn('inline-block size-3 rounded-full', s.key === 'mobile' ? 'bg-green-400' : s.key === 'desktop' ? 'bg-sky-400' : 'bg-gray-500')} aria-hidden />
                 {LABEL[s.key]} <b className="text-white">{s.percent}%</b>
                 <span className="text-gray-500">{t('times', { count: s.value })}</span>
               </li>

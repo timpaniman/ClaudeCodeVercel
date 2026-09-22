@@ -3,7 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
-const BG = [0x63, 0x66, 0xf1] // #6366f1 (brand)
+const BG = [0x22, 0xc5, 0x5e] // #22c55e (brand)
 const FG = [255, 255, 255]
 const SS = 4 // 한 픽셀을 SS×SS 로 나눠 표본을 잡아 가장자리를 부드럽게 한다
 

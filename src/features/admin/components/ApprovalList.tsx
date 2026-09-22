@@ -106,7 +106,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
               setTab(key)
               setSelected(new Set())
             }}
-            className={cn('min-h-11 px-4 rounded-full text-base font-medium', tab === key ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
+            className={cn('min-h-11 px-4 rounded-full text-base font-medium', tab === key ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10')}
           >
             {label}
           </button>
@@ -123,7 +123,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
         <button
           onClick={bulkApprove}
           disabled={busyId !== null}
-          className="min-h-12 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold"
+          className="min-h-12 px-5 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-base font-semibold"
         >
           {busyId === 'bulk' && <Loader2 size={16} className="inline animate-spin mr-2" />}
           {t('approveSelected', { count: selected.size })}
@@ -145,7 +145,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                     aria-label={t('selectAria', { name: p.name })}
                     checked={selected.has(p.id)}
                     onChange={() => toggle(p.id)}
-                    className="mt-1 h-5 w-5 accent-indigo-500"
+                    className="mt-1 h-5 w-5 accent-green-500"
                   />
                 )}
                 <div className="min-w-0 flex-1">
@@ -178,7 +178,7 @@ export function ApprovalList({ items, cohorts }: { items: ApprovalItem[]; cohort
                 <button
                   onClick={() => act(p.id, 'active')}
                   disabled={busyId !== null}
-                  className="min-h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold"
+                  className="min-h-11 px-5 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-base font-semibold"
                 >
                   {busyId === p.id ? <Loader2 size={16} className="animate-spin" /> : t('approve')}
                 </button>

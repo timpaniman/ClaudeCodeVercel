@@ -59,7 +59,7 @@ export default async function CohortMembersPage({
           maxLength={50}
           aria-label={t('cohortSearchLabel')}
           placeholder={t('placeholder')}
-          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
         />
       </form>
 

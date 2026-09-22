@@ -21,11 +21,11 @@ interface Props {
 const chip = (active: boolean) =>
   cn(
     'inline-flex items-center justify-center gap-1.5 min-h-11 px-4 rounded-full text-base font-medium whitespace-nowrap transition-colors',
-    active ? 'bg-indigo-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10',
+    active ? 'bg-green-600 text-white' : 'bg-white/5 text-gray-300 hover:bg-white/10',
   )
 
 const selectClass =
-  'min-h-11 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white focus:outline-none focus:border-indigo-500'
+  'min-h-11 bg-gray-900 border border-white/15 rounded-xl px-3 text-base text-white focus:outline-none focus:border-green-500'
 
 export function LibraryFilters({ params, cohorts, lockedNumbers }: Props) {
   const t = useTranslations('library')
@@ -70,7 +70,7 @@ export function LibraryFilters({ params, cohorts, lockedNumbers }: Props) {
           placeholder={t('search.placeholder')}
           aria-label={t('search.label')}
           maxLength={100}
-          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
         />
       </div>
 

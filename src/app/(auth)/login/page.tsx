@@ -17,7 +17,7 @@ export default async function LoginPage({
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl mx-auto mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-green-600 flex items-center justify-center font-black text-white text-xl mx-auto mb-4">
             AI
           </div>
           <h1 className="text-2xl font-bold text-white">Kevin Community</h1>

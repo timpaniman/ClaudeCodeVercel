@@ -67,7 +67,7 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
             <li key={r.id} className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
               <div>
                 <Link href={`/announcements/${r.id}`} className="text-base font-semibold text-white hover:underline break-words">
-                  {r.isPinned && <Pin size={14} className="mr-1.5 inline -mt-0.5 text-indigo-300" aria-label={t('pinnedAria')} />}
+                  {r.isPinned && <Pin size={14} className="mr-1.5 inline -mt-0.5 text-green-300" aria-label={t('pinnedAria')} />}
                   {r.title}
                 </Link>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-400">
@@ -94,7 +94,7 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
                       type="button"
                       disabled={busyId !== null}
                       onClick={() => run(r.id, () => supabase().rpc('publish_announcement', { p_id: r.id, p_notify: false }), t('errPublish'))}
-                      className={cn(btn, 'bg-indigo-600 hover:bg-indigo-500 text-white')}
+                      className={cn(btn, 'bg-green-600 hover:bg-green-500 text-white')}
                     >
                       {t('publish')}
                     </button>
@@ -112,7 +112,7 @@ export function AnnouncementAdminList({ rows, emailEnabled = false, initialNotic
                           setNotice(text.notice(res.notification))
                           router.refresh()
                         }}
-                        className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-indigo-500/40 text-indigo-200')}
+                        className={cn(btn, 'bg-white/5 hover:bg-white/10 border border-green-500/40 text-green-200')}
                       >
                         {t('publishNotify')}
                       </button>

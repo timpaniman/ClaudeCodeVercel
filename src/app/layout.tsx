@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#6366f1',
+  themeColor: '#22c55e',
   // 홈 화면 앱에서 하단 탭이 iPhone 홈 인디케이터를 침범하지 않도록 safe-area(env) 값을 쓰기 위해 필요
   viewportFit: 'cover',
 }

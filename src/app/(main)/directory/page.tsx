@@ -46,7 +46,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: { 
           maxLength={50}
           aria-label={t('searchLabel')}
           placeholder={t('placeholder')}
-          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="w-full min-h-12 bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
         />
       </form>
 
@@ -71,7 +71,7 @@ export default async function DirectoryPage({ searchParams }: { searchParams: { 
               ))}
             </ul>
           )}
-          <Link href="/directory" className="inline-flex items-center min-h-11 text-base text-indigo-300 underline underline-offset-4">
+          <Link href="/directory" className="inline-flex items-center min-h-11 text-base text-green-300 underline underline-offset-4">
             {t('browseByCohort')}
           </Link>
         </section>

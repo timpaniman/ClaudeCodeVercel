@@ -51,7 +51,7 @@ export function NavUnreadBadge({ userId, className }: { userId: string; classNam
     <span
       data-testid="unread-badge"
       aria-label={t('unread', { count: label })}
-      className={cn('inline-flex min-w-5 items-center justify-center rounded-full bg-indigo-500 px-1.5 text-xs font-bold leading-5 text-white', className)}
+      className={cn('inline-flex min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-xs font-bold leading-5 text-white', className)}
     >
       {label}
     </span>

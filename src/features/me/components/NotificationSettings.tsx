@@ -51,8 +51,8 @@ export function NotificationSettings({ userId, initial }: { userId: string; init
             disabled={busy !== null}
             onClick={() => toggle(key)}
             className={cn(
-              'relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400',
-              values[key] ? 'bg-indigo-600' : 'bg-white/20',
+              'relative h-8 w-14 shrink-0 rounded-full transition-colors disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400',
+              values[key] ? 'bg-green-600' : 'bg-white/20',
             )}
           >
             <span className={cn('absolute top-1 h-6 w-6 rounded-full bg-white transition-all', values[key] ? 'left-7' : 'left-1')} />

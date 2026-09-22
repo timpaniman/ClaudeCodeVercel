@@ -14,7 +14,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6 text-center">
-        <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl mx-auto">AI</div>
+        <div className="w-14 h-14 rounded-2xl bg-green-600 flex items-center justify-center font-black text-white text-xl mx-auto">AI</div>
         {children}
       </div>
     </div>
@@ -34,7 +34,7 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
         <p className="text-base leading-relaxed text-gray-400">
           {t.rich('doneBody', { scope: t(`scopes.${scope}`), b })}
         </p>
-        <Link href="/me" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold">
+        <Link href="/me" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold">
           {t('openSettings')}
         </Link>
       </Shell>
@@ -50,7 +50,7 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
         <p className="text-base leading-relaxed text-gray-400">
           {t.rich('invalidBody', { b })}
         </p>
-        <Link href="/me" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold">
+        <Link href="/me" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold">
           {t('toProfile')}
         </Link>
       </Shell>
@@ -59,14 +59,14 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
 
   return (
     <Shell>
-      <MailX className="mx-auto text-indigo-300" size={40} aria-hidden />
+      <MailX className="mx-auto text-green-300" size={40} aria-hidden />
       <h1 className="text-2xl font-bold text-white">{t('confirmTitle')}</h1>
       <p className="text-base leading-relaxed text-gray-400">
         {t.rich('confirmBody', { scope: t(`scopes.${payload.s}`), b })}
       </p>
       <form action="/api/unsubscribe" method="post" className="space-y-3">
         <input type="hidden" name="t" value={searchParams.t} />
-        <button type="submit" className="w-full min-h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold" data-testid="unsubscribe-confirm">
+        <button type="submit" className="w-full min-h-12 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold" data-testid="unsubscribe-confirm">
           {t('confirm')}
         </button>
         <Link href="/home" className="flex items-center justify-center min-h-12 text-base text-gray-400 hover:text-white">

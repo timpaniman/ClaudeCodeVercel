@@ -29,12 +29,12 @@ export function AdminNav({ pendingCount }: { pendingCount: number }) {
               aria-current={active ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-2 whitespace-nowrap min-h-12 px-4 text-base font-medium border-b-2 transition-colors',
-                active ? 'border-indigo-500 text-white' : 'border-transparent text-gray-400 hover:text-white',
+                active ? 'border-green-500 text-white' : 'border-transparent text-gray-400 hover:text-white',
               )}
             >
               {t(tab.label)}
               {'badge' in tab && tab.badge && pendingCount > 0 && (
-                <span className="bg-indigo-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">{pendingCount}</span>
+                <span className="bg-green-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">{pendingCount}</span>
               )}
             </Link>
           )

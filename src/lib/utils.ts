@@ -37,7 +37,7 @@ export function formatRelativeTime(date: string | Date, locale: string, now: Dat
 /** 기수 번호에 따른 Tailwind 색상 클래스 */
 export function getCohortColor(cohortNumber: number): string {
   const colors = [
-    'bg-indigo-500',
+    'bg-green-500',
     'bg-violet-500',
     'bg-purple-500',
     'bg-fuchsia-500',

@@ -136,7 +136,7 @@ export function RosterManager({ entries }: { entries: RosterEntry[] }) {
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <h2 className="text-lg font-semibold text-white">{t('csvTitle')}</h2>
-          <a href="/roster-template.csv" download className="inline-flex items-center gap-2 min-h-11 text-sm text-indigo-300 hover:text-indigo-200">
+          <a href="/roster-template.csv" download className="inline-flex items-center gap-2 min-h-11 text-sm text-green-300 hover:text-green-200">
             <Download size={16} /> {t('template')}
           </a>
         </div>
@@ -155,7 +155,7 @@ export function RosterManager({ entries }: { entries: RosterEntry[] }) {
           }}
           className={cn(
             'rounded-2xl border-2 border-dashed p-8 text-center transition-colors',
-            dragging ? 'border-indigo-400 bg-indigo-600/10' : 'border-white/15 bg-white/5',
+            dragging ? 'border-green-400 bg-green-600/10' : 'border-white/15 bg-white/5',
           )}
         >
           <FileUp className="mx-auto mb-3 text-gray-400" size={28} />
@@ -164,7 +164,7 @@ export function RosterManager({ entries }: { entries: RosterEntry[] }) {
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={busy}
-            className="mt-3 min-h-11 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-base font-semibold"
+            className="mt-3 min-h-11 px-5 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-base font-semibold"
           >
             {t('chooseFile')}
           </button>
@@ -277,7 +277,7 @@ export function RosterManager({ entries }: { entries: RosterEntry[] }) {
               type="button"
               onClick={commit}
               disabled={!canCommit}
-              className="min-h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-base font-semibold"
+              className="min-h-12 px-6 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-base font-semibold"
             >
               {t('commit', { count: importable.length })}
             </button>
@@ -307,7 +307,7 @@ export function RosterManager({ entries }: { entries: RosterEntry[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t('searchPlaceholder')}
             aria-label={t('searchAria')}
-            className="min-h-11 w-full sm:w-72 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
+            className="min-h-11 w-full sm:w-72 bg-white/5 border border-white/10 rounded-xl px-4 text-base text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
           />
         </div>
 

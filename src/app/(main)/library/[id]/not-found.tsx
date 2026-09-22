@@ -14,7 +14,7 @@ export default async function ResourceNotFound() {
       <p className="text-base leading-relaxed text-gray-400">
         {t('body')}
       </p>
-      <Link href="/library" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-base font-semibold">
+      <Link href="/library" className="inline-flex items-center justify-center min-h-12 px-6 rounded-xl bg-green-600 hover:bg-green-500 text-white text-base font-semibold">
         {t('back')}
       </Link>
     </div>

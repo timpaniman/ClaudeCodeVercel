@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { ApiCallError, apiErrorKey } from '@/lib/api/clientErrors'
 
 const buttonClass =
-  'inline-flex items-center justify-center gap-2 min-h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 text-white text-base font-semibold transition-colors'
+  'inline-flex items-center justify-center gap-2 min-h-12 px-6 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-60 text-white text-base font-semibold transition-colors'
 
 function post(resourceId: string, mode: 'download' | 'view', keepalive = false) {
   return fetch(`/api/resources/${resourceId}/download`, {
