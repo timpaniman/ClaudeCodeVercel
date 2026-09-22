@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "AI4CEO Alumni Portal",
-  "short_name": "AI4CEO",
-  "description": "Resources and announcements for AI4CEO alumni",
+  "name": "Kevin Community Alumni Portal",
+  "short_name": "Kevin",
+  "description": "Resources and announcements for Kevin Community alumni",
   "lang": "en",
   "start_url": "/home",
   "scope": "/",

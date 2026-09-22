@@ -69,11 +69,11 @@ describe('이메일 본문', () => {
     expect(m.html).toContain('12기 · 강의자료')
     expect(m.text).toContain('https://x.co/library/1')
     expect(m.text).toContain('https://x.co/unsubscribe?t=abc&x=1')
-    expect(m.subject).toBe('[AI4CEO] 새 자료: <script>alert(1)</script> 자료') // 제목 헤더는 텍스트라 이스케이프하지 않는다
+    expect(m.subject).toBe('[Kevin Community] 새 자료: <script>alert(1)</script> 자료') // 제목 헤더는 텍스트라 이스케이프하지 않는다
   })
   test('같은 자료 메일을 영어로: 인사말·부제·제목·버튼·수신 해제가 영어', () => {
     const m = buildResourceEmail({ ...data, locale: 'en' })
-    expect(m.subject).toBe('[AI4CEO] New resource: <script>alert(1)</script> 자료')
+    expect(m.subject).toBe('[Kevin Community] New resource: <script>alert(1)</script> 자료')
     expect(m.html).toContain('Hello, 홍길동.')
     expect(m.html).toContain('Cohort 12 · Lecture')
     expect(m.html).toContain('View in the portal')
@@ -99,10 +99,10 @@ describe('이메일 본문', () => {
   })
   test('공지 메일: 요약문 유무, 두 언어', () => {
     const a = buildAnnouncementEmail({ locale: 'ko', name: '김', title: '공지', excerpt: '요약 <b>', url: 'https://x.co/announcements/1', unsubscribeUrl: 'https://x.co/u' })
-    expect(a.subject).toBe('[AI4CEO] 공지: 공지')
+    expect(a.subject).toBe('[Kevin Community] 공지: 공지')
     expect(a.html).toContain('요약 &lt;b&gt;')
     const en = buildAnnouncementEmail({ locale: 'en', name: '김', title: 'News', excerpt: 'x', url: 'https://x.co/announcements/1', unsubscribeUrl: 'https://x.co/u' })
-    expect(en.subject).toBe('[AI4CEO] Announcement: News')
+    expect(en.subject).toBe('[Kevin Community] Announcement: News')
     expect(en.html).toContain('Read the announcement')
     expect(buildAnnouncementEmail({ locale: 'ko', name: '김', title: '공지', excerpt: '', url: 'u', unsubscribeUrl: 'v' }).html).not.toContain('color:#374151')
   })
@@ -307,7 +307,7 @@ describe('processNotificationJobs', () => {
 
     const m = provider.calls[0][0]
     expect(m.to).toBe('u0@example.com')
-    expect(m.subject).toBe('[AI4CEO] New resource: 자료') // 수신자 언어가 없으면 기본 언어(영어)
+    expect(m.subject).toBe('[Kevin Community] New resource: 자료') // 수신자 언어가 없으면 기본 언어(영어)
     expect(m.html).toContain('https://portal.example.com/library/res-1')
     expect(m.idempotencyKey).toBe(`job-1:${uid(0)}`)
     const unsub = m.headers?.['List-Unsubscribe'] ?? ''

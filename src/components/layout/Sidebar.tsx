@@ -45,7 +45,7 @@ export function Sidebar({ user, userId }: SidebarProps) {
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
         <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-black text-white text-sm">AI</div>
         <div>
-          <div className="font-bold text-white text-base">AI4CEO</div>
+          <div className="font-bold text-white text-base">Kevin Community</div>
           <div className="text-xs text-gray-400">{user?.cohortNumber ? t('common.cohort', { number: user.cohortNumber }) : t('brand.portal')}</div>
         </div>
       </div>

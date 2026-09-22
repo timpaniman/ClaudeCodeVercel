@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "홈 — AI4CEO",
+    "title": "홈 — Kevin Community",
     "greeting": "{name} 대표님, 안녕하세요",
     "searchLabel": "자료 검색",
     "searchPlaceholder": "자료 검색",
@@ -18,7 +18,7 @@
   },
   "library": {
     "title": "자료",
-    "metaTitle": "자료 — AI4CEO",
+    "metaTitle": "자료 — Kevin Community",
     "count": "{count}건",
     "upload": "자료 올리기",
     "loadError": "자료를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",

@@ -20,7 +20,7 @@ export default async function LoginPage({
           <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center font-black text-white text-xl mx-auto mb-4">
             AI
           </div>
-          <h1 className="text-2xl font-bold text-white">AI4CEO</h1>
+          <h1 className="text-2xl font-bold text-white">Kevin Community</h1>
           <p className="text-gray-400 text-base mt-1">{t('brand.portal')}</p>
         </div>
 

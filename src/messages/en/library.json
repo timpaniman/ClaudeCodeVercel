@@ -1,6 +1,6 @@
 {
   "home": {
-    "title": "Home — AI4CEO",
+    "title": "Home — Kevin Community",
     "greeting": "Welcome, {name}",
     "searchLabel": "Search resources",
     "searchPlaceholder": "Search resources",
@@ -18,7 +18,7 @@
   },
   "library": {
     "title": "Library",
-    "metaTitle": "Library — AI4CEO",
+    "metaTitle": "Library — Kevin Community",
     "count": "{count, plural, one {# item} other {# items}}",
     "upload": "Upload a resource",
     "loadError": "We couldn't load the resources. Please try again in a little while.",

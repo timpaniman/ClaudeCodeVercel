@@ -72,7 +72,7 @@ describe('자료 알림', () => {
 
     // 메일 내용: 자료 링크, 본인 소유 수신 해제 토큰
     const m = sent.find((x) => x.to === TEST_USERS.student.email)!
-    expect(m.subject).toBe('[AI4CEO] New resource: RLS 전체 공용 자료') // 수신자 언어 기본값은 영어
+    expect(m.subject).toBe('[Kevin Community] New resource: RLS 전체 공용 자료') // 수신자 언어 기본값은 영어
     expect(m.html).toContain(`https://portal.test/library/${FIXED.resource.common}`)
     const token = m.headers!['List-Unsubscribe'].match(/t=([^>]+)>/)![1]
     expect(verifyUnsubscribeToken(SECRET, token)).toEqual({ u: ids.student, s: 'resource' })
@@ -195,7 +195,7 @@ describe('공지 알림', () => {
     expect(emailsOf(sent)).not.toContain(TEST_USERS.grad.email) // 공지 알림을 끈 회원
     expect(emailsOf(sent)).toEqual(expect.arrayContaining([TEST_USERS.student.email, TEST_USERS.admin.email]))
     const m = sent.find((x) => x.to === TEST_USERS.student.email)!
-    expect(m.subject).toBe('[AI4CEO] Announcement: RLS-notify 공지')
+    expect(m.subject).toBe('[Kevin Community] Announcement: RLS-notify 공지')
     expect(m.html).toContain(`https://portal.test/announcements/${ann!.id}`)
     expect(m.text).toContain('본문 입니다') // 마크다운 기호 제거된 요약
     expect(verifyUnsubscribeToken(SECRET, m.headers!['List-Unsubscribe'].match(/t=([^>]+)>/)![1])?.s).toBe('announcement')

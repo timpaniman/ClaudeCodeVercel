@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: t('description'),
     manifest: '/manifest.json',
     icons: { icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }], apple: '/icons/apple-touch-icon.png' },
-    appleWebApp: { capable: true, title: 'AI4CEO', statusBarStyle: 'black' },
+    appleWebApp: { capable: true, title: 'Kevin Community', statusBarStyle: 'black' },
   }
 }
 

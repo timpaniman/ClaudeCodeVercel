@@ -1,7 +1,7 @@
 {
   "announcements": {
     "title": "Announcements",
-    "metaTitle": "Announcements — AI4CEO",
+    "metaTitle": "Announcements — Kevin Community",
     "write": "Write an announcement",
     "loadError": "We couldn't load the announcements. Please try again in a little while.",
     "retry": "Try again",
@@ -26,7 +26,7 @@
   },
   "directory": {
     "title": "Members",
-    "metaTitle": "Members — AI4CEO",
+    "metaTitle": "Members — Kevin Community",
     "back": "Members",
     "searchLabel": "Search members",
     "cohortSearchLabel": "Search in this cohort",
@@ -43,7 +43,7 @@
     "linksLabel": "{name}'s links"
   },
   "me": {
-    "metaTitle": "My profile — AI4CEO",
+    "metaTitle": "My profile — Kevin Community",
     "profile": "Profile",
     "profileNote": "This is what other alumni can see on the Members screen. Your email is never shown.",
     "notifications": "Email notifications",
@@ -109,7 +109,7 @@
     }
   },
   "unsubscribe": {
-    "metaTitle": "Unsubscribe from notifications — AI4CEO",
+    "metaTitle": "Unsubscribe from notifications — Kevin Community",
     "doneTitle": "You've been unsubscribed",
     "doneBody": "You will no longer receive <b>{scope}</b> emails. You can still see new resources and announcements in the portal, and you can turn notifications back on any time under <b>My profile</b>.",
     "openSettings": "Open notification settings",

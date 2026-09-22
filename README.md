@@ -1,6 +1,6 @@
-# AI4CEO 졸업생 포털
+# Kevin Community 졸업생 포털
 
-AI4CEO(KAIST AI대학원 CEO 과정) 졸업생·재학생을 위한 모바일 우선 웹 포털입니다.
+Kevin Community(KAIST AI대학원 CEO 과정) 졸업생·재학생을 위한 모바일 우선 웹 포털입니다.
 수업 자료 라이브러리, 공지, 멤버 디렉토리, 이메일 알림을 제공합니다.
 
 - **스택**: Next.js 14 (App Router) · TypeScript · Tailwind · Supabase (Auth / Postgres + RLS / Storage) · Resend · Vercel
