@@ -1,9 +1,9 @@
-# AI4CEO Alumni Portal — Design Brief v2 (English UI)
+# Kevin Community Alumni Portal — Design Brief v2 (English UI)
 
 > Use this brief in Claude Design to explore visual improvements. The portal is already built and running; this is a **redesign of specific parts**, not a new product. English is now the default language (Korean is available through a language switch), so all screens below are shown with their English labels.
 
 ## 1. Product in one paragraph
-A private, mobile-first web portal for alumni and current students of the AI4CEO course (KAIST AI Graduate School). About 500 people, mostly **CEOs and executives aged 40–60**, mostly on phones. They sign in with an emailed code (no password), browse **course resources** (PDFs, code, videos, links), read **announcements**, look up **fellow alumni** by cohort, and manage their **profile** and email notification settings. Administrators (the professor and staff) upload resources, post announcements, manage the roster and approve sign-ups.
+A private, mobile-first web portal for alumni and current students of the Kevin Community course (KAIST AI Graduate School). About 500 people, mostly **CEOs and executives aged 40–60**, mostly on phones. They sign in with an emailed code (no password), browse **course resources** (PDFs, code, videos, links), read **announcements**, look up **fellow alumni** by cohort, and manage their **profile** and email notification settings. Administrators (the professor and staff) upload resources, post announcements, manage the roster and approve sign-ups.
 
 ## 2. What must stay the same (constraints)
 - **Mobile first.** Design at 375 px wide first; desktop uses a 240 px left sidebar; mobile uses a 5-tab bottom bar.
@@ -17,7 +17,7 @@ A private, mobile-first web portal for alumni and current students of the AI4CEO
 ## 3. Current design system (starting point)
 | Token | Value |
 |-------|-------|
-| Brand color | Indigo `#6366f1` (hover `#4f46e5`, dark `#4338ca`) |
+| Brand color | Green — solid buttons/logo `#16a34a` (Tailwind green-600), hover `#22c55e` (green-500); focus rings, accents and active-tab underlines also use `#22c55e` |
 | Background | near-black `#030712` (Tailwind gray-950); cards `white/5` with `white/10` borders |
 | Text | white for headings, `gray-200/300` body, `gray-400/500` secondary |
 | Radius | 12 px inputs/buttons, 16 px cards, full-round chips |
